@@ -1,1 +1,2352 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WA MARKETING BD</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #1a1040, #0d1b2a);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+            height: 100vh;
+            max-height: 950px;
+            display: flex;
+            flex-direction: column;
+        }
+        .content { flex: 1; padding: 16px 18px; overflow-y: auto; }
+        .hidden { display: none !important; }
+        
+        .header {
+            padding: 14px 18px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .balance-box {
+            background: rgba(139,92,246,0.15);
+            border: 1px solid rgba(139,92,246,0.2);
+            padding: 6px 16px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            color: #22d3ee;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #fff;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            box-shadow: 0 8px 25px rgba(139,92,246,0.3);
+            margin-top: 10px;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-success { background: linear-gradient(135deg, #10b981, #047857); }
+        .btn-danger { background: linear-gradient(135deg, #f43f5e, #be123c); }
+        .btn-accent { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .btn-glass { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: none; }
+        
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .card h3 { font-size: 15px; margin-bottom: 10px; }
+        .card h3 span { color: #a78bfa; }
+        
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; color: #94a3b8; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: Arial, sans-serif;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #8b5cf6;
+            outline: none;
+            box-shadow: 0 0 30px rgba(139,92,246,0.1);
+        }
+        input::placeholder, textarea::placeholder { color: #64748b; }
+        
+        .nav-bar {
+            display: flex;
+            background: rgba(0,0,0,0.4);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 6px 4px;
+            justify-content: space-around;
+        }
+        .nav-item {
+            flex: 1;
+            padding: 8px 4px;
+            text-align: center;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: 0.3s;
+            background: transparent;
+            border: none;
+        }
+        .nav-item .icon { font-size: 18px; display: block; margin-bottom: 2px; }
+        .nav-item.active {
+            color: #fff;
+            background: rgba(139,92,246,0.15);
+            border: 1px solid rgba(139,92,246,0.15);
+        }
+        
+        .task-item {
+            background: rgba(255,255,255,0.03);
+            padding: 12px 14px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            border-left: 4px solid #8b5cf6;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .task-item .number { font-weight: 700; color: #22d3ee; }
+        .task-item .reward { color: #34d399; font-weight: 700; }
+        
+        .history-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            align-items: center;
+        }
+        .history-item .status-success { color: #34d399; font-weight: 600; }
+        .history-item .status-pending { color: #fbbf24; font-weight: 600; }
+        .history-item .history-icon { font-size: 18px; margin-right: 8px; }
+        .history-item .history-detail { flex: 1; }
+        .history-item .history-amount { font-weight: 700; }
+        
+        .alert {
+            padding: 10px 14px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .alert-error { background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.15); }
+        .alert-success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.15); }
+        .alert-warning { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.15); }
+        .alert-info { background: rgba(6,182,212,0.15); color: #22d3ee; border: 1px solid rgba(6,182,212,0.15); }
+        
+        .referral-badge {
+            background: rgba(245,158,11,0.1);
+            border: 1px solid rgba(245,158,11,0.15);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #fbbf24;
+            display: inline-block;
+        }
+        
+        .drawer {
+            position: absolute;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100%;
+            background: rgba(10,10,26,0.98);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s ease;
+            z-index: 100;
+            padding: 20px;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+        }
+        .drawer.open { left: 0; }
+        .drawer-item {
+            padding: 12px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: 0.3s;
+            font-weight: 600;
+            font-size: 14px;
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 100%;
+            text-align: left;
+        }
+        .drawer-item:hover { background: rgba(139,92,246,0.15); }
+        
+        .auth-logo {
+            font-size: 28px;
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(135deg, #a78bfa, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .auth-sub {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .auth-switch {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #94a3b8;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            width: 100%;
+        }
+        .auth-switch:hover { color: #a78bfa; }
+        
+        .file-area {
+            border: 2px dashed rgba(255,255,255,0.08);
+            padding: 16px;
+            text-align: center;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 10px;
+        }
+        .file-area:hover { border-color: #8b5cf6; background: rgba(139,92,246,0.05); }
+        .file-area input { display: none; }
+        
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 10px; }
+        
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.05);
+            border-top: 3px solid #8b5cf6;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+        
+        @media (max-width: 480px) {
+            .container { max-height: 100vh; border-radius: 0; }
+            .content { padding: 12px 14px; }
+            .header { padding: 10px 14px; }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px;
+            border-radius: 14px;
+            text-align: center;
+        }
+        .stat-card .num { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, #a78bfa, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card .label { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+        
+        .ticker {
+            background: rgba(139,92,246,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 6px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 600;
+            color: #22d3ee;
+        }
+        .ticker marquee { width: 100%; }
+        
+        .notification-slider {
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 8px 0;
+            overflow: hidden;
+            height: 36px;
+            position: relative;
+        }
+        .notification-slider .slide-item {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            font-size: 13px;
+            color: #34d399;
+            font-weight: 600;
+            animation: slideUp 8s infinite;
+            opacity: 0;
+            padding: 0 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .notification-slider .slide-item:nth-child(1) { animation-delay: 0s; }
+        .notification-slider .slide-item:nth-child(2) { animation-delay: 2s; }
+        .notification-slider .slide-item:nth-child(3) { animation-delay: 4s; }
+        .notification-slider .slide-item:nth-child(4) { animation-delay: 6s; }
+        
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(10px); }
+            10% { opacity: 1; transform: translateY(0); }
+            30% { opacity: 1; transform: translateY(0); }
+            40% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-box {
+            background: #1a1040;
+            padding: 30px;
+            border-radius: 24px;
+            max-width: 380px;
+            width: 90%;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-box h3 { font-size: 20px; margin-bottom: 12px; background: linear-gradient(135deg, #a78bfa, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .modal-box .modal-buttons { display: flex; gap: 10px; }
+        .modal-box .modal-buttons .btn { margin-top: 0; flex: 1; }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-overlay .spinner-big {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #8b5cf6;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loading-overlay p { margin-top: 20px; color: #94a3b8; font-size: 14px; }
 
+        .history-filter {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .history-filter button {
+            padding: 5px 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+        }
+        .history-filter button.active {
+            background: rgba(139,92,246,0.2);
+            border-color: #8b5cf6;
+            color: #fff;
+        }
+
+        .admin-user-item {
+            background: rgba(0,0,0,0.15);
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .admin-user-item .user-info { flex: 1; }
+        .admin-user-item .user-name { font-weight: 700; font-size: 13px; }
+        .admin-user-item .user-detail { font-size: 12px; color: #22d3ee; }
+        .admin-user-item .user-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .admin-user-item .user-actions button {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #fff;
+        }
+        .btn-edit { background: #8b5cf6; }
+        .btn-delete { background: #f43f5e; }
+        .btn-block { background: #f59e0b; }
+        
+        .admin-task-item {
+            background: rgba(0,0,0,0.15);
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .admin-task-item .task-info { flex: 1; }
+        .admin-task-item .task-phone { font-weight: 700; font-size: 13px; color: #22d3ee; }
+        .admin-task-item .task-status { font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+        .task-status-active { background: rgba(16,185,129,0.2); color: #34d399; }
+        .task-status-completed { background: rgba(94,94,94,0.2); color: #94a3b8; }
+        .admin-task-item .task-actions { display: flex; gap: 6px; }
+        .admin-task-item .task-actions button {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #fff;
+        }
+        .btn-task-delete { background: #f43f5e; }
+
+        .pending-confirm-box {
+            background: rgba(245,158,11,0.05);
+            border: 1px solid rgba(245,158,11,0.15);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(245,158,11,0.15); }
+            50% { border-color: rgba(245,158,11,0.4); }
+        }
+        .pending-confirm-box .pending-phone {
+            font-weight: 700;
+            color: #22d3ee;
+            font-size: 16px;
+        }
+        .pending-confirm-box .pending-msg {
+            font-size: 13px;
+            color: #94a3b8;
+            margin: 6px 0;
+            padding: 8px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 8px;
+            word-break: break-all;
+        }
+        .pending-confirm-box .pending-label {
+            font-size: 12px;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .wait-timer-box {
+            background: rgba(245,158,11,0.05);
+            border: 1px solid rgba(245,158,11,0.1);
+            border-radius: 14px;
+            padding: 24px;
+            text-align: center;
+        }
+        .wait-timer-box .wait-hours {
+            font-size: 36px;
+            font-weight: 900;
+            color: #22d3ee;
+            margin: 10px 0;
+        }
+
+        .task-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .task-stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .task-stat-card .num {
+            font-size: 18px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a78bfa, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .task-stat-card .label {
+            font-size: 10px;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .task-stat-card.stat-total .num { background: linear-gradient(135deg, #8b5cf6, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .task-stat-card.stat-sent .num { background: linear-gradient(135deg, #34d399, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .task-stat-card.stat-remaining .num { background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner-big"></div>
+    <p>🔄 WA MARKETING BD লোড হচ্ছে...</p>
+</div>
+
+<div class="container" id="app">
+    
+    <!-- AUTH SCREEN -->
+    <div id="authScreen" class="content" style="display:flex;flex-direction:column;justify-content:center;">
+        <div style="max-width:380px;margin:0 auto;width:100%;">
+            <div style="text-align:center;margin-bottom:24px;">
+                <div class="auth-logo">WA MARKETING BD</div>
+                <div class="auth-sub">🚀 প্রফেশনাল মার্কেটিং প্ল্যাটফর্ম</div>
+            </div>
+            <div id="authAlert" class="alert hidden"></div>
+            <div id="registerFields" class="hidden">
+                <div class="form-group"><label>👤 আপনার নাম</label><input type="text" id="regName" placeholder="নাম লিখুন"></div>
+                <div class="form-group"><label>👥 রেফারেল (ঐচ্ছিক)</label><input type="tel" id="regReferral" placeholder="যিনি রেফার করেছেন"></div>
+            </div>
+            <div class="form-group"><label>📱 ফোন নম্বর</label><input type="tel" id="authPhone" placeholder="018XXXXXXXX"></div>
+            <div class="form-group"><label>🔑 পাসওয়ার্ড</label><input type="password" id="authPassword" placeholder="পাসওয়ার্ড দিন"></div>
+            <button class="btn" id="authBtn">🔓 লগইন করুন</button>
+            <button class="auth-switch" id="authSwitchBtn">অ্যাকাউন্ট নেই? <strong>সাইন আপ করুন</strong></button>
+        </div>
+    </div>
+
+    <!-- MAIN SCREEN -->
+    <div id="mainScreen" class="hidden" style="display:flex;flex-direction:column;height:100%;">
+        <div class="notification-slider" id="notificationSlider">
+            <div class="slide-item">🟢 রহিম ২০০ টাকা উত্তোলন করেছে</div>
+            <div class="slide-item">🟢 করিম ৫০০ টাকা উত্তোলন করেছে</div>
+            <div class="slide-item">🟢 সুমন ৩৫০ টাকা উত্তোলন করেছে</div>
+            <div class="slide-item">🟢 রিনা ১০০০ টাকা উত্তোলন করেছে</div>
+        </div>
+        
+        <div class="ticker"><marquee id="userNoticeMarquee">🚀 WA MARKETING BD - প্রফেশনাল প্ল্যাটফর্ম</marquee></div>
+        <div class="header">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#22d3ee);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">👤</div>
+                <div>
+                    <div style="font-weight:700;font-size:14px;" id="userNameDisplay">ইউজার</div>
+                    <div style="font-size:10px;color:#22d3ee;font-weight:600;" id="userTypeBadge">🔹 ফ্রি</div>
+                </div>
+            </div>
+            <div class="balance-box">৳ <span id="userBalance">0</span></div>
+        </div>
+        <div class="content">
+            <!-- TASKS -->
+            <div id="tab-tasks" class="tab-content">
+                <div class="card">
+                    <h3>📢 <span>মার্কেটিং টাস্ক</span></h3>
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                        <span style="font-size:13px;color:#94a3b8;">আজ: <strong id="taskCount" style="color:#22d3ee;">0</strong></span>
+                        <span class="referral-badge">👥 রেফারেল: ৳ <span id="referralEarnings">0</span></span>
+                    </div>
+                </div>
+                
+                <div id="pendingConfirmBox" class="hidden pending-confirm-box">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="pending-label">⏳ পেন্ডিং কনফার্মেশন</span>
+                        <span class="task-status-pending">অপেক্ষমান</span>
+                    </div>
+                    <div class="pending-phone" id="pendingPhoneDisplay">📱 018XXXXXXXX</div>
+                    <div class="pending-msg" id="pendingMsgDisplay">মেসেজ লোড হচ্ছে...</div>
+                    <div style="display:flex;gap:10px;margin-top:10px;">
+                        <button class="btn btn-success" id="pendingConfirmBtn" style="margin:0;flex:1;padding:12px;font-size:13px;">✅ হ্যাঁ, মেসেজ পাঠিয়েছি</button>
+                        <button class="btn btn-danger" id="pendingCancelBtn" style="margin:0;flex:1;padding:12px;font-size:13px;">❌ বাতিল</button>
+                    </div>
+                </div>
+                
+                <div id="taskListContainer"></div>
+            </div>
+
+            <div id="tab-confirm" class="tab-content hidden">
+                <div class="card">
+                    <h3>✅ <span>মেসেজ কনফার্মেশন</span></h3>
+                    <p style="color:#94a3b8;font-size:13px;">⚠️ এই ট্যাবটি আর ব্যবহার করা হয় না। টাস্ক পেজ থেকে কনফার্ম করুন।</p>
+                    <button class="btn btn-accent" onclick="switchTab('tasks', document.querySelector('#navTasks'))">📢 টাস্ক পেজে যান</button>
+                </div>
+            </div>
+
+            <div id="tab-p2p" class="tab-content hidden">
+                <div class="card">
+                    <h3>🔄 <span>P2P ট্রান্সফার</span></h3>
+                    <p id="p2pLimitTxt" style="font-size:12px;color:#94a3b8;">ন্যূনতম: ৳ ৫০</p>
+                    <div class="form-group"><label>📱 প্রাপকের নম্বর</label><input type="tel" id="p2pPhone" placeholder="017XXXXXXXX"></div>
+                    <div class="form-group"><label>💰 পরিমাণ</label><input type="number" id="p2pAmount" placeholder="টাকার পরিমাণ"></div>
+                    <button class="btn btn-accent" id="p2pSendBtn">💸 পাঠান</button>
+                </div>
+            </div>
+
+            <div id="tab-wallet" class="tab-content hidden">
+                <div class="card">
+                    <h3>💳 <span>উত্তোলন</span></h3>
+                    <p id="withdrawLimitInfo" style="font-size:12px;color:#94a3b8;">ন্যূনতম: ৳ ১০০</p>
+                    
+                    <div id="withdrawForm">
+                        <div class="form-group">
+                            <label>পেমেন্ট মাধ্যম</label>
+                            <select id="withdrawMethod">
+                                <option value="bKash">বিকাশ (bKash)</option>
+                                <option value="Nagad">নগদ (Nagad)</option>
+                                <option value="Flexiload">মোবাইল ফ্লেক্সিলোড</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label id="accountNumberLabel">অ্যাকাউন্ট নম্বর</label><input type="tel" id="withdrawAccountNum" placeholder="017XXXXXXXX"></div>
+                        <div class="form-group"><label>💰 পরিমাণ</label><input type="number" id="withdrawAmount" placeholder="টাকার পরিমাণ"></div>
+                        <button class="btn btn-success" id="withdrawBtn">📤 রিকোয়েস্ট</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-support" class="tab-content hidden">
+                <div class="card">
+                    <h3>📋 <span>নিয়মাবলি</span></h3>
+                    <div id="userRulesContent" style="font-size:13px;color:#94a3b8;background:rgba(0,0,0,0.15);padding:12px;border-radius:12px;line-height:1.8;border:1px solid rgba(255,255,255,0.05);">নিয়ম লোড হচ্ছে...</div>
+                    <h3 style="font-size:15px;margin-top:14px;">🔗 <span>সাপোর্ট লিংক</span></h3>
+                    <div id="supportLinksContainer"></div>
+                </div>
+            </div>
+
+            <div id="tab-history" class="tab-content hidden">
+                <div class="card">
+                    <h3>📜 <span>হিস্টরি</span></h3>
+                    <div class="history-filter">
+                        <button class="active" data-filter="all">সব</button>
+                        <button data-filter="task">📱 টাস্ক</button>
+                        <button data-filter="referral">👥 রেফারেল</button>
+                        <button data-filter="p2p">🔄 P2P</button>
+                        <button data-filter="withdraw">💳 উত্তোলন</button>
+                    </div>
+                    <div id="historyListContainer" style="max-height:320px;overflow-y:auto;">
+                        <p style="text-align:center;color:#94a3b8;padding:20px;font-size:13px;">কোনো হিস্টরি নেই</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <button class="nav-item active" id="navTasks"><span class="icon">📢</span>টাস্ক</button>
+            <button class="nav-item" id="navP2P"><span class="icon">🔄</span>P2P</button>
+            <button class="nav-item" id="navWallet"><span class="icon">💳</span>ওয়ালেট</button>
+            <button class="nav-item" id="navSupport"><span class="icon">📋</span>সাপোর্ট</button>
+            <button class="nav-item" id="navHistory"><span class="icon">📜</span>হিস্টরি</button>
+            <button class="nav-item" id="navLogout" style="color:#f43f5e;"><span class="icon">🚪</span>লগআউট</button>
+        </div>
+    </div>
+
+    <!-- ADMIN SCREEN -->
+    <div id="adminScreen" class="hidden" style="display:flex;flex-direction:column;height:100%;position:relative;">
+        <div class="drawer" id="adminDrawer">
+            <h3 style="margin-bottom:20px;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">⚙️ অ্যাডমিন</h3>
+            <button class="drawer-item" id="adminDashboard">📊 ড্যাশবোর্ড</button>
+            <button class="drawer-item" id="adminUsers">👥 ইউজার</button>
+            <button class="drawer-item" id="adminTasksTab">📢 টাস্ক</button>
+            <button class="drawer-item" id="adminWithdrawals">💳 উইথড্র</button>
+            <button class="drawer-item" id="adminScreenshots">🖼️ ক্লিনার</button>
+            <button class="drawer-item" id="adminSettings">⚙️ সেটিংস</button>
+            <button class="drawer-item" id="adminLogout" style="color:#f43f5e;">🚪 লগআউট</button>
+        </div>
+
+        <div class="header">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <button id="adminDrawerToggle" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:6px 12px;color:#fff;font-size:18px;cursor:pointer;">☰</button>
+                <h2>🛡️ অ্যাডমিন</h2>
+            </div>
+            <span style="font-size:10px;color:#22d3ee;font-weight:700;padding:4px 12px;border:1px solid rgba(6,182,212,0.2);border-radius:20px;background:rgba(6,182,212,0.05);">PRO</span>
+        </div>
+
+        <div class="content">
+            <div id="admin-tab-dashboard" class="admin-tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="num" id="admTotalMembers">0</div><div class="label">👥 মেম্বার</div></div>
+                    <div class="stat-card"><div class="num" id="admActiveWorkers">0</div><div class="label">⚡ কাজ</div></div>
+                    <div class="stat-card"><div class="num" id="admPendingWithdrawCount">0</div><div class="label">⏳ পেন্ডিং</div></div>
+                    <div class="stat-card"><div class="num" id="admTotalPaidAmount">0</div><div class="label">💰 পেমেন্ট</div></div>
+                </div>
+                <div class="card"><h3>📊 <span>সিস্টেম স্ট্যাটাস</span></h3><p style="font-size:13px;color:#94a3b8;">✅ সিস্টেম সচল</p></div>
+            </div>
+
+            <div id="admin-tab-users" class="admin-tab-content hidden">
+                <div class="card">
+                    <h3>👥 <span>ইউজার ম্যানেজমেন্ট</span></h3>
+                    <div class="form-group"><input type="text" id="adminUserSearchBox" placeholder="🔍 সার্চ করুন..."></div>
+                    <div id="adminFullUserListContainer" style="max-height:300px;overflow-y:auto;"></div>
+                </div>
+                <div id="adminUserEditCard" class="card hidden" style="border-color:#8b5cf6;">
+                    <h3>✏️ <span>এডিট: <span id="editUserPhoneTitle"></span></span></h3>
+                    <div class="form-group"><label>নাম</label><input type="text" id="editUserName"></div>
+                    <div class="form-group"><label>ব্যালেন্স (৳)</label><input type="number" id="editUserBalance"></div>
+                    <div class="form-group">
+                        <label>টাইপ</label>
+                        <select id="editUserType">
+                            <option value="false">🔹 ফ্রি</option>
+                            <option value="true">⭐ প্রিমিয়াম</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn btn-success" style="margin:0;flex:1;" id="editUserSave">💾 আপডেট</button>
+                        <button class="btn btn-danger" style="margin:0;flex:1;" id="editUserBlock">🚫 ব্লক</button>
+                        <button class="btn btn-danger" style="margin:0;flex:1;" id="editUserDelete">🗑️ ডিলিট</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-tab-tasks-admin" class="admin-tab-content hidden">
+                <div class="card" style="border-color:#8b5cf6;">
+                    <h3>📢 <span>টাস্ক ম্যানেজমেন্ট</span></h3>
+                    
+                    <div class="task-stats-grid">
+                        <div class="task-stat-card stat-total">
+                            <div class="num" id="adminTotalTasks">0</div>
+                            <div class="label">📋 মোট টাস্ক</div>
+                        </div>
+                        <div class="task-stat-card stat-sent">
+                            <div class="num" id="adminSentTasks">0</div>
+                            <div class="label">✅ পাঠানো হয়েছে</div>
+                        </div>
+                        <div class="task-stat-card stat-remaining">
+                            <div class="num" id="adminRemainingTasks">0</div>
+                            <div class="label">⏳ বাকি আছে</div>
+                        </div>
+                    </div>
+                    
+                    <div class="file-area" id="fileArea">
+                        <div style="font-size:28px;">📁</div>
+                        <p style="font-size:13px;color:#94a3b8;">এক্সেল/টেক্সট ফাইল আপলোড</p>
+                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.txt">
+                    </div>
+                    <div class="form-group"><label>📱 নম্বরসমূহ</label><textarea id="adminTaskNumbers" rows="4" placeholder="একটা নিচে একটা অথবা কমা দিয়ে"></textarea></div>
+                    <div class="form-group"><label>📝 মেসেজ</label><textarea id="adminTaskMessage" rows="3" placeholder="প্রমোশনাল মেসেজ লিখুন"></textarea></div>
+                    <div class="form-group">
+                        <label>💰 রেট (ফ্রি / প্রিমিয়াম)</label>
+                        <div style="display:flex;gap:10px;">
+                            <input type="number" id="adminFreePrice" value="1" placeholder="ফ্রি">
+                            <input type="number" id="adminPremPrice" value="3" placeholder="প্রিমিয়াম">
+                        </div>
+                    </div>
+                    <div id="taskProgress" class="hidden">
+                        <div class="progress-track"><div class="progress-fill" id="taskProgressBar"></div></div>
+                        <p id="taskProgressText" style="font-size:12px;color:#94a3b8;text-align:center;">প্রক্রিয়াধীন...</p>
+                    </div>
+                    <button class="btn btn-accent" id="pubTaskBtn">📤 পাবলিশ</button>
+                </div>
+                <div class="card">
+                    <h3>📋 <span>সকল টাস্ক</span></h3>
+                    <div style="display:flex;gap:10px;margin-bottom:10px;">
+                        <button class="btn btn-danger" id="deleteAllTasksBtn" style="padding:8px;font-size:12px;margin:0;flex:1;">🗑️ সব ডিলিট</button>
+                        <button class="btn btn-accent" id="refreshTaskStatsBtn" style="padding:8px;font-size:12px;margin:0;flex:1;">🔄 রিফ্রেশ</button>
+                    </div>
+                    <div id="adminTaskListContainer" style="max-height:300px;overflow-y:auto;"></div>
+                </div>
+            </div>
+
+            <div id="admin-tab-withdrawals" class="admin-tab-content hidden">
+                <div class="card"><h3>💳 <span>পেন্ডিং রিকোয়েস্ট</span></h3><div id="adminWithdrawList"><p style="text-align:center;color:#94a3b8;padding:20px;font-size:13px;">কোনো পেন্ডিং নেই</p></div></div>
+            </div>
+
+            <div id="admin-tab-screenshots" class="admin-tab-content hidden">
+                <div class="card">
+                    <h3>🖼️ <span>ডেটা ক্লিনআপ</span></h3>
+                    <p style="font-size:13px;color:#94a3b8;">পুরনো ডেটা ডিলিট করুন</p>
+                    <div class="form-group">
+                        <label>সময়</label>
+                        <select id="cleanupDuration">
+                            <option value="12">১২ ঘণ্টা</option>
+                            <option value="24" selected>২৪ ঘণ্টা</option>
+                            <option value="48">৪৮ ঘণ্টা</option>
+                            <option value="168">৭ দিন</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-danger" id="cleanupBtn">🗑️ ডিলিট</button>
+                </div>
+            </div>
+
+            <div id="admin-tab-settings" class="admin-tab-content hidden">
+                <div class="card">
+                    <h3>⚙️ <span>গ্লোবাল সেটিংস</span></h3>
+                    <div class="form-group"><label>📢 নোটিশ</label><input type="text" id="adminNoticeText"></div>
+                    <div class="form-group">
+                        <label>🔒 মেইনটেনেন্স</label>
+                        <select id="adminMaintenanceToggle">
+                            <option value="false">✅ সচল</option>
+                            <option value="true">🔒 লকড</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>📊 ডেইলি লিমিট</label>
+                        <div style="display:flex;gap:10px;">
+                            <input type="number" id="adminFreeLimit" placeholder="ফ্রি লিমিট" value="10">
+                            <input type="number" id="adminPremLimit" placeholder="প্রিমিয়াম লিমিট" value="50">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>💰 আপগ্রেড ফি (ডিফল্ট)</label>
+                        <input type="number" id="adminUpgradeFee" placeholder="আপগ্রেড ফি" value="200">
+                    </div>
+                    <div class="form-group">
+                        <label>💰 ন্যূনতম উত্তোলন</label>
+                        <div style="display:flex;gap:10px;">
+                            <input type="number" id="adminFreeMinW" placeholder="ফ্রি" value="100">
+                            <input type="number" id="adminPremMinW" placeholder="প্রিমিয়াম" value="1000">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>💰 ন্যূনতম P2P / ফ্লেক্সি</label>
+                        <div style="display:flex;gap:10px;">
+                            <input type="number" id="adminP2PMin" placeholder="P2P" value="50">
+                            <input type="number" id="adminFlexiMin" placeholder="Flexi" value="20">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>👥 রেফারেল কমিশন (%)</label>
+                        <input type="number" id="adminReferralPercent" placeholder="10" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label>⏰ কাজ রিফ্রেশ সময় (ঘন্টায়)</label>
+                        <input type="number" id="adminRefreshHours" placeholder="২৪" value="24">
+                        <p style="font-size:11px;color:#64748b;margin-top:4px;">💡 ২৪ = প্রতিদিন ১ বার | ১২ = দিনে ২ বার | ৬ = দিনে ৪ বার</p>
+                    </div>
+                    <div class="form-group"><label>📋 নিয়মাবলি</label><textarea id="adminRulesText" rows="2"></textarea></div>
+                    <div class="form-group"><label>🔗 সাপোর্ট লিংক</label><textarea id="adminSupportLinks" rows="3"></textarea></div>
+                    <button class="btn btn-success" id="settingsSaveBtn">💾 সেভ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirmModal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <h3 id="confirmTitle">🔔 নিশ্চিত করুন</h3>
+        <p id="confirmMessage" style="font-size:14px;color:#94a3b8;margin-bottom:16px;">আপনি কি নিশ্চিত?</p>
+        <div class="modal-buttons">
+            <button class="btn btn-success" id="confirmYesBtn">✅ হ্যাঁ</button>
+            <button class="btn btn-danger" id="confirmNoBtn">❌ না</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// WA MARKETING BD - UPGRADE REMOVED (ONLY UPGRADE REMOVED)
+// EVERYTHING ELSE IS EXACTLY AS BEFORE
+// ============================================================
+
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyAOke8geJY2iY7CZIxLuEFvbFEklSH6uqU",
+    authDomain: "wasenderbd-6d46c.firebaseapp.com",
+    projectId: "wasenderbd-6d46c",
+    storageBucket: "wasenderbd-6d46c.firebasestorage.app",
+    messagingSenderId: "296268852516",
+    appId: "1:296268852516:web:81df8d0b44d30c60c3d7b1"
+};
+
+// Wait for Firebase
+function waitForFirebase(callback) {
+    if (typeof firebase !== 'undefined' && firebase.app) {
+        callback();
+        return;
+    }
+    setTimeout(function() { waitForFirebase(callback); }, 500);
+}
+
+waitForFirebase(function() {
+    firebase.initializeApp(firebaseConfig);
+    console.log('✅ Firebase initialized!');
+    document.getElementById('loadingOverlay').style.display = 'none';
+    startApp();
+});
+
+// ====== CONFIRMATION DIALOG ======
+let confirmResolve = null;
+function showConfirm(title, message) {
+    return new Promise((resolve) => {
+        confirmResolve = resolve;
+        document.getElementById('confirmTitle').innerText = title || '🔔 নিশ্চিত করুন';
+        document.getElementById('confirmMessage').innerText = message || 'আপনি কি নিশ্চিত?';
+        document.getElementById('confirmModal').classList.remove('hidden');
+    });
+}
+document.getElementById('confirmYesBtn').addEventListener('click', function() {
+    document.getElementById('confirmModal').classList.add('hidden');
+    if (confirmResolve) { confirmResolve(true); confirmResolve = null; }
+});
+document.getElementById('confirmNoBtn').addEventListener('click', function() {
+    document.getElementById('confirmModal').classList.add('hidden');
+    if (confirmResolve) { confirmResolve(false); confirmResolve = null; }
+});
+
+// ====== GLOBALS ======
+const ADMIN_PHONE = "01866989184";
+const ADMIN_PASSWORD = "Mrinal@1271";
+let currentUser = null;
+let isRegisterMode = false;
+let activeTask = null;
+let timerInterval = null;
+let allUsersCache = [];
+let allTasksCache = [];
+let editingSelectedPhone = null;
+let historyFilter = 'all';
+let settingsUnsubscribe = null;
+let pendingConfirmUnsubscribe = null;
+let historyUnsubscribe = null;
+
+// ====== SETTINGS ======
+let appSettings = {
+    freeDailyLimit: 10,
+    premiumDailyLimit: 50,
+    upgradeFee: 200,
+    freeUserMinWithdraw: 100,
+    premiumUserMinWithdraw: 1000,
+    p2pMin: 50,
+    flexiMin: 20,
+    referralPercent: 10,
+    refreshHours: 24,
+    noticeText: "🚀 WA MARKETING BD - প্রফেশনাল প্ল্যাটফর্ম",
+    rules: "১. হোয়াটসঅ্যাপে নির্দিষ্ট মেসেজ পাঠান\n২. কনফার্ম বাটনে ক্লিক করুন\n৩. সঠিকভাবে কাজ সম্পন্ন করুন",
+    support: "YouTube: https://youtube.com, Telegram: https://t.me/example"
+};
+
+// ====== NOTIFICATION SLIDER DATA ======
+const userNames = [
+    'রহিম', 'করিম', 'সুমন', 'রিনা', 'জাকির', 'নাজমা', 'রুবেল', 'সালমা',
+    'মিনহাজ', 'তানিয়া', 'রনি', 'লিমা', 'শুভ', 'পপি', 'রাজ', 'মিম',
+    'হাসান', 'সাব্বির', 'নাদিয়া', 'ইমন', 'স্নিগ্ধা', 'রাফি', 'পার্থ', 'রিয়া',
+    'শাওন', 'ময়না', 'আকাশ', 'মেঘলা', 'অর্ণব', 'প্রিয়া', 'সজল', 'রুমা',
+    'তৌহিদ', 'সুমাইয়া', 'রাকিব', 'নুসরাত', 'মাসুম', 'রোজী', 'ইফতেখার', 'লিজা'
+];
+
+function generateRandomAmount() {
+    const amounts = [200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000];
+    return amounts[Math.floor(Math.random() * amounts.length)];
+}
+
+function generateNotificationItems(count = 4) {
+    const items = [];
+    const usedNames = [];
+    for (let i = 0; i < count; i++) {
+        let name;
+        do {
+            name = userNames[Math.floor(Math.random() * userNames.length)];
+        } while (usedNames.includes(name));
+        usedNames.push(name);
+        const amount = generateRandomAmount();
+        items.push({ name, amount });
+    }
+    return items;
+}
+
+function updateNotificationSlider() {
+    const slider = document.getElementById('notificationSlider');
+    const items = generateNotificationItems(4);
+    slider.innerHTML = items.map(item => 
+        `<div class="slide-item">🟢 ${item.name} ৳${item.amount} উত্তোলন করেছে</div>`
+    ).join('');
+}
+
+// ====== SHOW ALERT ======
+function showAlert(id, message, type) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerText = message;
+    el.className = 'alert alert-' + (type || 'error');
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 5000);
+}
+
+// ====== SWITCH TABS ======
+function switchTab(tabName, element) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    const tab = document.getElementById('tab-' + tabName);
+    if (tab) tab.classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    if (element) element.classList.add('active');
+}
+
+// ====== FORMAT PHONE NUMBER ======
+function formatPhoneForWhatsApp(phone) {
+    let clean = phone.replace(/[^0-9]/g, '');
+    if (clean.startsWith('0')) {
+        clean = clean.substring(1);
+    }
+    if (!clean.startsWith('88')) {
+        clean = '88' + clean;
+    }
+    return clean;
+}
+
+// ====== LOAD SETTINGS ======
+function loadSettings() {
+    const db = firebase.firestore();
+    if (settingsUnsubscribe) settingsUnsubscribe();
+    
+    settingsUnsubscribe = db.collection('settings').doc('global').onSnapshot((snap) => {
+        if (snap.exists) {
+            const data = snap.data();
+            appSettings = { ...appSettings, ...data };
+            
+            document.getElementById('userNoticeMarquee').innerText = data.noticeText || appSettings.noticeText;
+            document.getElementById('userRulesContent').innerText = data.rules || appSettings.rules;
+            renderSupportLinks(data.support || appSettings.support);
+            
+            document.getElementById('adminFreeLimit').value = data.freeDailyLimit || 10;
+            document.getElementById('adminPremLimit').value = data.premiumDailyLimit || 50;
+            document.getElementById('adminUpgradeFee').value = data.upgradeFee || 200;
+            document.getElementById('adminFreeMinW').value = data.freeUserMinWithdraw || 100;
+            document.getElementById('adminPremMinW').value = data.premiumUserMinWithdraw || 1000;
+            document.getElementById('adminP2PMin').value = data.p2pMin || 50;
+            document.getElementById('adminFlexiMin').value = data.flexiMin || 20;
+            document.getElementById('adminReferralPercent').value = data.referralPercent || 10;
+            document.getElementById('adminRefreshHours').value = data.refreshHours || 24;
+            document.getElementById('adminNoticeText').value = data.noticeText || '';
+            document.getElementById('adminRulesText').value = data.rules || '';
+            document.getElementById('adminSupportLinks').value = data.support || '';
+            
+            if (currentUser && !currentUser.isAdmin) {
+                document.getElementById('p2pLimitTxt').innerText = 'ন্যূনতম: ৳ ' + (data.p2pMin || 50);
+                if (currentUser.isPremium) {
+                    document.getElementById('withdrawLimitInfo').innerText = 'ন্যূনতম: ৳ ' + (data.premiumUserMinWithdraw || 1000);
+                } else {
+                    document.getElementById('withdrawLimitInfo').innerText = 'ন্যূনতম: ৳ ' + (data.freeUserMinWithdraw || 100);
+                }
+            }
+            
+            if (currentUser && currentUser.isAdmin) {
+                loadTaskStats();
+            }
+        }
+    }, (error) => {
+        console.error('Settings listener error:', error);
+    });
+}
+
+function renderSupportLinks(support) {
+    const box = document.getElementById('supportLinksContainer');
+    box.innerHTML = '';
+    const lines = (support || '').split(/[\n,]+/);
+    lines.forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed) {
+            const parts = trimmed.split(':');
+            const title = parts.length > 1 ? parts[0] : 'লিংক';
+            const url = parts.length > 1 ? parts.slice(1).join(':').trim() : trimmed;
+            const a = document.createElement('a');
+            a.href = url.includes('http') ? url : 'https://' + url;
+            a.target = '_blank';
+            a.innerText = '🔗 ' + title;
+            a.style.cssText = 'color:#22d3ee;font-size:13px;text-decoration:none;padding:10px 14px;background:rgba(0,0,0,0.15);border-radius:12px;display:block;border:1px solid rgba(255,255,255,0.05);font-weight:600;margin-bottom:6px;';
+            box.appendChild(a);
+        }
+    });
+    if (box.children.length === 0) {
+        box.innerHTML = '<p style="font-size:13px;color:#94a3b8;text-align:center;">কোনো লিংক নেই</p>';
+    }
+}
+
+// ====== AUTH ======
+document.getElementById('authSwitchBtn').addEventListener('click', function() {
+    isRegisterMode = !isRegisterMode;
+    const reg = document.getElementById('registerFields');
+    const btn = document.getElementById('authBtn');
+    const sw = document.getElementById('authSwitchBtn');
+    if (isRegisterMode) {
+        reg.classList.remove('hidden');
+        btn.innerText = '📝 সাইন আপ করুন';
+        sw.innerHTML = 'ইতিমধ্যে অ্যাকাউন্ট আছে? <strong>লগইন করুন</strong>';
+    } else {
+        reg.classList.add('hidden');
+        btn.innerText = '🔓 লগইন করুন';
+        sw.innerHTML = 'অ্যাকাউন্ট নেই? <strong>সাইন আপ করুন</strong>';
+    }
+});
+
+document.getElementById('authBtn').addEventListener('click', function() {
+    const phone = document.getElementById('authPhone').value.trim();
+    const password = document.getElementById('authPassword').value.trim();
+    const name = document.getElementById('regName').value.trim();
+    const referredBy = document.getElementById('regReferral') ? document.getElementById('regReferral').value.trim() : '';
+
+    if (!phone || !password || (isRegisterMode && !name)) {
+        showAlert('authAlert', 'সব তথ্য পূরণ করুন');
+        return;
+    }
+
+    const db = firebase.firestore();
+
+    if (phone === ADMIN_PHONE && password === ADMIN_PASSWORD && !isRegisterMode) {
+        currentUser = { phone, name: 'Admin Pro', balance: 0, isPremium: true, isAdmin: true };
+        localStorage.setItem('waUser', JSON.stringify(currentUser));
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('adminScreen').classList.remove('hidden');
+        loadAdminDashboard();
+        loadAdminUsers();
+        loadAdminTasks();
+        loadAdminWithdrawals();
+        loadTaskStats();
+        showAlert('authAlert', '✅ অ্যাডমিন লগইন সফল!', 'success');
+        return;
+    }
+
+    if (phone === ADMIN_PHONE && !isRegisterMode) {
+        showAlert('authAlert', '❌ ভুল পাসওয়ার্ড!');
+        return;
+    }
+
+    if (isRegisterMode) {
+        db.collection('users').doc(phone).get().then((snap) => {
+            if (snap.exists) {
+                showAlert('authAlert', 'এই নম্বরে অ্যাকাউন্ট আছে');
+                return;
+            }
+            const newUser = {
+                name: name,
+                password: password,
+                balance: 0,
+                isPremium: false,
+                messagesSentToday: 0,
+                referralEarnings: 0,
+                referredBy: referredBy || '',
+                blocked: false,
+                lastTaskDate: firebase.firestore.FieldValue.serverTimestamp(),
+                lastTaskTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            return db.collection('users').doc(phone).set(newUser).then(() => {
+                currentUser = newUser;
+                currentUser.phone = phone;
+                localStorage.setItem('waUser', JSON.stringify(currentUser));
+                showAlert('authAlert', '✅ অ্যাকাউন্ট তৈরি হয়েছে!', 'success');
+                showMainScreen();
+            });
+        }).catch((e) => {
+            showAlert('authAlert', 'এরর: ' + e.message);
+        });
+    } else {
+        db.collection('users').doc(phone).get().then((snap) => {
+            if (!snap.exists) {
+                showAlert('authAlert', 'অ্যাকাউন্ট পাওয়া যায়নি');
+                return;
+            }
+            const data = snap.data();
+            if (data.blocked) {
+                showAlert('authAlert', '🚫 অ্যাকাউন্ট ব্লক');
+                return;
+            }
+            if (data.password !== password) {
+                showAlert('authAlert', '❌ ভুল পাসওয়ার্ড');
+                return;
+            }
+            currentUser = data;
+            currentUser.phone = phone;
+            localStorage.setItem('waUser', JSON.stringify(currentUser));
+            showMainScreen();
+        }).catch((e) => {
+            showAlert('authAlert', 'এরর: ' + e.message);
+        });
+    }
+});
+
+function showMainScreen() {
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('mainScreen').classList.remove('hidden');
+    document.getElementById('userNameDisplay').innerText = currentUser.name || 'ইউজার';
+    document.getElementById('userBalance').innerText = currentUser.balance || 0;
+    document.getElementById('taskCount').innerText = currentUser.messagesSentToday || 0;
+    
+    updateNotificationSlider();
+    
+    if (currentUser.isPremium) {
+        document.getElementById('userTypeBadge').innerText = '⭐ প্রিমিয়াম';
+    } else {
+        document.getElementById('userTypeBadge').innerText = '🔹 ফ্রি';
+    }
+    
+    loadSettings();
+    loadUserTasks();
+    loadUserHistory();
+    loadReferralEarnings();
+    checkPendingConfirmations();
+    
+    setInterval(updateNotificationSlider, 30000);
+}
+
+// ====== CHECK USER TASK LIMIT ======
+function checkUserTaskLimit() {
+    return new Promise((resolve, reject) => {
+        const db = firebase.firestore();
+        const today = new Date().toDateString();
+        
+        db.collection('users').doc(currentUser.phone).get().then((snap) => {
+            if (!snap.exists) {
+                resolve({ allowed: false, reason: 'ইউজার নেই' });
+                return;
+            }
+            
+            const data = snap.data();
+            const limit = currentUser.isPremium ? 
+                (appSettings.premiumDailyLimit || 50) : 
+                (appSettings.freeDailyLimit || 10);
+            
+            const lastDate = data.lastTaskDate ? 
+                new Date(data.lastTaskDate.toMillis()).toDateString() : 
+                null;
+            
+            if (lastDate !== today) {
+                db.collection('users').doc(currentUser.phone).update({
+                    messagesSentToday: 0,
+                    lastTaskDate: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    currentUser.messagesSentToday = 0;
+                    resolve({ allowed: true, remaining: limit, reset: true });
+                });
+                return;
+            }
+            
+            const completed = data.messagesSentToday || 0;
+            const remaining = limit - completed;
+            
+            if (remaining <= 0) {
+                const refreshHours = appSettings.refreshHours || 24;
+                const lastTaskTime = data.lastTaskTimestamp ? 
+                    data.lastTaskTimestamp.toMillis() : 
+                    Date.now();
+                const hoursPassed = (Date.now() - lastTaskTime) / (1000 * 60 * 60);
+                
+                if (hoursPassed < refreshHours) {
+                    const waitHours = Math.ceil(refreshHours - hoursPassed);
+                    resolve({ 
+                        allowed: false, 
+                        reason: 'wait', 
+                        waitHours: waitHours,
+                        message: `⏳ ${waitHours} ঘন্টা বাকি`
+                    });
+                } else {
+                    db.collection('users').doc(currentUser.phone).update({
+                        messagesSentToday: 0,
+                        lastTaskDate: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastTaskTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        currentUser.messagesSentToday = 0;
+                        resolve({ allowed: true, remaining: limit, reset: true });
+                    });
+                }
+                return;
+            }
+            
+            resolve({ allowed: true, remaining: remaining });
+        }).catch((e) => {
+            reject(e);
+        });
+    });
+}
+
+// ====== START TASK ACTION ======
+function startTaskAction(taskId, phone, message, reward) {
+    const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 50) : (appSettings.freeDailyLimit || 10);
+    if ((currentUser.messagesSentToday || 0) >= limit) {
+        showAlert('authAlert', '⏰ লিমিট শেষ!');
+        return;
+    }
+
+    const db = firebase.firestore();
+    
+    db.collection('history').where('phone', '==', currentUser.phone).where('taskId', '==', taskId).get().then((snap) => {
+        if (!snap.empty) {
+            showAlert('authAlert', '⚠️ ইতিমধ্যে সম্পন্ন!');
+            return;
+        }
+        
+        return db.collection('pendingConfirmations')
+            .where('userPhone', '==', currentUser.phone)
+            .where('taskId', '==', taskId)
+            .where('status', '==', 'pending')
+            .get()
+            .then((pendingSnap) => {
+                if (!pendingSnap.empty) {
+                    checkPendingConfirmations();
+                    showAlert('authAlert', '⏳ ইতিমধ্যে পেন্ডিং! কনফার্ম করুন', 'warning');
+                    return;
+                }
+                
+                return db.collection('tasks').doc(taskId).get().then((doc) => {
+                    if (!doc.exists || doc.data().status !== 'Active') {
+                        showAlert('authAlert', '❌ টাস্কটি নেই!');
+                        loadUserTasks();
+                        return;
+                    }
+                    
+                    showConfirm('📤 মেসেজ পাঠান', 'আপনি কি ' + phone + ' নম্বরে মেসেজ পাঠাতে চান?').then((confirmed) => {
+                        if (!confirmed) return;
+                        
+                        return db.collection('pendingConfirmations').add({
+                            userPhone: currentUser.phone,
+                            taskId: taskId,
+                            targetPhone: phone,
+                            message: message,
+                            reward: reward,
+                            status: 'pending',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }).then(() => {
+                            activeTask = { id: taskId, phone, message, reward };
+                            
+                            const finalMessage = message;
+                            const formattedPhone = formatPhoneForWhatsApp(phone);
+                            const waUrl = 'https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(finalMessage);
+                            window.open(waUrl, '_blank');
+                            
+                            switchTab('tasks', document.querySelector('#navTasks'));
+                            checkPendingConfirmations();
+                            
+                            showAlert('authAlert', '📤 মেসেজ পাঠান হয়েছে! ব্যাক করে কনফার্ম করুন', 'success');
+                        });
+                    });
+                });
+            });
+    }).catch((e) => {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    });
+}
+
+// ====== PENDING CONFIRMATION SYSTEM ======
+function checkPendingConfirmations() {
+    if (!currentUser) return;
+    if (pendingConfirmUnsubscribe) pendingConfirmUnsubscribe();
+    
+    const db = firebase.firestore();
+    pendingConfirmUnsubscribe = db.collection('pendingConfirmations')
+        .where('userPhone', '==', currentUser.phone)
+        .where('status', '==', 'pending')
+        .onSnapshot((snap) => {
+            const box = document.getElementById('pendingConfirmBox');
+            const taskContainer = document.getElementById('taskListContainer');
+            
+            if (snap.empty) {
+                box.classList.add('hidden');
+                loadUserTasks();
+                return;
+            }
+            
+            const doc = snap.docs[0];
+            const data = doc.data();
+            
+            box.classList.remove('hidden');
+            document.getElementById('pendingPhoneDisplay').innerHTML = '📱 ' + data.targetPhone;
+            document.getElementById('pendingMsgDisplay').innerText = data.message;
+            
+            if (taskContainer) {
+                taskContainer.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(245,158,11,0.05);border-radius:14px;border:1px solid rgba(245,158,11,0.1);">
+                    <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ একটি কনফার্মেশন পেন্ডিং</p>
+                    <p style="font-size:13px;color:#94a3b8;margin-top:6px;">উপরের বক্স থেকে কনফার্ম বা ক্যান্সেল করুন</p>
+                </div>`;
+            }
+            
+            box.dataset.pendingId = doc.id;
+            box.dataset.taskId = data.taskId || '';
+            box.dataset.reward = data.reward || 0;
+            box.dataset.targetPhone = data.targetPhone;
+        }, (error) => {
+            console.error('Pending confirm listener error:', error);
+        });
+}
+
+document.getElementById('pendingConfirmBtn').addEventListener('click', function() {
+    const box = document.getElementById('pendingConfirmBox');
+    const pendingId = box.dataset.pendingId;
+    const taskId = box.dataset.taskId;
+    const reward = parseFloat(box.dataset.reward) || 1;
+    const targetPhone = box.dataset.targetPhone;
+    
+    if (!pendingId) return;
+    completePendingConfirmation(pendingId, taskId, reward, targetPhone);
+});
+
+document.getElementById('pendingCancelBtn').addEventListener('click', function() {
+    const box = document.getElementById('pendingConfirmBox');
+    const pendingId = box.dataset.pendingId;
+    
+    if (!pendingId) return;
+    
+    showConfirm('❌ ক্যান্সেল', 'আপনি কি কনফার্মেশন বাতিল করতে চান?').then((confirmed) => {
+        if (!confirmed) return;
+        cancelPendingConfirmation(pendingId);
+    });
+});
+
+function completePendingConfirmation(pendingId, taskId, reward, targetPhone) {
+    const db = firebase.firestore();
+    const box = document.getElementById('pendingConfirmBox');
+    
+    box.classList.add('hidden');
+    
+    currentUser.balance = (currentUser.balance || 0) + reward;
+    currentUser.messagesSentToday = (currentUser.messagesSentToday || 0) + 1;
+    
+    db.collection('users').doc(currentUser.phone).update({
+        balance: currentUser.balance,
+        messagesSentToday: currentUser.messagesSentToday,
+        lastTaskDate: firebase.firestore.FieldValue.serverTimestamp(),
+        lastTaskTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        return db.collection('history').add({
+            phone: currentUser.phone,
+            taskId: taskId,
+            target: targetPhone,
+            reward: reward,
+            type: 'task',
+            status: 'Success',
+            date: new Date().toDateString(),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    }).then(() => {
+        if (taskId) {
+            return db.collection('tasks').doc(taskId).update({
+                status: 'Completed',
+                completedBy: currentUser.phone,
+                completedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(() => {});
+        }
+        return Promise.resolve();
+    }).then(() => {
+        return db.collection('pendingConfirmations').doc(pendingId).delete();
+    }).then(() => {
+        if (currentUser.referredBy) {
+            return db.collection('users').doc(currentUser.referredBy).get().then((refSnap) => {
+                if (refSnap.exists) {
+                    const refData = refSnap.data();
+                    const commission = (reward * (appSettings.referralPercent || 10)) / 100;
+                    return db.collection('users').doc(currentUser.referredBy).update({
+                        balance: (refData.balance || 0) + commission,
+                        referralEarnings: (refData.referralEarnings || 0) + commission
+                    }).then(() => {
+                        return db.collection('history').add({
+                            phone: currentUser.referredBy,
+                            target: currentUser.phone,
+                            reward: commission,
+                            type: 'referral',
+                            status: 'Success',
+                            date: new Date().toDateString(),
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    });
+                }
+            });
+        }
+        return Promise.resolve();
+    }).then(() => {
+        document.getElementById('userBalance').innerText = currentUser.balance;
+        document.getElementById('taskCount').innerText = currentUser.messagesSentToday;
+        showAlert('authAlert', '✅ ৳ ' + reward + ' যোগ হয়েছে!', 'success');
+        
+        loadUserTasks();
+        loadReferralEarnings();
+        activeTask = null;
+    }).catch((e) => {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    });
+}
+
+function cancelPendingConfirmation(pendingId) {
+    const db = firebase.firestore();
+    db.collection('pendingConfirmations').doc(pendingId).delete().then(() => {
+        document.getElementById('pendingConfirmBox').classList.add('hidden');
+        showAlert('authAlert', '❌ কনফার্মেশন বাতিল করা হয়েছে', 'warning');
+        loadUserTasks();
+        activeTask = null;
+    }).catch((e) => {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    });
+}
+
+// ====== USER TASKS ======
+function loadUserTasks() {
+    const container = document.getElementById('taskListContainer');
+    container.innerHTML = '<div class="spinner"></div>';
+    
+    const db = firebase.firestore();
+    db.collection('pendingConfirmations')
+        .where('userPhone', '==', currentUser.phone)
+        .where('status', '==', 'pending')
+        .get()
+        .then((pendingSnap) => {
+            if (!pendingSnap.empty) {
+                container.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(245,158,11,0.05);border-radius:14px;border:1px solid rgba(245,158,11,0.1);">
+                    <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ একটি কনফার্মেশন পেন্ডিং</p>
+                    <p style="font-size:13px;color:#94a3b8;margin-top:6px;">উপরের বক্স থেকে কনফার্ম বা ক্যান্সেল করুন</p>
+                </div>`;
+                return;
+            }
+            
+            return checkUserTaskLimit().then((result) => {
+                if (!result.allowed) {
+                    if (result.reason === 'wait') {
+                        container.innerHTML = `
+                            <div class="wait-timer-box">
+                                <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ অপেক্ষা করুন</p>
+                                <p style="font-size:13px;color:#94a3b8;margin-top:6px;">আপনি ইতিমধ্যে কাজ সম্পন্ন করেছেন</p>
+                                <div class="wait-hours">${result.waitHours} ঘন্টা</div>
+                                <p style="font-size:12px;color:#64748b;">পরবর্তী কাজ পেতে ${result.waitHours} ঘন্টা অপেক্ষা করুন</p>
+                                <p style="font-size:11px;color:#64748b;margin-top:8px;">⏰ রিফ্রেশ সময়: ${appSettings.refreshHours || 24} ঘন্টা</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    container.innerHTML = `
+                        <div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;">
+                            <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏰ লিমিট শেষ!</p>
+                            <p style="font-size:13px;color:#94a3b8;">আজকের কাজ সম্পন্ন হয়েছে</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 50) : (appSettings.freeDailyLimit || 10);
+                const completed = currentUser.messagesSentToday || 0;
+                const remaining = result.remaining || (limit - completed);
+                
+                db.collection('tasks').where('status', '==', 'Active').get().then((snap) => {
+                    container.innerHTML = '';
+                    if (snap.empty) {
+                        container.innerHTML = '<div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;"><p style="font-size:15px;color:#22d3ee;font-weight:700;">📭 কোনো টাস্ক নেই</p></div>';
+                        return;
+                    }
+                    
+                    let c = 0;
+                    snap.forEach(doc => {
+                        if (c >= remaining) return;
+                        const task = doc.data();
+                        const taskId = doc.id;
+                        const reward = currentUser.isPremium ? (task.premPrice || 3) : (task.freePrice || 1);
+                        const div = document.createElement('div');
+                        div.className = 'task-item';
+                        div.innerHTML = `
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span class="number">📱 ${task.targetPhone}</span>
+                                <span class="reward">৳ ${reward}</span>
+                            </div>
+                            <button class="btn btn-accent" style="margin-top:8px;padding:10px;font-size:12px;" 
+                                data-taskid="${taskId}" 
+                                data-phone="${task.targetPhone}" 
+                                data-msg="${task.message.replace(/"/g, '&quot;')}" 
+                                data-reward="${reward}">
+                                ✉️ মেসেজ পাঠান
+                            </button>
+                        `;
+                        container.appendChild(div);
+                        c++;
+                    });
+                    
+                    container.querySelectorAll('button').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const taskId = this.getAttribute('data-taskid');
+                            const phone = this.getAttribute('data-phone');
+                            const message = this.getAttribute('data-msg');
+                            const reward = parseInt(this.getAttribute('data-reward'));
+                            startTaskAction(taskId, phone, message, reward);
+                        });
+                    });
+                });
+            });
+        }).catch((e) => {
+            container.innerHTML = '<p style="text-align:center;color:#fb7185;">এরর: ' + e.message + '</p>';
+        });
+}
+
+// ====== P2P TRANSFER ======
+document.getElementById('p2pSendBtn').addEventListener('click', function() {
+    const phone = document.getElementById('p2pPhone').value.trim();
+    const amount = parseFloat(document.getElementById('p2pAmount').value);
+    const min = appSettings.p2pMin || 50;
+
+    if (!phone || isNaN(amount) || amount < min) {
+        showAlert('authAlert', 'ন্যূনতম ৳ ' + min);
+        return;
+    }
+    if (currentUser.balance < amount) {
+        showAlert('authAlert', 'অপর্যাপ্ত ব্যালেন্স!');
+        return;
+    }
+
+    showConfirm('🔄 P2P ট্রান্সফার', 'আপনি কি ' + phone + ' নম্বরে ৳ ' + amount + ' পাঠাতে চান?').then((confirmed) => {
+        if (!confirmed) return;
+        
+        const db = firebase.firestore();
+        db.collection('users').doc(phone).get().then((recSnap) => {
+            if (!recSnap.exists) {
+                showAlert('authAlert', 'ইউজার নেই');
+                return;
+            }
+            const recName = recSnap.data().name || 'ইউজার';
+            currentUser.balance -= amount;
+            return db.collection('users').doc(currentUser.phone).update({
+                balance: currentUser.balance
+            }).then(() => {
+                return db.collection('users').doc(phone).update({
+                    balance: (recSnap.data().balance || 0) + amount
+                });
+            }).then(() => {
+                return db.collection('history').add({
+                    phone: currentUser.phone,
+                    target: phone + ' (' + recName + ')',
+                    amount: amount,
+                    type: 'p2p',
+                    status: 'Success',
+                    date: new Date().toDateString(),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+        }).then(() => {
+            document.getElementById('userBalance').innerText = currentUser.balance;
+            document.getElementById('p2pPhone').value = '';
+            document.getElementById('p2pAmount').value = '';
+            showAlert('authAlert', '✅ ট্রান্সফার সফল!', 'success');
+        }).catch((e) => {
+            showAlert('authAlert', 'এরর: ' + e.message);
+        });
+    });
+});
+
+// ====== WITHDRAW ======
+document.getElementById('withdrawBtn').addEventListener('click', function() {
+    const method = document.getElementById('withdrawMethod').value;
+    const account = document.getElementById('withdrawAccountNum').value.trim();
+    const amount = parseFloat(document.getElementById('withdrawAmount').value);
+
+    const min = currentUser.isPremium ? (appSettings.premiumUserMinWithdraw || 1000) : (appSettings.freeUserMinWithdraw || 100);
+    if (!account || isNaN(amount) || amount < min) {
+        showAlert('authAlert', 'ন্যূনতম ৳ ' + min);
+        return;
+    }
+    if (currentUser.balance < amount) {
+        showAlert('authAlert', 'অপর্যাপ্ত ব্যালেন্স!');
+        return;
+    }
+
+    showConfirm('💳 উত্তোলন', 'আপনি কি ' + method + ' মাধ্যমে ৳ ' + amount + ' উত্তোলন করতে চান?').then((confirmed) => {
+        if (!confirmed) return;
+        
+        const db = firebase.firestore();
+        db.collection('withdrawals').add({
+            phone: currentUser.phone,
+            accountNum: account,
+            amount: amount,
+            method: method,
+            status: 'Pending',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            currentUser.balance -= amount;
+            return db.collection('users').doc(currentUser.phone).update({
+                balance: currentUser.balance
+            });
+        }).then(() => {
+            return db.collection('history').add({
+                phone: currentUser.phone,
+                target: method + ' (' + account + ')',
+                amount: amount,
+                type: 'withdraw',
+                status: 'Pending',
+                date: new Date().toDateString(),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }).then(() => {
+            document.getElementById('userBalance').innerText = currentUser.balance;
+            document.getElementById('withdrawAccountNum').value = '';
+            document.getElementById('withdrawAmount').value = '';
+            showAlert('authAlert', '✅ রিকোয়েস্ট সাবমিট!', 'success');
+        }).catch((e) => {
+            showAlert('authAlert', 'এরর: ' + e.message);
+        });
+    });
+});
+
+// ====== WALLET METHOD ======
+document.getElementById('withdrawMethod').addEventListener('change', function() {
+    const method = this.value;
+    document.getElementById('accountNumberLabel').innerText =
+        method === 'Flexiload' ? '📱 ফ্লেক্সিলোড নম্বর' : method + ' অ্যাকাউন্ট নম্বর';
+});
+
+// ====== NAVIGATION ======
+document.getElementById('navTasks').addEventListener('click', function() { switchTab('tasks', this); loadUserTasks(); });
+document.getElementById('navP2P').addEventListener('click', function() { switchTab('p2p', this); });
+document.getElementById('navWallet').addEventListener('click', function() { switchTab('wallet', this); });
+document.getElementById('navSupport').addEventListener('click', function() { switchTab('support', this); });
+document.getElementById('navHistory').addEventListener('click', function() { switchTab('history', this); });
+
+// ====== HISTORY FILTER ======
+document.querySelectorAll('.history-filter button').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.history-filter button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        historyFilter = this.getAttribute('data-filter');
+        loadUserHistory();
+    });
+});
+
+// ====== USER HISTORY ======
+function loadUserHistory() {
+    if (!currentUser) return;
+    const container = document.getElementById('historyListContainer');
+    
+    if (historyUnsubscribe) historyUnsubscribe();
+    
+    const db = firebase.firestore();
+    historyUnsubscribe = db.collection('history')
+        .where('phone', '==', currentUser.phone)
+        .orderBy('timestamp', 'desc')
+        .onSnapshot((snap) => {
+            container.innerHTML = '';
+            if (snap.empty) {
+                container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো হিস্টরি নেই</p>';
+                return;
+            }
+            
+            let filteredData = [];
+            snap.forEach(doc => {
+                const item = doc.data();
+                if (historyFilter === 'all' || item.type === historyFilter) {
+                    filteredData.push(item);
+                }
+            });
+            
+            if (filteredData.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">এই ক্যাটাগরিতে কোনো হিস্টরি নেই</p>';
+                return;
+            }
+            
+            filteredData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                
+                let icon = '📱';
+                let detail = '';
+                let amount = '';
+                let statusClass = 'status-success';
+                
+                if (item.type === 'task') {
+                    icon = '📱';
+                    detail = 'টাস্ক: ' + item.target;
+                    amount = '+৳ ' + item.reward;
+                    statusClass = 'status-success';
+                } else if (item.type === 'referral') {
+                    icon = '👥';
+                    detail = 'রেফারেল: ' + item.target;
+                    amount = '+৳ ' + item.reward;
+                    statusClass = 'status-success';
+                } else if (item.type === 'p2p') {
+                    icon = '🔄';
+                    detail = 'P2P: ' + item.target;
+                    amount = '-৳ ' + item.amount;
+                    statusClass = 'status-success';
+                } else if (item.type === 'withdraw') {
+                    icon = '💳';
+                    detail = 'উত্তোলন: ' + item.target;
+                    amount = '-৳ ' + item.amount;
+                    statusClass = item.status === 'Pending' ? 'status-pending' : 'status-success';
+                }
+                
+                div.innerHTML = `
+                    <span class="history-icon">${icon}</span>
+                    <span class="history-detail">${detail}</span>
+                    <span class="history-amount ${statusClass}">${amount}</span>
+                `;
+                container.appendChild(div);
+            });
+        }, (error) => {
+            console.error('History listener error:', error);
+        });
+}
+
+// ====== REFERRAL EARNINGS ======
+function loadReferralEarnings() {
+    if (!currentUser) return;
+    const db = firebase.firestore();
+    db.collection('users').doc(currentUser.phone).get().then((snap) => {
+        if (snap.exists) {
+            document.getElementById('referralEarnings').innerText = snap.data().referralEarnings || 0;
+        }
+    }).catch(() => {});
+}
+
+// ====== ADMIN FUNCTIONS ======
+document.getElementById('adminDrawerToggle').addEventListener('click', function() {
+    document.getElementById('adminDrawer').classList.toggle('open');
+});
+
+function switchAdminTab(tabId) {
+    document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+    const tab = document.getElementById('admin-tab-' + tabId);
+    if (tab) tab.classList.remove('hidden');
+    document.getElementById('adminDrawer').classList.remove('open');
+    
+    if (tabId === 'tasks-admin') {
+        loadTaskStats();
+    }
+}
+
+document.getElementById('adminDashboard').addEventListener('click', function() { switchAdminTab('dashboard'); });
+document.getElementById('adminUsers').addEventListener('click', function() { switchAdminTab('users'); });
+document.getElementById('adminTasksTab').addEventListener('click', function() { switchAdminTab('tasks-admin'); });
+document.getElementById('adminWithdrawals').addEventListener('click', function() { switchAdminTab('withdrawals'); });
+document.getElementById('adminScreenshots').addEventListener('click', function() { switchAdminTab('screenshots'); });
+document.getElementById('adminSettings').addEventListener('click', function() { switchAdminTab('settings'); });
+
+document.getElementById('refreshTaskStatsBtn').addEventListener('click', function() {
+    loadTaskStats();
+    showAlert('authAlert', '✅ স্ট্যাটাস রিফ্রেশ হয়েছে!', 'success');
+});
+
+function loadTaskStats() {
+    const db = firebase.firestore();
+    db.collection('tasks').get().then((snap) => {
+        const total = snap.size;
+        let sent = 0;
+        snap.forEach(d => { if (d.data().status === 'Completed') sent++; });
+        document.getElementById('adminTotalTasks').innerText = total;
+        document.getElementById('adminSentTasks').innerText = sent;
+        document.getElementById('adminRemainingTasks').innerText = total - sent;
+    }).catch(() => {});
+}
+
+function loadAdminDashboard() {
+    const db = firebase.firestore();
+    db.collection('users').get().then((users) => {
+        return db.collection('withdrawals').get().then((wd) => {
+            let pending = 0, paid = 0, active = 0;
+            users.forEach(d => { if ((d.data().messagesSentToday || 0) > 0) active++; });
+            wd.forEach(d => {
+                const w = d.data();
+                if (w.status === 'Pending') pending++;
+                if (w.status === 'Approved') paid += Number(w.amount || 0);
+            });
+            document.getElementById('admTotalMembers').innerText = users.size;
+            document.getElementById('admActiveWorkers').innerText = active;
+            document.getElementById('admPendingWithdrawCount').innerText = pending;
+            document.getElementById('admTotalPaidAmount').innerText = paid;
+        });
+    }).catch(() => {});
+}
+
+function loadAdminUsers() {
+    const container = document.getElementById('adminFullUserListContainer');
+    container.innerHTML = '<div class="spinner"></div>';
+    const db = firebase.firestore();
+    db.collection('users').get().then((snap) => {
+        allUsersCache = [];
+        snap.forEach(d => allUsersCache.push({ id: d.id, ...d.data() }));
+        renderUserList(allUsersCache);
+    }).catch(() => {
+        container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
+    });
+}
+
+function renderUserList(users) {
+    const container = document.getElementById('adminFullUserListContainer');
+    container.innerHTML = '';
+    if (users.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো ইউজার নেই</p>';
+        return;
+    }
+    users.forEach(u => {
+        const div = document.createElement('div');
+        div.className = 'admin-user-item';
+        div.innerHTML = `
+            <div class="user-info">
+                <div class="user-name">${u.name} (${u.id})</div>
+                <div class="user-detail">ব্যালেন্স: ৳ ${u.balance} | কাজ: ${u.messagesSentToday || 0} ${u.isPremium ? '⭐' : '🔹'}</div>
+            </div>
+            <div class="user-actions">
+                <button class="btn-edit" data-phone="${u.id}">✏️</button>
+                <button class="btn-block" data-phone="${u.id}">${u.blocked ? 'আনব্লক' : 'ব্লক'}</button>
+                <button class="btn-delete" data-phone="${u.id}">🗑️</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+    
+    container.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+            openAdminEditUser(this.getAttribute('data-phone'));
+        });
+    });
+    
+    container.querySelectorAll('.btn-block').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const phone = this.getAttribute('data-phone');
+            toggleBlockUser(phone);
+        });
+    });
+    
+    container.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const phone = this.getAttribute('data-phone');
+            deleteUser(phone);
+        });
+    });
+}
+
+document.getElementById('adminUserSearchBox').addEventListener('input', function() {
+    const keyword = this.value.toLowerCase();
+    const filtered = allUsersCache.filter(u => u.id.includes(keyword) || u.name.toLowerCase().includes(keyword));
+    renderUserList(filtered);
+});
+
+function openAdminEditUser(phone) {
+    editingSelectedPhone = phone;
+    const db = firebase.firestore();
+    db.collection('users').doc(phone).get().then((snap) => {
+        if (!snap.exists) return;
+        const u = snap.data();
+        document.getElementById('adminUserEditCard').classList.remove('hidden');
+        document.getElementById('editUserPhoneTitle').innerText = phone;
+        document.getElementById('editUserName').value = u.name;
+        document.getElementById('editUserBalance').value = u.balance;
+        document.getElementById('editUserType').value = String(u.isPremium);
+        const btn = document.getElementById('editUserBlock');
+        btn.innerText = u.blocked ? 'আনব্লক' : '🚫 ব্লক';
+        btn.className = u.blocked ? 'btn btn-success' : 'btn btn-danger';
+    });
+}
+
+document.getElementById('editUserSave').addEventListener('click', function() {
+    if (!editingSelectedPhone) return;
+    const name = document.getElementById('editUserName').value.trim();
+    const balance = parseFloat(document.getElementById('editUserBalance').value);
+    const isPremium = document.getElementById('editUserType').value === 'true';
+    const db = firebase.firestore();
+    db.collection('users').doc(editingSelectedPhone).update({
+        name: name, balance: balance, isPremium: isPremium
+    }).then(() => {
+        showAlert('authAlert', '✅ আপডেট হয়েছে!', 'success');
+        loadAdminUsers();
+        document.getElementById('adminUserEditCard').classList.add('hidden');
+    }).catch((e) => {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    });
+});
+
+document.getElementById('editUserBlock').addEventListener('click', function() {
+    if (!editingSelectedPhone) return;
+    toggleBlockUser(editingSelectedPhone);
+});
+
+document.getElementById('editUserDelete').addEventListener('click', function() {
+    if (!editingSelectedPhone) return;
+    deleteUser(editingSelectedPhone);
+});
+
+function toggleBlockUser(phone) {
+    showConfirm('🚫 ব্লক/আনব্লক', 'আপনি কি ' + phone + ' নম্বরটি ব্লক/আনব্লক করতে চান?').then((confirmed) => {
+        if (!confirmed) return;
+        const db = firebase.firestore();
+        db.collection('users').doc(phone).get().then((snap) => {
+            const current = snap.data().blocked || false;
+            return db.collection('users').doc(phone).update({ blocked: !current });
+        }).then(() => {
+            showAlert('authAlert', '✅ সম্পন্ন!', 'success');
+            loadAdminUsers();
+            if (editingSelectedPhone) openAdminEditUser(editingSelectedPhone);
+        }).catch((e) => {
+            showAlert('authAlert', 'এরর: ' + e.message);
+        });
+    });
+}
+
+function deleteUser(phone) {
+    showConfirm('🗑️ ইউজার ডিলিট', 'আপনি কি ' + phone + ' নম্বরটি ডিলিট করতে চান? এই কাজটি অপরিবর্তনীয়!').then((confirmed) => {
+        if (!confirmed) return;
+        const db = firebase.firestore();
+        db.collection('users').doc(phone).delete().then(() => {
+            showAlert('authAlert', '✅ ডিলিট হয়েছে!', 'success');
+            loadAdminUsers();
+            document.getElementById('adminUserEditCard').classList.add('hidden');
+        }).catch((e) => {
+            showAlert('authAlert', 'এরর: ' + e.message);
+        });
+    });
+}
+
+// ====== ADMIN TASKS ======
+document.getElementById('fileArea').addEventListener('click', function() {
+    document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const numbers = e.target.result.split(/[\n,;]+/).map(n => n.trim()).filter(n => n.length > 5);
+        document.getElementById('adminTaskNumbers').value = numbers.join('\n');
+        showAlert('authAlert', '✅ ' + numbers.length + ' টি নাম্বার ইম্পোর্ট', 'success');
+    };
+    reader.readAsText(file);
+    this.value = '';
+});
+
+document.getElementById('pubTaskBtn').addEventListener('click', function() {
+    const raw = document.getElementById('adminTaskNumbers').value.trim();
+    const msg = document.getElementById('adminTaskMessage').value.trim();
+    const freePrice = parseFloat(document.getElementById('adminFreePrice').value) || 1;
+    const premPrice = parseFloat(document.getElementById('adminPremPrice').value) || 3;
+
+    if (!raw || !msg) {
+        showAlert('authAlert', 'নম্বর ও মেসেজ দিন');
+        return;
+    }
+
+    const numbers = raw.split(/[\n,;]+/).map(n => n.trim()).filter(n => n.length > 5);
+    if (numbers.length === 0) {
+        showAlert('authAlert', 'সঠিক নম্বর নেই');
+        return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerText = '⏳ তৈরি...';
+    document.getElementById('taskProgress').classList.remove('hidden');
+    document.getElementById('taskProgressBar').style.width = '0%';
+
+    let count = 0;
+    let total = numbers.length;
+    const db = firebase.firestore();
+
+    function createNextBatch(start) {
+        if (start >= total) {
+            document.getElementById('taskProgressBar').style.width = '100%';
+            document.getElementById('taskProgressText').innerText = '✅ ' + count + ' টি টাস্ক তৈরি!';
+            showAlert('authAlert', '✅ ' + count + ' টি পাবলিশ!', 'success');
+            document.getElementById('adminTaskNumbers').value = '';
+            document.getElementById('adminTaskMessage').value = '';
+            btn.disabled = false;
+            btn.innerText = '📤 পাবলিশ';
+            setTimeout(() => document.getElementById('taskProgress').classList.add('hidden'), 2000);
+            loadAdminTasks();
+            loadTaskStats();
+            return;
+        }
+
+        const batch = db.batch();
+        const end = Math.min(start + 20, total);
+        for (let i = start; i < end; i++) {
+            const num = numbers[i];
+            const ref = db.collection('tasks').doc();
+            batch.set(ref, {
+                targetPhone: num,
+                message: msg,
+                freePrice: freePrice,
+                premPrice: premPrice,
+                status: 'Active',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            count++;
+        }
+        batch.commit().then(() => {
+            const pct = Math.round((count / total) * 100);
+            document.getElementById('taskProgressBar').style.width = pct + '%';
+            document.getElementById('taskProgressText').innerText = count + '/' + total + ' (' + pct + '%)';
+            createNextBatch(end);
+        }).catch((e) => {
+            showAlert('authAlert', 'এরর: ' + e.message);
+            btn.disabled = false;
+            btn.innerText = '📤 পাবলিশ';
+        });
+    }
+    createNextBatch(0);
+});
+
+// ====== LOAD ADMIN TASKS ======
+function loadAdminTasks() {
+    const container = document.getElementById('adminTaskListContainer');
+    container.innerHTML = '<div class="spinner"></div>';
+    const db = firebase.firestore();
+    db.collection('tasks').get().then((snap) => {
+        allTasksCache = [];
+        snap.forEach(d => allTasksCache.push({ id: d.id, ...d.data() }));
+        renderAdminTaskList(allTasksCache);
+        loadTaskStats();
+    }).catch(() => {
+        container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
+    });
+}
+
+function renderAdminTaskList(tasks) {
+    const container = document.getElementById('adminTaskListContainer');
+    container.innerHTML = '';
+    if (tasks.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো টাস্ক নেই</p>';
+        return;
+    }
+    tasks.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'admin-task-item';
+        const statusClass = t.status === 'Active' ? 'task-status-active' : 'task-status-completed';
+        div.innerHTML = `
+            <div class="task-info">
+                <div class="task-phone">📱 ${t.targetPhone}</div>
+                <div style="font-size:12px;color:#94a3b8;">রেট: ফ্রি ৳${t.freePrice || 1} | প্রিমিয়াম ৳${t.premPrice || 3}</div>
+                <span class="task-status ${statusClass}">${t.status || 'Active'}</span>
+            </div>
+            <div class="task-actions">
+                <button class="btn-task-delete" data-id="${t.id}">🗑️</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+    
+    container.querySelectorAll('.btn-task-delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            deleteTask(id);
+        });
+    });
+}
+
+function deleteTask(taskId) {
+    showConfirm('🗑️ টাস্ক ডিলিট', 'আপনি কি এই টাস্কটি ডিলিট করতে চান?').then((confirmed) => {
+        if (!confirmed) return;
+        const db = firebase.firestore();
+        db.collection('tasks').doc(taskId).delete().then(() => {
+            showAlert('authAlert', '✅ ডিলিট হয়েছে!', 'success');
+            loadAdminTasks();
+            loadTaskStats();
+        }).catch((e) => {
+            showAlert('authAlert', 'এরর: ' + e.message);
+        });
+    });
+}
+
+document.getElementById('deleteAllTasksBtn').addEventListener('click', function() {
+    showConfirm('🗑️ সব টাস্ক ডিলিট', 'আপনি কি সব টাস্ক ডিলিট করতে চান? এই কাজটি অপরিবর্তনীয়!').then((confirmed) => {
+        if (!confirmed) return;
+        const db = firebase.firestore();
+        db.collection('tasks').get().then((snap) => {
+            const batch = db.batch();
+            snap.forEach(d => batch.delete(d.ref));
+            return batch.commit();
+        }).then(() => {
+            showAlert('authAlert', '✅ সব টাস্ক ডিলিট!', 'success');
+            loadAdminTasks();
+            loadTaskStats();
+        }).catch((e) => {
+            showAlert('authAlert', 'এরর: ' + e.message);
+        });
+    });
+});
+
+// ====== ADMIN WITHDRAWALS ======
+function loadAdminWithdrawals() {
+    const container = document.getElementById('adminWithdrawList');
+    const db = firebase.firestore();
+    db.collection('withdrawals').where('status', '==', 'Pending').get().then((snap) => {
+        container.innerHTML = '';
+        if (snap.empty) {
+            container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো পেন্ডিং নেই</p>';
+            return;
+        }
+        snap.forEach(doc => {
+            const w = doc.data();
+            const div = document.createElement('div');
+            div.style.cssText = 'background:rgba(0,0,0,0.15);padding:12px;border-radius:12px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);';
+            div.innerHTML = '<div style="font-size:13px;">📱 ' + w.phone + ' | ' + w.method + ' (' + w.accountNum + ')</div><div style="font-size:15px;font-weight:700;color:#22d3ee;">৳ ' + w.amount + '</div><button class="btn btn-success" style="margin:0;padding:8px;font-size:12px;margin-top:6px;" data-id="' + doc.id + '">✅ এপ্রুভ</button>';
+            container.appendChild(div);
+            
+            div.querySelector('button').addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                showConfirm('✅ এপ্রুভ', 'আপনি কি এই রিকোয়েস্ট এপ্রুভ করতে চান?').then((confirmed) => {
+                    if (!confirmed) return;
+                    db.collection('withdrawals').doc(id).update({ status: 'Approved' }).then(() => {
+                        showAlert('authAlert', '✅ এপ্রুভ!', 'success');
+                        loadAdminWithdrawals();
+                        loadAdminDashboard();
+                    }).catch((e) => {
+                        showAlert('authAlert', 'এরর: ' + e.message);
+                    });
+                });
+            });
+        });
+    }).catch(() => {});
+}
+
+// ====== ADMIN SCREENSHOTS ======
+document.getElementById('cleanupBtn').addEventListener('click', function() {
+    const hours = parseInt(document.getElementById('cleanupDuration').value);
+    showConfirm('🖼️ ডেটা ক্লিনআপ', 'আপনি কি ' + hours + ' ঘণ্টা আগের ডেটা ডিলিট করতে চান?').then((confirmed) => {
+        if (!confirmed) return;
+        const threshold = Date.now() - (hours * 60 * 60 * 1000);
+        const db = firebase.firestore();
+        db.collection('history').get().then((snap) => {
+            let count = 0;
+            const batch = db.batch();
+            snap.forEach(doc => {
+                const data = doc.data();
+                if (data.timestamp && data.timestamp.toMillis && data.timestamp.toMillis() < threshold) {
+                    batch.delete(doc.ref);
+                    count++;
+                }
+            });
+            return batch.commit().then(() => {
+                showAlert('authAlert', '✅ ' + count + ' টি ডেটা ডিলিট!', 'success');
+            });
+        }).catch((e) => {
+            showAlert('authAlert', 'এরর: ' + e.message);
+        });
+    });
+});
+
+// ====== ADMIN SETTINGS ======
+document.getElementById('settingsSaveBtn').addEventListener('click', function() {
+    const data = {
+        noticeText: document.getElementById('adminNoticeText').value,
+        maintenance: document.getElementById('adminMaintenanceToggle').value === 'true',
+        freeDailyLimit: parseInt(document.getElementById('adminFreeLimit').value) || 10,
+        premiumDailyLimit: parseInt(document.getElementById('adminPremLimit').value) || 50,
+        upgradeFee: parseInt(document.getElementById('adminUpgradeFee').value) || 200,
+        flexiMin: parseFloat(document.getElementById('adminFlexiMin').value),
+        p2pMin: parseFloat(document.getElementById('adminP2PMin').value),
+        freeUserMinWithdraw: parseFloat(document.getElementById('adminFreeMinW').value),
+        premiumUserMinWithdraw: parseFloat(document.getElementById('adminPremMinW').value),
+        rules: document.getElementById('adminRulesText').value,
+        support: document.getElementById('adminSupportLinks').value,
+        referralPercent: parseFloat(document.getElementById('adminReferralPercent').value),
+        refreshHours: parseInt(document.getElementById('adminRefreshHours').value) || 24
+    };
+    const db = firebase.firestore();
+    db.collection('settings').doc('global').set(data, { merge: true }).then(() => {
+        showAlert('authAlert', '✅ সেটিংস সেভ!', 'success');
+        loadTaskStats();
+    }).catch((e) => {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    });
+});
+
+// ====== LOGOUT ======
+document.getElementById('navLogout').addEventListener('click', function() {
+    showConfirm('🚪 লগআউট', 'আপনি কি লগআউট করতে চান?').then((confirmed) => {
+        if (!confirmed) return;
+        cleanupListeners();
+        currentUser = null;
+        localStorage.removeItem('waUser');
+        document.getElementById('mainScreen').classList.add('hidden');
+        document.getElementById('adminScreen').classList.add('hidden');
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('authPhone').value = '';
+        document.getElementById('authPassword').value = '';
+        clearInterval(timerInterval);
+    });
+});
+
+document.getElementById('adminLogout').addEventListener('click', function() {
+    showConfirm('🚪 লগআউট', 'আপনি কি লগআউট করতে চান?').then((confirmed) => {
+        if (!confirmed) return;
+        cleanupListeners();
+        currentUser = null;
+        localStorage.removeItem('waUser');
+        document.getElementById('adminScreen').classList.add('hidden');
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('authPhone').value = '';
+        document.getElementById('authPassword').value = '';
+    });
+});
+
+function cleanupListeners() {
+    if (settingsUnsubscribe) { settingsUnsubscribe(); settingsUnsubscribe = null; }
+    if (pendingConfirmUnsubscribe) { pendingConfirmUnsubscribe(); pendingConfirmUnsubscribe = null; }
+    if (historyUnsubscribe) { historyUnsubscribe(); historyUnsubscribe = null; }
+}
+
+// ====== AUTO LOGIN CHECK ======
+function checkAutoLogin() {
+    const savedUser = localStorage.getItem('waUser');
+    if (savedUser) {
+        try {
+            const user = JSON.parse(savedUser);
+            if (user && user.phone) {
+                const db = firebase.firestore();
+                db.collection('users').doc(user.phone).get().then((snap) => {
+                    if (snap.exists) {
+                        const data = snap.data();
+                        if (!data.blocked) {
+                            currentUser = data;
+                            currentUser.phone = user.phone;
+                            showMainScreen();
+                            return true;
+                        }
+                    }
+                }).catch(() => {});
+            }
+        } catch(e) {}
+    }
+    return false;
+}
+
+// ====== START APP ======
+function startApp() {
+    console.log('🚀 WA MARKETING BD - UPGRADE REMOVED');
+    console.log('📱 Admin: 01866989184');
+    console.log('🔑 Password: Mrinal@1271');
+    console.log('✅ Only upgrade option removed. Everything else works!');
+    
+    const loggedIn = checkAutoLogin();
+    if (!loggedIn) {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+}
+</script>
+
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+</body>
+</html>
