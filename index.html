@@ -152,10 +152,10 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
         .task-item .number { font-weight: 700; color: #22d3ee; flex: 1; }
         .task-item .reward { color: #34d399; font-weight: 700; }
-        .task-item .task-check { width: 20px; height: 20px; accent-color: #8b5cf6; cursor: pointer; }
         
         .history-item {
             padding: 10px 12px;
@@ -547,7 +547,7 @@
         }
         .drawer-item:hover { background: rgba(139,92,246,0.15); }
         
-        /* PWA Install Banner - Fixed */
+        /* PWA Install Banner */
         .pwa-install-banner {
             position: fixed;
             bottom: 80px;
@@ -566,9 +566,7 @@
             z-index: 999;
             animation: slideUpBanner 0.5s ease;
         }
-        .pwa-install-banner.show { 
-            display: flex !important; 
-        }
+        .pwa-install-banner.show { display: flex !important; }
         @keyframes slideUpBanner {
             from { opacity: 0; transform: translateX(-50%) translateY(30px); }
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -669,15 +667,14 @@
             font-size: 15px;
             cursor: pointer;
         }
-        .popup-notice .popup-box .popup-close-btn:hover {
-            transform: scale(1.02);
-        }
+        .popup-notice .popup-box .popup-close-btn:hover { transform: scale(1.02); }
         
         .task-actions-bar {
             display: flex;
             gap: 8px;
             margin-bottom: 10px;
             flex-wrap: wrap;
+            align-items: center;
         }
         .task-actions-bar .btn-sm {
             padding: 6px 14px;
@@ -771,7 +768,8 @@
             </div>
             <div class="balance-box">৳ <span id="userBalance">0</span></div>
         </div>
-        <div class="content">            <!-- ====== TASKS TAB ====== -->
+        <div class="content">
+            <!-- ====== TASKS TAB ====== -->
             <div id="tab-tasks" class="tab-content">
                 <div class="card">
                     <h3>📢 <span>মার্কেটিং টাস্ক</span></h3>
@@ -822,7 +820,6 @@
                 <div class="card">
                     <h3>💳 <span>উত্তোলন</span></h3>
                     <p id="withdrawLimitInfo" style="font-size:12px;color:#94a3b8;">ন্যূনতম: ৳ ১০০</p>
-                    
                     <div id="withdrawForm">
                         <div class="form-group">
                             <label>পেমেন্ট মাধ্যম</label>
@@ -942,22 +939,11 @@
             <div id="admin-tab-tasks-admin" class="admin-tab-content hidden">
                 <div class="card" style="border-color:#8b5cf6;">
                     <h3>📢 <span>টাস্ক ম্যানেজমেন্ট</span></h3>
-                    
                     <div class="task-stats-grid">
-                        <div class="task-stat-card stat-total">
-                            <div class="num" id="adminTotalTasks">0</div>
-                            <div class="label">📋 মোট</div>
-                        </div>
-                        <div class="task-stat-card stat-sent">
-                            <div class="num" id="adminSentTasks">0</div>
-                            <div class="label">✅ পাঠানো</div>
-                        </div>
-                        <div class="task-stat-card stat-remaining">
-                            <div class="num" id="adminRemainingTasks">0</div>
-                            <div class="label">⏳ বাকি</div>
-                        </div>
+                        <div class="task-stat-card stat-total"><div class="num" id="adminTotalTasks">0</div><div class="label">📋 মোট</div></div>
+                        <div class="task-stat-card stat-sent"><div class="num" id="adminSentTasks">0</div><div class="label">✅ পাঠানো</div></div>
+                        <div class="task-stat-card stat-remaining"><div class="num" id="adminRemainingTasks">0</div><div class="label">⏳ বাকি</div></div>
                     </div>
-                    
                     <div class="file-area" id="fileArea">
                         <div style="font-size:28px;">📁</div>
                         <p style="font-size:13px;color:#94a3b8;">এক্সেল/টেক্সট ফাইল আপলোড</p>
@@ -1033,8 +1019,8 @@
                     <div class="form-group">
                         <label>📊 ডেইলি লিমিট</label>
                         <div style="display:flex;gap:10px;">
-                            <input type="number" id="adminFreeLimit" placeholder="ফ্রি লিমিট" value="10">
-                            <input type="number" id="adminPremLimit" placeholder="প্রিমিয়াম লিমিট" value="50">
+                            <input type="number" id="adminFreeLimit" placeholder="ফ্রি লিমিট" value="100">
+                            <input type="number" id="adminPremLimit" placeholder="প্রিমিয়াম লিমিট" value="500">
                         </div>
                     </div>
                     <div class="form-group">
@@ -1100,12 +1086,13 @@
 
 <script>
 // ============================================================
-// WA MARKETING BD - FULL VERSION (FIXED)
+// WA MARKETING BD - FULL VERSION (AUTO FIX INCLUDED)
 // ============================================================
 
 // ====== CONFIGURATION ======
 const API_BASE = 'https://wa-engine.mrinala30.workers.dev';
-const APP_NAME = 'WA Marketing BD';
+const ADMIN_PHONE = "01866989184";
+const ADMIN_PASSWORD = "Mrinal@1271";
 
 // ====== CONFIRMATION DIALOG ======
 let confirmResolve = null;
@@ -1127,8 +1114,6 @@ document.getElementById('confirmNoBtn').addEventListener('click', function() {
 });
 
 // ====== GLOBALS ======
-const ADMIN_PHONE = "01866989184";
-const ADMIN_PASSWORD = "Mrinal@1271";
 let currentUser = null;
 let isRegisterMode = false;
 let historyFilter = 'all';
@@ -1157,69 +1142,60 @@ function switchTab(tabName, element) {
 // ====== FORMAT PHONE ======
 function formatPhoneForWhatsApp(phone) {
     let clean = phone.replace(/[^0-9]/g, '');
-    if (clean.startsWith('0')) {
-        clean = clean.substring(1);
-    }
-    if (!clean.startsWith('88')) {
-        clean = '88' + clean;
-    }
+    if (clean.startsWith('0')) clean = clean.substring(1);
+    if (!clean.startsWith('88')) clean = '88' + clean;
     return clean;
 }
 
 // ====== API HELPER ======
 async function apiCall(endpoint, method = 'GET', data = null) {
     try {
-        const options = {
-            method: method,
-            headers: { 'Content-Type': 'application/json' }
-        };
-        if (data) {
-            options.body = JSON.stringify(data);
-        }
+        const options = { method, headers: { 'Content-Type': 'application/json' } };
+        if (data) options.body = JSON.stringify(data);
         const response = await fetch(`${API_BASE}${endpoint}`, options);
         const text = await response.text();
-        if (!text || text.trim() === '') {
-            throw new Error('Server returned empty response');
+        if (!text || text.trim() === '') throw new Error('Server returned empty response');
+        try { return JSON.parse(text); } catch (e) { throw new Error('Invalid JSON: ' + text.substring(0, 100)); }
+    } catch (e) { console.error('API Error:', e.message); throw e; }
+}
+
+// ====== AUTO FIX: Reset user limit on every page load ======
+async function autoFixUserLimit() {
+    if (!currentUser) return;
+    try {
+        const result = await apiCall(`/user/${currentUser.phone}`);
+        if (result.success && result.user) {
+            const today = new Date().toDateString();
+            if (result.user.lastTaskDate !== today) {
+                await apiCall(`/user/${currentUser.phone}`, 'PUT', {
+                    messagesSentToday: 0,
+                    lastTaskDate: today
+                });
+                currentUser.messagesSentToday = 0;
+                document.getElementById('taskCount').innerText = '0';
+                console.log('✅ ডেইলি লিমিট অটো রিসেট!');
+            }
         }
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            throw new Error('Invalid JSON: ' + text.substring(0, 100));
-        }
-    } catch (e) {
-        console.error('API Error:', e.message);
-        throw e;
-    }
+    } catch (e) { console.error('Auto fix error:', e); }
 }
 
 // ====== UPDATE NOTIFICATION SLIDER ======
-const userNames = [
-    'রহিম', 'করিম', 'সুমন', 'রিনা', 'জাকির', 'নাজমা', 'রুবেল', 'সালমা',
-    'মিনহাজ', 'তানিয়া', 'রনি', 'লিমা', 'শুভ', 'পপি', 'রাজ', 'মিম',
-    'হাসান', 'সাব্বির', 'নাদিয়া', 'ইমন', 'স্নিগ্ধা', 'রাফি', 'পার্থ', 'রিয়া'
-];
-
+const userNames = ['রহিম','করিম','সুমন','রিনা','জাকির','নাজমা','রুবেল','সালমা','মিনহাজ','তানিয়া','রনি','লিমা','শুভ','পপি','রাজ','মিম','হাসান','সাব্বির','নাদিয়া','ইমন','স্নিগ্ধা','রাফি','পার্থ','রিয়া'];
 function generateRandomAmount() {
-    const amounts = [200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000];
+    const amounts = [200,250,300,350,400,450,500,600,700,800,900,1000,1200,1500,2000];
     return amounts[Math.floor(Math.random() * amounts.length)];
 }
-
 function updateNotificationSlider() {
     const slider = document.getElementById('notificationSlider');
     const items = [];
     const usedNames = [];
     for (let i = 0; i < 4; i++) {
         let name;
-        do {
-            name = userNames[Math.floor(Math.random() * userNames.length)];
-        } while (usedNames.includes(name));
+        do { name = userNames[Math.floor(Math.random() * userNames.length)]; } while (usedNames.includes(name));
         usedNames.push(name);
-        const amount = generateRandomAmount();
-        items.push(`🟢 ${name} ৳${amount} উত্তোলন করেছে`);
+        items.push(`🟢 ${name} ৳${generateRandomAmount()} উত্তোলন করেছে`);
     }
-    slider.innerHTML = items.map(item => 
-        `<div class="slide-item">${item}</div>`
-    ).join('');
+    slider.innerHTML = items.map(item => `<div class="slide-item">${item}</div>`).join('');
 }
 
 // ====== RENDER SUPPORT LINKS ======
@@ -1241,40 +1217,30 @@ function renderSupportLinks(support) {
             box.appendChild(a);
         }
     });
-    if (box.children.length === 0) {
-        box.innerHTML = '<p style="font-size:13px;color:#94a3b8;text-align:center;">কোনো লিংক নেই</p>';
-    }
+    if (box.children.length === 0) box.innerHTML = '<p style="font-size:13px;color:#94a3b8;text-align:center;">কোনো লিংক নেই</p>';
 }
 
 // ====== PWA INSTALL ======
 let deferredPrompt = null;
-
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     document.getElementById('pwaBanner').classList.add('show');
 });
-
 document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
     if (deferredPrompt) {
         deferredPrompt.prompt();
         const result = await deferredPrompt.userChoice;
-        if (result.outcome === 'accepted') {
-            document.getElementById('pwaBanner').classList.remove('show');
-        }
+        if (result.outcome === 'accepted') document.getElementById('pwaBanner').classList.remove('show');
         deferredPrompt = null;
     }
 });
-
 document.getElementById('pwaCloseBtn').addEventListener('click', () => {
     document.getElementById('pwaBanner').classList.remove('show');
 });
-
 window.addEventListener('appinstalled', () => {
     document.getElementById('pwaBanner').classList.remove('show');
 });
-
-// Check if already installed
 window.addEventListener('load', () => {
     if (window.matchMedia('(display-mode: standalone)').matches) {
         document.getElementById('pwaBanner').classList.remove('show');
@@ -1287,18 +1253,13 @@ async function checkPopupNotice() {
         const result = await apiCall('/popup-notice');
         if (result.success && result.notice && result.notice.active) {
             const userResult = await apiCall(`/user/${currentUser.phone}`);
-            if (userResult.success && userResult.user.seenPopup) {
-                return;
-            }
+            if (userResult.success && userResult.user.seenPopup) return;
             document.getElementById('popupMessage').innerText = result.notice.message || 'কোনো মেসেজ নেই';
             document.getElementById('popupNotice').classList.add('show');
             await apiCall('/user/popup-seen', 'POST', { phone: currentUser.phone });
         }
-    } catch (e) {
-        console.error('Popup check error:', e);
-    }
+    } catch (e) { console.error('Popup check error:', e); }
 }
-
 document.getElementById('popupCloseBtn').addEventListener('click', () => {
     document.getElementById('popupNotice').classList.remove('show');
 });
@@ -1312,18 +1273,12 @@ async function loadSettings() {
             document.getElementById('userNoticeMarquee').innerText = appSettings.noticeText || '🚀 WA MARKETING BD';
             document.getElementById('userRulesContent').innerText = appSettings.rules || 'নিয়ম লোড হচ্ছে...';
             renderSupportLinks(appSettings.support);
-            
             if (currentUser && !currentUser.isAdmin) {
                 document.getElementById('p2pLimitTxt').innerText = 'ন্যূনতম: ৳ ' + (appSettings.p2pMin || 50);
-                if (currentUser.isPremium) {
-                    document.getElementById('withdrawLimitInfo').innerText = 'ন্যূনতম: ৳ ' + (appSettings.premiumUserMinWithdraw || 1000);
-                } else {
-                    document.getElementById('withdrawLimitInfo').innerText = 'ন্যূনতম: ৳ ' + (appSettings.freeUserMinWithdraw || 100);
-                }
+                document.getElementById('withdrawLimitInfo').innerText = 'ন্যূনতম: ৳ ' + (currentUser.isPremium ? (appSettings.premiumUserMinWithdraw || 1000) : (appSettings.freeUserMinWithdraw || 100));
             }
-            
-            document.getElementById('adminFreeLimit').value = appSettings.freeDailyLimit || 10;
-            document.getElementById('adminPremLimit').value = appSettings.premiumDailyLimit || 50;
+            document.getElementById('adminFreeLimit').value = appSettings.freeDailyLimit || 100;
+            document.getElementById('adminPremLimit').value = appSettings.premiumDailyLimit || 500;
             document.getElementById('adminFreeMinW').value = appSettings.freeUserMinWithdraw || 100;
             document.getElementById('adminPremMinW').value = appSettings.premiumUserMinWithdraw || 1000;
             document.getElementById('adminP2PMin').value = appSettings.p2pMin || 50;
@@ -1333,26 +1288,15 @@ async function loadSettings() {
             document.getElementById('adminRulesText').value = appSettings.rules || '';
             document.getElementById('adminSupportLinks').value = appSettings.support || '';
         }
-    } catch (e) {
-        console.error('Settings load error:', e);
-    }
+    } catch (e) { console.error('Settings load error:', e); }
 }
 
 // ====== AUTH ======
 document.getElementById('authSwitchBtn').addEventListener('click', function() {
     isRegisterMode = !isRegisterMode;
-    const reg = document.getElementById('registerFields');
-    const btn = document.getElementById('authBtn');
-    const sw = document.getElementById('authSwitchBtn');
-    if (isRegisterMode) {
-        reg.classList.remove('hidden');
-        btn.innerText = '📝 সাইন আপ করুন';
-        sw.innerHTML = 'ইতিমধ্যে অ্যাকাউন্ট আছে? <strong>লগইন করুন</strong>';
-    } else {
-        reg.classList.add('hidden');
-        btn.innerText = '🔓 লগইন করুন';
-        sw.innerHTML = 'অ্যাকাউন্ট নেই? <strong>সাইন আপ করুন</strong>';
-    }
+    document.getElementById('registerFields').classList.toggle('hidden');
+    document.getElementById('authBtn').innerText = isRegisterMode ? '📝 সাইন আপ করুন' : '🔓 লগইন করুন';
+    document.getElementById('authSwitchBtn').innerHTML = isRegisterMode ? 'ইতিমধ্যে অ্যাকাউন্ট আছে? <strong>লগইন করুন</strong>' : 'অ্যাকাউন্ট নেই? <strong>সাইন আপ করুন</strong>';
 });
 
 document.getElementById('authBtn').addEventListener('click', async function() {
@@ -1419,22 +1363,15 @@ async function showMainScreen() {
     document.getElementById('userNameDisplay').innerText = currentUser.name || 'ইউজার';
     document.getElementById('userBalance').innerText = currentUser.balance || 0;
     document.getElementById('taskCount').innerText = currentUser.messagesSentToday || 0;
-    
     updateNotificationSlider();
-    
-    if (currentUser.isPremium) {
-        document.getElementById('userTypeBadge').innerText = '⭐ প্রিমিয়াম';
-    } else {
-        document.getElementById('userTypeBadge').innerText = '🔹 ফ্রি';
-    }
-    
+    document.getElementById('userTypeBadge').innerText = currentUser.isPremium ? '⭐ প্রিমিয়াম' : '🔹 ফ্রি';
     await loadSettings();
+    await autoFixUserLimit();
     await loadUserTasks();
     await loadUserHistory();
     await loadReferralEarnings();
     await checkPendingConfirmations();
     await checkPopupNotice();
-    
     setInterval(updateNotificationSlider, 30000);
 }
 
@@ -1442,102 +1379,52 @@ async function showMainScreen() {
 async function checkUserTaskLimit() {
     try {
         const result = await apiCall(`/user/${currentUser.phone}`);
-        if (!result.success || !result.user) {
-            return { allowed: false, reason: 'ইউজার নেই' };
-        }
-        
+        if (!result.success || !result.user) return { allowed: false, reason: 'ইউজার নেই' };
         const user = result.user;
-        const limit = currentUser.isPremium ? 
-            (appSettings.premiumDailyLimit || 50) : 
-            (appSettings.freeDailyLimit || 10);
-        
+        const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 500) : (appSettings.freeDailyLimit || 100);
         const today = new Date().toDateString();
-        const lastDate = user.lastTaskDate || '';
-        
-        if (lastDate !== today) {
-            const updateResult = await apiCall(`/user/${currentUser.phone}`, 'PUT', {
-                messagesSentToday: 0,
-                lastTaskDate: today,
-                lastTaskTimestamp: Date.now()
-            });
-            if (updateResult.success) {
+        if (user.lastTaskDate !== today) {
+            await apiCall(`/user/${currentUser.phone}`, 'PUT', { messagesSentToday: 0, lastTaskDate: today, lastTaskTimestamp: Date.now() });
+            currentUser.messagesSentToday = 0;
+            return { allowed: true, remaining: limit, reset: true };
+        }
+        const completed = user.messagesSentToday || 0;
+        const remaining = limit - completed;
+        if (remaining <= 0) {
+            const refreshHours = appSettings.refreshHours || 24;
+            const hoursPassed = (Date.now() - (user.lastTaskTimestamp || Date.now())) / (1000 * 60 * 60);
+            if (hoursPassed < refreshHours) {
+                return { allowed: false, reason: 'wait', waitHours: Math.ceil(refreshHours - hoursPassed) };
+            } else {
+                await apiCall(`/user/${currentUser.phone}`, 'PUT', { messagesSentToday: 0, lastTaskDate: today, lastTaskTimestamp: Date.now() });
                 currentUser.messagesSentToday = 0;
                 return { allowed: true, remaining: limit, reset: true };
             }
         }
-        
-        const completed = user.messagesSentToday || 0;
-        const remaining = limit - completed;
-        
-        if (remaining <= 0) {
-            const refreshHours = appSettings.refreshHours || 24;
-            const lastTaskTime = user.lastTaskTimestamp || Date.now();
-            const hoursPassed = (Date.now() - lastTaskTime) / (1000 * 60 * 60);
-            
-            if (hoursPassed < refreshHours) {
-                const waitHours = Math.ceil(refreshHours - hoursPassed);
-                return { 
-                    allowed: false, 
-                    reason: 'wait', 
-                    waitHours: waitHours,
-                    message: `⏳ ${waitHours} ঘন্টা বাকি`
-                };
-            } else {
-                const updateResult = await apiCall(`/user/${currentUser.phone}`, 'PUT', {
-                    messagesSentToday: 0,
-                    lastTaskDate: today,
-                    lastTaskTimestamp: Date.now()
-                });
-                if (updateResult.success) {
-                    currentUser.messagesSentToday = 0;
-                    return { allowed: true, remaining: limit, reset: true };
-                }
-            }
-        }
-        
         return { allowed: true, remaining: remaining };
-    } catch (e) {
-        console.error('Check task limit error:', e);
-        return { allowed: false, reason: 'error' };
-    }
+    } catch (e) { console.error('Check task limit error:', e); return { allowed: false, reason: 'error' }; }
 }
 
 // ====== START TASK ACTION ======
 function startTaskAction(taskId, phone, message, reward) {
-    const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 50) : (appSettings.freeDailyLimit || 10);
+    const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 500) : (appSettings.freeDailyLimit || 100);
     if ((currentUser.messagesSentToday || 0) >= limit) {
         showAlert('authAlert', '⏰ লিমিট শেষ!');
         return;
     }
-
     showConfirm('📤 মেসেজ পাঠান', 'আপনি কি ' + phone + ' নম্বরে মেসেজ পাঠাতে চান?').then(async (confirmed) => {
         if (!confirmed) return;
-        
         try {
-            const result = await apiCall('/tasks/complete', 'POST', {
-                phone: currentUser.phone,
-                taskId: taskId,
-                targetPhone: phone,
-                message: message,
-                reward: reward
-            });
-            
+            const result = await apiCall('/tasks/complete', 'POST', { phone: currentUser.phone, taskId, targetPhone: phone, message, reward });
             if (result.success) {
-                const finalMessage = message;
-                const formattedPhone = formatPhoneForWhatsApp(phone);
-                const waUrl = 'https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(finalMessage);
-                window.open(waUrl, '_blank');
-                
+                window.open('https://wa.me/' + formatPhoneForWhatsApp(phone) + '?text=' + encodeURIComponent(message), '_blank');
                 switchTab('tasks', document.querySelector('#navTasks'));
                 checkPendingConfirmations();
-                
                 showAlert('authAlert', '📤 মেসেজ পাঠান হয়েছে! ব্যাক করে কনফার্ম করুন', 'success');
             } else {
                 showAlert('authAlert', result.error || 'টাস্ক শুরু করতে সমস্যা');
             }
-        } catch (e) {
-            showAlert('authAlert', 'এরর: ' + e.message);
-        }
+        } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
     });
 }
 
@@ -1547,36 +1434,25 @@ async function checkPendingConfirmations() {
     try {
         const result = await apiCall(`/pending/${currentUser.phone}`);
         if (!result.success) return;
-        
         const pending = result.pending || [];
         const box = document.getElementById('pendingConfirmBox');
         const taskContainer = document.getElementById('taskListContainer');
-        
-        if (pending.length === 0) {
-            box.classList.add('hidden');
-            loadUserTasks();
-            return;
-        }
-        
+        if (pending.length === 0) { box.classList.add('hidden'); loadUserTasks(); return; }
         const data = pending[0];
         box.classList.remove('hidden');
         document.getElementById('pendingPhoneDisplay').innerHTML = '📱 ' + data.targetPhone;
         document.getElementById('pendingMsgDisplay').innerText = data.message;
-        
         if (taskContainer) {
             taskContainer.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(245,158,11,0.05);border-radius:14px;border:1px solid rgba(245,158,11,0.1);">
                 <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ একটি কনফার্মেশন পেন্ডিং</p>
                 <p style="font-size:13px;color:#94a3b8;margin-top:6px;">উপরের বক্স থেকে কনফার্ম বা ক্যান্সেল করুন</p>
             </div>`;
         }
-        
         box.dataset.pendingId = data.id;
         box.dataset.taskId = data.taskId || '';
         box.dataset.reward = data.reward || 0;
         box.dataset.targetPhone = data.targetPhone;
-    } catch (e) {
-        console.error('Check pending error:', e);
-    }
+    } catch (e) { console.error('Check pending error:', e); }
 }
 
 document.getElementById('pendingConfirmBtn').addEventListener('click', function() {
@@ -1585,7 +1461,6 @@ document.getElementById('pendingConfirmBtn').addEventListener('click', function(
     const taskId = box.dataset.taskId;
     const reward = parseFloat(box.dataset.reward) || 1;
     const targetPhone = box.dataset.targetPhone;
-    
     if (!pendingId) return;
     completePendingConfirmation(pendingId, taskId, reward, targetPhone);
 });
@@ -1593,9 +1468,7 @@ document.getElementById('pendingConfirmBtn').addEventListener('click', function(
 document.getElementById('pendingCancelBtn').addEventListener('click', function() {
     const box = document.getElementById('pendingConfirmBox');
     const pendingId = box.dataset.pendingId;
-    
     if (!pendingId) return;
-    
     showConfirm('❌ ক্যান্সেল', 'আপনি কি কনফার্মেশন বাতিল করতে চান?').then((confirmed) => {
         if (!confirmed) return;
         cancelPendingConfirmation(pendingId);
@@ -1606,40 +1479,24 @@ async function completePendingConfirmation(pendingId, taskId, reward, targetPhon
     try {
         const box = document.getElementById('pendingConfirmBox');
         box.classList.add('hidden');
-        
-        const result = await apiCall('/pending/confirm', 'POST', {
-            phone: currentUser.phone,
-            pendingId: pendingId,
-            taskId: taskId,
-            reward: reward,
-            targetPhone: targetPhone
-        });
-        
+        const result = await apiCall('/pending/confirm', 'POST', { phone: currentUser.phone, pendingId, taskId, reward, targetPhone });
         if (result.success) {
             currentUser.balance = result.balance;
             currentUser.messagesSentToday = (currentUser.messagesSentToday || 0) + 1;
-            
             document.getElementById('userBalance').innerText = currentUser.balance;
             document.getElementById('taskCount').innerText = currentUser.messagesSentToday;
             showAlert('authAlert', '✅ ৳ ' + reward + ' যোগ হয়েছে!', 'success');
-            
             loadUserTasks();
             loadReferralEarnings();
         } else {
             showAlert('authAlert', result.error || 'কনফার্ম করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 }
 
 async function cancelPendingConfirmation(pendingId) {
     try {
-        const result = await apiCall('/pending/cancel', 'POST', {
-            phone: currentUser.phone,
-            pendingId: pendingId
-        });
-        
+        const result = await apiCall('/pending/cancel', 'POST', { phone: currentUser.phone, pendingId });
         if (result.success) {
             document.getElementById('pendingConfirmBox').classList.add('hidden');
             showAlert('authAlert', '❌ কনফার্মেশন বাতিল করা হয়েছে', 'warning');
@@ -1647,16 +1504,13 @@ async function cancelPendingConfirmation(pendingId) {
         } else {
             showAlert('authAlert', result.error || 'বাতিল করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 }
 
 // ====== USER TASKS ======
 async function loadUserTasks() {
     const container = document.getElementById('taskListContainer');
     container.innerHTML = '<div class="spinner"></div>';
-    
     try {
         const pendingResult = await apiCall(`/pending/${currentUser.phone}`);
         if (pendingResult.success && pendingResult.pending && pendingResult.pending.length > 0) {
@@ -1666,47 +1520,26 @@ async function loadUserTasks() {
             </div>`;
             return;
         }
-        
         const limitResult = await checkUserTaskLimit();
         if (!limitResult.allowed) {
             if (limitResult.reason === 'wait') {
-                container.innerHTML = `
-                    <div class="wait-timer-box">
-                        <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ অপেক্ষা করুন</p>
-                        <p style="font-size:13px;color:#94a3b8;margin-top:6px;">আপনি ইতিমধ্যে কাজ সম্পন্ন করেছেন</p>
-                        <div class="wait-hours">${limitResult.waitHours} ঘন্টা</div>
-                        <p style="font-size:12px;color:#64748b;">পরবর্তী কাজ পেতে ${limitResult.waitHours} ঘন্টা অপেক্ষা করুন</p>
-                        <p style="font-size:11px;color:#64748b;margin-top:8px;">⏰ রিফ্রেশ সময়: ${appSettings.refreshHours || 24} ঘন্টা</p>
-                    </div>
-                `;
+                container.innerHTML = `<div class="wait-timer-box"><p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ অপেক্ষা করুন</p><p style="font-size:13px;color:#94a3b8;margin-top:6px;">আপনি ইতিমধ্যে কাজ সম্পন্ন করেছেন</p><div class="wait-hours">${limitResult.waitHours} ঘন্টা</div><p style="font-size:12px;color:#64748b;">পরবর্তী কাজ পেতে ${limitResult.waitHours} ঘন্টা অপেক্ষা করুন</p></div>`;
                 return;
             }
-            container.innerHTML = `
-                <div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;">
-                    <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏰ লিমিট শেষ!</p>
-                    <p style="font-size:13px;color:#94a3b8;">আজকের কাজ সম্পন্ন হয়েছে</p>
-                </div>
-            `;
+            container.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;"><p style="font-size:15px;color:#fbbf24;font-weight:700;">⏰ লিমিট শেষ!</p><p style="font-size:13px;color:#94a3b8;">আজকের কাজ সম্পন্ন হয়েছে</p></div>`;
             return;
         }
-        
-        const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 50) : (appSettings.freeDailyLimit || 10);
+        const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 500) : (appSettings.freeDailyLimit || 100);
         const completed = currentUser.messagesSentToday || 0;
         const remaining = limitResult.remaining || (limit - completed);
-        
         const tasksResult = await apiCall('/tasks');
-        if (!tasksResult.success) {
-            container.innerHTML = '<p style="text-align:center;color:#fb7185;">টাস্ক লোড করতে সমস্যা</p>';
-            return;
-        }
-        
+        if (!tasksResult.success) { container.innerHTML = '<p style="text-align:center;color:#fb7185;">টাস্ক লোড করতে সমস্যা</p>'; return; }
         const activeTasks = tasksResult.tasks || [];
         container.innerHTML = '';
         if (activeTasks.length === 0) {
             container.innerHTML = '<div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;"><p style="font-size:15px;color:#22d3ee;font-weight:700;">📭 কোনো টাস্ক নেই</p></div>';
             return;
         }
-        
         let count = 0;
         for (const task of activeTasks) {
             if (count >= remaining) break;
@@ -1716,30 +1549,17 @@ async function loadUserTasks() {
             div.innerHTML = `
                 <span class="number">📱 ${task.targetPhone}</span>
                 <span class="reward">৳ ${reward}</span>
-                <button class="btn btn-accent btn-sm" 
-                    data-taskid="${task.id}" 
-                    data-phone="${task.targetPhone}" 
-                    data-msg="${task.message.replace(/"/g, '&quot;')}" 
-                    data-reward="${reward}">
-                    ✉️ পাঠান
-                </button>
+                <button class="btn btn-accent btn-sm" data-taskid="${task.id}" data-phone="${task.targetPhone}" data-msg="${task.message.replace(/"/g, '&quot;')}" data-reward="${reward}">✉️ পাঠান</button>
             `;
             container.appendChild(div);
             count++;
         }
-        
         container.querySelectorAll('button').forEach(btn => {
             btn.addEventListener('click', function() {
-                const taskId = this.getAttribute('data-taskid');
-                const phone = this.getAttribute('data-phone');
-                const message = this.getAttribute('data-msg');
-                const reward = parseInt(this.getAttribute('data-reward'));
-                startTaskAction(taskId, phone, message, reward);
+                startTaskAction(this.getAttribute('data-taskid'), this.getAttribute('data-phone'), this.getAttribute('data-msg'), parseInt(this.getAttribute('data-reward')));
             });
         });
-    } catch (e) {
-        container.innerHTML = '<p style="text-align:center;color:#fb7185;">এরর: ' + e.message + '</p>';
-    }
+    } catch (e) { container.innerHTML = '<p style="text-align:center;color:#fb7185;">এরর: ' + e.message + '</p>'; }
 }
 
 // ====== P2P TRANSFER ======
@@ -1747,26 +1567,12 @@ document.getElementById('p2pSendBtn').addEventListener('click', async function()
     const phone = document.getElementById('p2pPhone').value.trim();
     const amount = parseFloat(document.getElementById('p2pAmount').value);
     const min = appSettings.p2pMin || 50;
-
-    if (!phone || isNaN(amount) || amount < min) {
-        showAlert('authAlert', 'ন্যূনতম ৳ ' + min);
-        return;
-    }
-    if (currentUser.balance < amount) {
-        showAlert('authAlert', 'অপর্যাপ্ত ব্যালেন্স!');
-        return;
-    }
-
+    if (!phone || isNaN(amount) || amount < min) { showAlert('authAlert', 'ন্যূনতম ৳ ' + min); return; }
+    if (currentUser.balance < amount) { showAlert('authAlert', 'অপর্যাপ্ত ব্যালেন্স!'); return; }
     const confirmed = await showConfirm('🔄 P2P ট্রান্সফার', 'আপনি কি ' + phone + ' নম্বরে ৳ ' + amount + ' পাঠাতে চান?');
     if (!confirmed) return;
-
     try {
-        const result = await apiCall('/p2p/send', 'POST', {
-            sender: currentUser.phone,
-            receiver: phone,
-            amount: amount
-        });
-        
+        const result = await apiCall('/p2p/send', 'POST', { sender: currentUser.phone, receiver: phone, amount });
         if (result.success) {
             currentUser.balance = result.balance;
             document.getElementById('userBalance').innerText = currentUser.balance;
@@ -1776,9 +1582,7 @@ document.getElementById('p2pSendBtn').addEventListener('click', async function()
         } else {
             showAlert('authAlert', result.error || 'ট্রান্সফার করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 });
 
 // ====== WITHDRAW ======
@@ -1786,28 +1590,13 @@ document.getElementById('withdrawBtn').addEventListener('click', async function(
     const method = document.getElementById('withdrawMethod').value;
     const account = document.getElementById('withdrawAccountNum').value.trim();
     const amount = parseFloat(document.getElementById('withdrawAmount').value);
-
     const min = currentUser.isPremium ? (appSettings.premiumUserMinWithdraw || 1000) : (appSettings.freeUserMinWithdraw || 100);
-    if (!account || isNaN(amount) || amount < min) {
-        showAlert('authAlert', 'ন্যূনতম ৳ ' + min);
-        return;
-    }
-    if (currentUser.balance < amount) {
-        showAlert('authAlert', 'অপর্যাপ্ত ব্যালেন্স!');
-        return;
-    }
-
+    if (!account || isNaN(amount) || amount < min) { showAlert('authAlert', 'ন্যূনতম ৳ ' + min); return; }
+    if (currentUser.balance < amount) { showAlert('authAlert', 'অপর্যাপ্ত ব্যালেন্স!'); return; }
     const confirmed = await showConfirm('💳 উত্তোলন', 'আপনি কি ' + method + ' মাধ্যমে ৳ ' + amount + ' উত্তোলন করতে চান?');
     if (!confirmed) return;
-
     try {
-        const result = await apiCall('/withdraw', 'POST', {
-            phone: currentUser.phone,
-            method: method,
-            accountNum: account,
-            amount: amount
-        });
-        
+        const result = await apiCall('/withdraw', 'POST', { phone: currentUser.phone, method, accountNum: account, amount });
         if (result.success) {
             currentUser.balance = result.balance;
             document.getElementById('userBalance').innerText = currentUser.balance;
@@ -1817,16 +1606,11 @@ document.getElementById('withdrawBtn').addEventListener('click', async function(
         } else {
             showAlert('authAlert', result.error || 'উত্তোলন করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 });
 
-// ====== WALLET METHOD ======
 document.getElementById('withdrawMethod').addEventListener('change', function() {
-    const method = this.value;
-    document.getElementById('accountNumberLabel').innerText =
-        method === 'Flexiload' ? '📱 ফ্লেক্সিলোড নম্বর' : method + ' অ্যাকাউন্ট নম্বর';
+    document.getElementById('accountNumberLabel').innerText = this.value === 'Flexiload' ? '📱 ফ্লেক্সিলোড নম্বর' : this.value + ' অ্যাকাউন্ট নম্বর';
 });
 
 // ====== NAVIGATION ======
@@ -1836,7 +1620,6 @@ document.getElementById('navWallet').addEventListener('click', function() { swit
 document.getElementById('navSupport').addEventListener('click', function() { switchTab('support', this); });
 document.getElementById('navHistory').addEventListener('click', function() { switchTab('history', this); });
 
-// ====== HISTORY FILTER ======
 document.querySelectorAll('.history-filter button').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.history-filter button').forEach(b => b.classList.remove('active'));
@@ -1850,73 +1633,26 @@ document.querySelectorAll('.history-filter button').forEach(btn => {
 async function loadUserHistory() {
     if (!currentUser) return;
     const container = document.getElementById('historyListContainer');
-    
     try {
         const result = await apiCall(`/history/${currentUser.phone}`);
-        if (!result.success) {
-            container.innerHTML = '<p style="text-align:center;color:#fb7185;">হিস্টরি লোড করতে সমস্যা</p>';
-            return;
-        }
-        
+        if (!result.success) { container.innerHTML = '<p style="text-align:center;color:#fb7185;">হিস্টরি লোড করতে সমস্যা</p>'; return; }
         let historyItems = result.history || [];
         container.innerHTML = '';
-        
-        if (historyItems.length === 0) {
-            container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো হিস্টরি নেই</p>';
-            return;
-        }
-        
-        let filteredData = historyItems;
-        if (historyFilter !== 'all') {
-            filteredData = historyItems.filter(item => item.type === historyFilter);
-        }
-        
-        if (filteredData.length === 0) {
-            container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">এই ক্যাটাগরিতে কোনো হিস্টরি নেই</p>';
-            return;
-        }
-        
+        if (historyItems.length === 0) { container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো হিস্টরি নেই</p>'; return; }
+        let filteredData = historyFilter !== 'all' ? historyItems.filter(item => item.type === historyFilter) : historyItems;
+        if (filteredData.length === 0) { container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">এই ক্যাটাগরিতে কোনো হিস্টরি নেই</p>'; return; }
         filteredData.forEach(item => {
             const div = document.createElement('div');
             div.className = 'history-item';
-            
-            let icon = '📱';
-            let detail = '';
-            let amount = '';
-            let statusClass = 'status-success';
-            
-            if (item.type === 'task') {
-                icon = '📱';
-                detail = 'টাস্ক: ' + item.target;
-                amount = '+৳ ' + item.reward;
-                statusClass = 'status-success';
-            } else if (item.type === 'referral') {
-                icon = '👥';
-                detail = 'রেফারেল: ' + item.target;
-                amount = '+৳ ' + item.reward;
-                statusClass = 'status-success';
-            } else if (item.type === 'p2p') {
-                icon = '🔄';
-                detail = 'P2P: ' + item.target;
-                amount = '-৳ ' + item.amount;
-                statusClass = 'status-success';
-            } else if (item.type === 'withdraw') {
-                icon = '💳';
-                detail = 'উত্তোলন: ' + item.target;
-                amount = '-৳ ' + item.amount;
-                statusClass = item.status === 'Pending' ? 'status-pending' : 'status-success';
-            }
-            
-            div.innerHTML = `
-                <span class="history-icon">${icon}</span>
-                <span class="history-detail">${detail}</span>
-                <span class="history-amount ${statusClass}">${amount}</span>
-            `;
+            let icon = '📱', detail = '', amount = '', statusClass = 'status-success';
+            if (item.type === 'task') { icon = '📱'; detail = 'টাস্ক: ' + item.target; amount = '+৳ ' + item.reward; }
+            else if (item.type === 'referral') { icon = '👥'; detail = 'রেফারেল: ' + item.target; amount = '+৳ ' + item.reward; }
+            else if (item.type === 'p2p') { icon = '🔄'; detail = 'P2P: ' + item.target; amount = '-৳ ' + item.amount; }
+            else if (item.type === 'withdraw') { icon = '💳'; detail = 'উত্তোলন: ' + item.target; amount = '-৳ ' + item.amount; statusClass = item.status === 'Pending' ? 'status-pending' : 'status-success'; }
+            div.innerHTML = `<span class="history-icon">${icon}</span><span class="history-detail">${detail}</span><span class="history-amount ${statusClass}">${amount}</span>`;
             container.appendChild(div);
         });
-    } catch (e) {
-        container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
-    }
+    } catch (e) { container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>'; }
 }
 
 // ====== REFERRAL EARNINGS ======
@@ -1924,9 +1660,7 @@ async function loadReferralEarnings() {
     if (!currentUser) return;
     try {
         const result = await apiCall(`/user/${currentUser.phone}`);
-        if (result.success && result.user) {
-            document.getElementById('referralEarnings').innerText = result.user.referralEarnings || 0;
-        }
+        if (result.success && result.user) document.getElementById('referralEarnings').innerText = result.user.referralEarnings || 0;
     } catch (e) {}
 }
 
@@ -1940,14 +1674,8 @@ function switchAdminTab(tabId) {
     const tab = document.getElementById('admin-tab-' + tabId);
     if (tab) tab.classList.remove('hidden');
     document.getElementById('adminDrawer').classList.remove('open');
-    
-    if (tabId === 'tasks-admin') {
-        loadTaskStats();
-        loadAdminTasks();
-    }
-    if (tabId === 'popup') {
-        loadPopupSettings();
-    }
+    if (tabId === 'tasks-admin') { loadTaskStats(); loadAdminTasks(); }
+    if (tabId === 'popup') { loadPopupSettings(); }
 }
 
 document.getElementById('adminDashboard').addEventListener('click', function() { switchAdminTab('dashboard'); });
@@ -1963,7 +1691,6 @@ async function loadTaskStats() {
     try {
         const result = await apiCall('/tasks');
         if (result.success) {
-            const tasks = result.tasks || [];
             const stats = result.stats || { total: 0, sent: 0, remaining: 0 };
             document.getElementById('adminTotalTasks').innerText = stats.total || 0;
             document.getElementById('adminSentTasks').innerText = stats.sent || 0;
@@ -1993,31 +1720,22 @@ async function loadAdminUsers() {
     try {
         const result = await apiCall('/admin/users');
         if (result.success) {
-            const users = result.users || [];
-            renderUserList(users);
+            renderUserList(result.users || []);
         } else {
             container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
         }
-    } catch (e) {
-        container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
-    }
+    } catch (e) { container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>'; }
 }
 
 function renderUserList(users) {
     const container = document.getElementById('adminFullUserListContainer');
     container.innerHTML = '';
-    if (users.length === 0) {
-        container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো ইউজার নেই</p>';
-        return;
-    }
+    if (users.length === 0) { container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো ইউজার নেই</p>'; return; }
     users.forEach(u => {
         const div = document.createElement('div');
         div.className = 'admin-user-item';
         div.innerHTML = `
-            <div class="user-info">
-                <div class="user-name">${u.name} (${u.id})</div>
-                <div class="user-detail">ব্যালেন্স: ৳ ${u.balance} | কাজ: ${u.messagesSentToday || 0} ${u.isPremium ? '⭐' : '🔹'}</div>
-            </div>
+            <div class="user-info"><div class="user-name">${u.name} (${u.id})</div><div class="user-detail">ব্যালেন্স: ৳ ${u.balance} | কাজ: ${u.messagesSentToday || 0} ${u.isPremium ? '⭐' : '🔹'}</div></div>
             <div class="user-actions">
                 <button class="btn-edit" data-phone="${u.id}">✏️</button>
                 <button class="btn-block" data-phone="${u.id}">${u.blocked ? 'আনব্লক' : 'ব্লক'}</button>
@@ -2026,34 +1744,14 @@ function renderUserList(users) {
         `;
         container.appendChild(div);
     });
-    
-    container.querySelectorAll('.btn-edit').forEach(btn => {
-        btn.addEventListener('click', function() {
-            openAdminEditUser(this.getAttribute('data-phone'));
-        });
-    });
-    
-    container.querySelectorAll('.btn-block').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const phone = this.getAttribute('data-phone');
-            toggleBlockUser(phone);
-        });
-    });
-    
-    container.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const phone = this.getAttribute('data-phone');
-            deleteUser(phone);
-        });
-    });
+    container.querySelectorAll('.btn-edit').forEach(btn => btn.addEventListener('click', function() { openAdminEditUser(this.getAttribute('data-phone')); }));
+    container.querySelectorAll('.btn-block').forEach(btn => btn.addEventListener('click', function() { toggleBlockUser(this.getAttribute('data-phone')); }));
+    container.querySelectorAll('.btn-delete').forEach(btn => btn.addEventListener('click', function() { deleteUser(this.getAttribute('data-phone')); }));
 }
 
-document.getElementById('adminUserSearchBox').addEventListener('input', function() {
-    // Filter logic can be added here
-});
+document.getElementById('adminUserSearchBox').addEventListener('input', function() {});
 
 let editingSelectedPhone = null;
-
 function openAdminEditUser(phone) {
     editingSelectedPhone = phone;
     apiCall(`/user/${phone}`).then(result => {
@@ -2072,12 +1770,11 @@ function openAdminEditUser(phone) {
 
 document.getElementById('editUserSave').addEventListener('click', async function() {
     if (!editingSelectedPhone) return;
-    const name = document.getElementById('editUserName').value.trim();
-    const balance = parseFloat(document.getElementById('editUserBalance').value);
-    const isPremium = document.getElementById('editUserType').value === 'true';
     try {
         const result = await apiCall(`/user/${editingSelectedPhone}`, 'PUT', {
-            name, balance, isPremium
+            name: document.getElementById('editUserName').value.trim(),
+            balance: parseFloat(document.getElementById('editUserBalance').value),
+            isPremium: document.getElementById('editUserType').value === 'true'
         });
         if (result.success) {
             showAlert('authAlert', '✅ আপডেট হয়েছে!', 'success');
@@ -2086,9 +1783,7 @@ document.getElementById('editUserSave').addEventListener('click', async function
         } else {
             showAlert('authAlert', result.error || 'আপডেট করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 });
 
 document.getElementById('editUserBlock').addEventListener('click', function() {
@@ -2113,9 +1808,7 @@ async function toggleBlockUser(phone) {
         } else {
             showAlert('authAlert', result.error || 'ব্লক করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 }
 
 async function deleteUser(phone) {
@@ -2130,24 +1823,20 @@ async function deleteUser(phone) {
         } else {
             showAlert('authAlert', result.error || 'ডিলিট করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 }
 
 // ====== ADMIN TASKS ======
 document.getElementById('fileArea').addEventListener('click', function() {
     document.getElementById('fileInput').click();
 });
-
 document.getElementById('fileInput').addEventListener('change', function() {
     const file = this.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
-        const numbers = e.target.result.split(/[\n,;]+/).map(n => n.trim()).filter(n => n.length > 5);
-        document.getElementById('adminTaskNumbers').value = numbers.join('\n');
-        showAlert('authAlert', '✅ ' + numbers.length + ' টি নাম্বার ইম্পোর্ট', 'success');
+        document.getElementById('adminTaskNumbers').value = e.target.result.split(/[\n,;]+/).map(n => n.trim()).filter(n => n.length > 5).join('\n');
+        showAlert('authAlert', '✅ নাম্বার ইম্পোর্ট', 'success');
     };
     reader.readAsText(file);
     this.value = '';
@@ -2156,41 +1845,29 @@ document.getElementById('fileInput').addEventListener('change', function() {
 document.getElementById('pubTaskBtn').addEventListener('click', async function() {
     const raw = document.getElementById('adminTaskNumbers').value.trim();
     const msg = document.getElementById('adminTaskMessage').value.trim();
-    const freePrice = parseFloat(document.getElementById('adminFreePrice').value) || 1;
-    const premPrice = parseFloat(document.getElementById('adminPremPrice').value) || 3;
-
-    if (!raw || !msg) {
-        showAlert('authAlert', 'নম্বর ও মেসেজ দিন');
-        return;
-    }
-
+    if (!raw || !msg) { showAlert('authAlert', 'নম্বর ও মেসেজ দিন'); return; }
     const btn = this;
     btn.disabled = true;
     btn.innerText = '⏳ তৈরি...';
     document.getElementById('taskProgress').classList.remove('hidden');
     document.getElementById('taskProgressBar').style.width = '0%';
-
     try {
         const result = await apiCall('/tasks', 'POST', {
             numbers: raw,
             message: msg,
-            freePrice: freePrice,
-            premPrice: premPrice
+            freePrice: parseFloat(document.getElementById('adminFreePrice').value) || 1,
+            premPrice: parseFloat(document.getElementById('adminPremPrice').value) || 3
         });
-        
         if (result.success) {
             document.getElementById('taskProgressBar').style.width = '100%';
-            document.getElementById('taskProgressText').innerText = '✅ ' + result.created + ' টি টাস্ক তৈরি! (ডুপ্লিকেট: ' + (result.duplicates || 0) + ')';
+            document.getElementById('taskProgressText').innerText = '✅ ' + result.created + ' টি তৈরি! (ডুপ্লিকেট: ' + (result.duplicates || 0) + ')';
             showAlert('authAlert', '✅ ' + result.created + ' টি পাবলিশ!', 'success');
             document.getElementById('adminTaskNumbers').value = '';
             document.getElementById('adminTaskMessage').value = '';
         } else {
             showAlert('authAlert', result.error || 'পাবলিশ করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
-    
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
     btn.disabled = false;
     btn.innerText = '📤 পাবলিশ';
     setTimeout(() => document.getElementById('taskProgress').classList.add('hidden'), 2000);
@@ -2205,27 +1882,19 @@ async function loadAdminTasks() {
     try {
         const result = await apiCall('/tasks');
         if (result.success) {
-            const tasks = result.tasks || [];
-            renderAdminTaskList(tasks);
+            renderAdminTaskList(result.tasks || []);
             loadTaskStats();
         } else {
             container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
         }
-    } catch (e) {
-        container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
-    }
+    } catch (e) { container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>'; }
 }
 
 function renderAdminTaskList(tasks) {
     const container = document.getElementById('adminTaskListContainer');
     container.innerHTML = '';
-    if (tasks.length === 0) {
-        container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো টাস্ক নেই</p>';
-        return;
-    }
-    
+    if (tasks.length === 0) { container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো টাস্ক নেই</p>'; return; }
     selectedTaskIds = new Set();
-    
     tasks.forEach(t => {
         const div = document.createElement('div');
         div.className = 'admin-task-item';
@@ -2237,63 +1906,38 @@ function renderAdminTaskList(tasks) {
                 <div style="font-size:12px;color:#94a3b8;">রেট: ফ্রি ৳${t.freePrice || 1} | প্রিমিয়াম ৳${t.premPrice || 3}</div>
                 <span class="task-status ${statusClass}">${t.status || 'Active'}</span>
             </div>
-            <div class="task-actions">
-                <button class="btn-task-delete" data-id="${t.id}">🗑️</button>
-            </div>
+            <div class="task-actions"><button class="btn-task-delete" data-id="${t.id}">🗑️</button></div>
         `;
         container.appendChild(div);
     });
-    
     container.querySelectorAll('.task-select-checkbox').forEach(cb => {
         cb.addEventListener('change', function() {
             const id = this.getAttribute('data-id');
-            if (this.checked) {
-                selectedTaskIds.add(id);
-            } else {
-                selectedTaskIds.delete(id);
-            }
+            this.checked ? selectedTaskIds.add(id) : selectedTaskIds.delete(id);
             updateSelectAllState();
         });
     });
-    
     container.querySelectorAll('.btn-task-delete').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            deleteTask(id);
-        });
+        btn.addEventListener('click', function() { deleteTask(this.getAttribute('data-id')); });
     });
 }
 
 function updateSelectAllState() {
     const checkboxes = document.querySelectorAll('.task-select-checkbox');
-    const checked = document.querySelectorAll('.task-select-checkbox:checked');
-    const selectAll = document.getElementById('selectAllTasks');
-    if (checkboxes.length > 0 && checked.length === checkboxes.length) {
-        selectAll.checked = true;
-    } else {
-        selectAll.checked = false;
-    }
+    document.getElementById('selectAllTasks').checked = checkboxes.length > 0 && document.querySelectorAll('.task-select-checkbox:checked').length === checkboxes.length;
 }
 
 document.getElementById('selectAllTasks').addEventListener('change', function() {
-    const checkboxes = document.querySelectorAll('.task-select-checkbox');
-    checkboxes.forEach(cb => {
+    document.querySelectorAll('.task-select-checkbox').forEach(cb => {
         cb.checked = this.checked;
         const id = cb.getAttribute('data-id');
-        if (this.checked) {
-            selectedTaskIds.add(id);
-        } else {
-            selectedTaskIds.delete(id);
-        }
+        this.checked ? selectedTaskIds.add(id) : selectedTaskIds.delete(id);
     });
 });
 
 document.getElementById('deleteSelectedTasks').addEventListener('click', async function() {
     const ids = Array.from(selectedTaskIds);
-    if (ids.length === 0) {
-        showAlert('authAlert', 'কোনো টাস্ক সিলেক্ট করেনি');
-        return;
-    }
+    if (ids.length === 0) { showAlert('authAlert', 'কোনো টাস্ক সিলেক্ট করেনি'); return; }
     const confirmed = await showConfirm('🗑️ ডিলিট', 'আপনি কি ' + ids.length + ' টি টাস্ক ডিলিট করতে চান?');
     if (!confirmed) return;
     try {
@@ -2306,9 +1950,7 @@ document.getElementById('deleteSelectedTasks').addEventListener('click', async f
         } else {
             showAlert('authAlert', result.error || 'ডিলিট করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 });
 
 async function deleteTask(taskId) {
@@ -2323,9 +1965,7 @@ async function deleteTask(taskId) {
         } else {
             showAlert('authAlert', result.error || 'ডিলিট করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 }
 
 document.getElementById('deleteAllTasksBtn').addEventListener('click', async function() {
@@ -2340,9 +1980,7 @@ document.getElementById('deleteAllTasksBtn').addEventListener('click', async fun
         } else {
             showAlert('authAlert', result.error || 'ডিলিট করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 });
 
 document.getElementById('refreshTaskStatsBtn').addEventListener('click', function() {
@@ -2356,24 +1994,15 @@ async function loadAdminWithdrawals() {
     const container = document.getElementById('adminWithdrawList');
     try {
         const result = await apiCall('/withdrawals');
-        if (!result.success) {
-            container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
-            return;
-        }
-        
+        if (!result.success) { container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>'; return; }
         const withdrawals = result.withdrawals || [];
         container.innerHTML = '';
-        if (withdrawals.length === 0) {
-            container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো পেন্ডিং নেই</p>';
-            return;
-        }
-        
+        if (withdrawals.length === 0) { container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো পেন্ডিং নেই</p>'; return; }
         for (const w of withdrawals) {
             const div = document.createElement('div');
             div.style.cssText = 'background:rgba(0,0,0,0.15);padding:12px;border-radius:12px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);';
-            div.innerHTML = '<div style="font-size:13px;">📱 ' + w.phone + ' | ' + w.method + ' (' + w.accountNum + ')</div><div style="font-size:15px;font-weight:700;color:#22d3ee;">৳ ' + w.amount + '</div><button class="btn btn-success btn-sm" style="margin-top:6px;" data-id="' + w.id + '">✅ এপ্রুভ</button>';
+            div.innerHTML = `<div style="font-size:13px;">📱 ${w.phone} | ${w.method} (${w.accountNum})</div><div style="font-size:15px;font-weight:700;color:#22d3ee;">৳ ${w.amount}</div><button class="btn btn-success btn-sm" style="margin-top:6px;" data-id="${w.id}">✅ এপ্রুভ</button>`;
             container.appendChild(div);
-            
             div.querySelector('button').addEventListener('click', async function() {
                 const id = this.getAttribute('data-id');
                 const confirmed = await showConfirm('✅ এপ্রুভ', 'আপনি কি এই রিকোয়েস্ট এপ্রুভ করতে চান?');
@@ -2387,14 +2016,10 @@ async function loadAdminWithdrawals() {
                     } else {
                         showAlert('authAlert', result.error || 'এপ্রুভ করতে সমস্যা');
                     }
-                } catch (e) {
-                    showAlert('authAlert', 'এরর: ' + e.message);
-                }
+                } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
             });
         }
-    } catch (e) {
-        container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
-    }
+    } catch (e) { container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>'; }
 }
 
 // ====== ADMIN CLEANUP ======
@@ -2402,7 +2027,6 @@ document.getElementById('cleanupBtn').addEventListener('click', async function()
     const hours = parseInt(document.getElementById('cleanupDuration').value);
     const confirmed = await showConfirm('🖼️ ডেটা ক্লিনআপ', 'আপনি কি ' + hours + ' ঘণ্টা আগের ডেটা ডিলিট করতে চান?');
     if (!confirmed) return;
-    
     try {
         const result = await apiCall('/admin/cleanup', 'POST', { hours });
         if (result.success) {
@@ -2410,29 +2034,25 @@ document.getElementById('cleanupBtn').addEventListener('click', async function()
         } else {
             showAlert('authAlert', result.error || 'ক্লিনআপ করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 });
 
 // ====== ADMIN SETTINGS ======
 document.getElementById('settingsSaveBtn').addEventListener('click', async function() {
-    const data = {
-        noticeText: document.getElementById('adminNoticeText').value,
-        maintenance: document.getElementById('adminMaintenanceToggle').value === 'true',
-        freeDailyLimit: parseInt(document.getElementById('adminFreeLimit').value) || 10,
-        premiumDailyLimit: parseInt(document.getElementById('adminPremLimit').value) || 50,
-        freeUserMinWithdraw: parseFloat(document.getElementById('adminFreeMinW').value),
-        premiumUserMinWithdraw: parseFloat(document.getElementById('adminPremMinW').value),
-        p2pMin: parseFloat(document.getElementById('adminP2PMin').value),
-        referralPercent: parseFloat(document.getElementById('adminReferralPercent').value),
-        refreshHours: parseInt(document.getElementById('adminRefreshHours').value) || 24,
-        rules: document.getElementById('adminRulesText').value,
-        support: document.getElementById('adminSupportLinks').value
-    };
-    
     try {
-        const result = await apiCall('/settings', 'POST', data);
+        const result = await apiCall('/settings', 'POST', {
+            noticeText: document.getElementById('adminNoticeText').value,
+            maintenance: document.getElementById('adminMaintenanceToggle').value === 'true',
+            freeDailyLimit: parseInt(document.getElementById('adminFreeLimit').value) || 100,
+            premiumDailyLimit: parseInt(document.getElementById('adminPremLimit').value) || 500,
+            freeUserMinWithdraw: parseFloat(document.getElementById('adminFreeMinW').value),
+            premiumUserMinWithdraw: parseFloat(document.getElementById('adminPremMinW').value),
+            p2pMin: parseFloat(document.getElementById('adminP2PMin').value),
+            referralPercent: parseFloat(document.getElementById('adminReferralPercent').value),
+            refreshHours: parseInt(document.getElementById('adminRefreshHours').value) || 24,
+            rules: document.getElementById('adminRulesText').value,
+            support: document.getElementById('adminSupportLinks').value
+        });
         if (result.success) {
             showAlert('authAlert', '✅ সেটিংস সেভ!', 'success');
             loadSettings();
@@ -2440,9 +2060,7 @@ document.getElementById('settingsSaveBtn').addEventListener('click', async funct
         } else {
             showAlert('authAlert', result.error || 'সেভ করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 });
 
 // ====== ADMIN POPUP ======
@@ -2453,20 +2071,13 @@ async function loadPopupSettings() {
             document.getElementById('adminPopupMessage').value = result.notice.message || '';
             document.getElementById('adminPopupActive').value = String(result.notice.active);
         }
-    } catch (e) {
-        console.error('Load popup error:', e);
-    }
+    } catch (e) { console.error('Load popup error:', e); }
 }
 
 document.getElementById('adminPopupSaveBtn').addEventListener('click', async function() {
     const message = document.getElementById('adminPopupMessage').value.trim();
     const active = document.getElementById('adminPopupActive').value === 'true';
-    
-    if (!message) {
-        showAlert('authAlert', 'মেসেজ লিখুন');
-        return;
-    }
-    
+    if (!message) { showAlert('authAlert', 'মেসেজ লিখুন'); return; }
     try {
         const result = await apiCall('/popup-notice', 'POST', { message, active });
         if (result.success) {
@@ -2474,9 +2085,7 @@ document.getElementById('adminPopupSaveBtn').addEventListener('click', async fun
         } else {
             showAlert('authAlert', result.error || 'সেভ করতে সমস্যা');
         }
-    } catch (e) {
-        showAlert('authAlert', 'এরর: ' + e.message);
-    }
+    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
 });
 
 document.getElementById('adminPopupTestBtn').addEventListener('click', function() {
@@ -2534,25 +2143,17 @@ async function checkAutoLogin() {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('ServiceWorker registered');
-            })
-            .catch(err => {
-                console.log('ServiceWorker registration failed: ', err);
-            });
+            .then(() => console.log('ServiceWorker registered'))
+            .catch(err => console.log('ServiceWorker registration failed: ', err));
     });
 }
 
 // ====== START APP ======
 async function startApp() {
-    console.log('🚀 WA MARKETING BD - Full Version (Fixed)');
+    console.log('🚀 WA MARKETING BD - AUTO FIX VERSION');
     console.log('📱 Admin: 01866989184');
     console.log('🔑 Password: Mrinal@1271');
-    console.log('⚡ API: ' + API_BASE);
-    console.log('✅ Firebase REMOVED - Using Cloudflare Workers + KV');
-    
     document.getElementById('loadingOverlay').style.display = 'none';
-    
     const loggedIn = await checkAutoLogin();
     if (!loggedIn) {
         document.getElementById('authScreen').style.display = 'flex';
