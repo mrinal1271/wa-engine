@@ -1,5 +1,5 @@
 // ============================================================
-// WA MARKETING BD - CLOUDFLARE WORKER (FIXED VERSION)
+// WA MARKETING BD - CLOUDFLARE WORKER (FULL FIXED VERSION)
 // ============================================================
 
 export default {
