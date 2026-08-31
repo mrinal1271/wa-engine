@@ -13,7 +13,6 @@
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <meta name="theme-color" content="#8b5cf6">
     
-    <!-- PWA Install Banner -->
     <style>
         /* ===== FULL CSS ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -548,7 +547,7 @@
         }
         .drawer-item:hover { background: rgba(139,92,246,0.15); }
         
-        /* PWA Install Banner */
+        /* PWA Install Banner - Fixed */
         .pwa-install-banner {
             position: fixed;
             bottom: 80px;
@@ -564,10 +563,12 @@
             align-items: center;
             gap: 12px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-            z-index: 50;
+            z-index: 999;
             animation: slideUpBanner 0.5s ease;
         }
-        .pwa-install-banner.show { display: flex; }
+        .pwa-install-banner.show { 
+            display: flex !important; 
+        }
         @keyframes slideUpBanner {
             from { opacity: 0; transform: translateX(-50%) translateY(30px); }
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -770,8 +771,7 @@
             </div>
             <div class="balance-box">৳ <span id="userBalance">0</span></div>
         </div>
-        <div class="content">
-            <!-- ====== TASKS TAB ====== -->
+        <div class="content">            <!-- ====== TASKS TAB ====== -->
             <div id="tab-tasks" class="tab-content">
                 <div class="card">
                     <h3>📢 <span>মার্কেটিং টাস্ক</span></h3>
@@ -1100,7 +1100,7 @@
 
 <script>
 // ============================================================
-// WA MARKETING BD - FULL VERSION WITH PWA + POPUP
+// WA MARKETING BD - FULL VERSION (FIXED)
 // ============================================================
 
 // ====== CONFIGURATION ======
@@ -1274,21 +1274,24 @@ window.addEventListener('appinstalled', () => {
     document.getElementById('pwaBanner').classList.remove('show');
 });
 
+// Check if already installed
+window.addEventListener('load', () => {
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        document.getElementById('pwaBanner').classList.remove('show');
+    }
+});
+
 // ====== POPUP NOTICE ======
 async function checkPopupNotice() {
     try {
         const result = await apiCall('/popup-notice');
         if (result.success && result.notice && result.notice.active) {
-            // Check if user already seen this popup
             const userResult = await apiCall(`/user/${currentUser.phone}`);
             if (userResult.success && userResult.user.seenPopup) {
                 return;
             }
-            // Show popup
             document.getElementById('popupMessage').innerText = result.notice.message || 'কোনো মেসেজ নেই';
             document.getElementById('popupNotice').classList.add('show');
-            
-            // Mark as seen
             await apiCall('/user/popup-seen', 'POST', { phone: currentUser.phone });
         }
     } catch (e) {
@@ -1319,7 +1322,6 @@ async function loadSettings() {
                 }
             }
             
-            // Update admin form fields
             document.getElementById('adminFreeLimit').value = appSettings.freeDailyLimit || 10;
             document.getElementById('adminPremLimit').value = appSettings.premiumDailyLimit || 50;
             document.getElementById('adminFreeMinW').value = appSettings.freeUserMinWithdraw || 100;
@@ -2242,7 +2244,6 @@ function renderAdminTaskList(tasks) {
         container.appendChild(div);
     });
     
-    // Add checkbox events
     container.querySelectorAll('.task-select-checkbox').forEach(cb => {
         cb.addEventListener('change', function() {
             const id = this.getAttribute('data-id');
@@ -2544,10 +2545,11 @@ if ('serviceWorker' in navigator) {
 
 // ====== START APP ======
 async function startApp() {
-    console.log('🚀 WA MARKETING BD - Full Version with PWA + Popup');
+    console.log('🚀 WA MARKETING BD - Full Version (Fixed)');
     console.log('📱 Admin: 01866989184');
     console.log('🔑 Password: Mrinal@1271');
     console.log('⚡ API: ' + API_BASE);
+    console.log('✅ Firebase REMOVED - Using Cloudflare Workers + KV');
     
     document.getElementById('loadingOverlay').style.display = 'none';
     
