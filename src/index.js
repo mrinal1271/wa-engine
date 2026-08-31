@@ -1,5 +1,5 @@
 // ============================================================
-// WA MARKETING BD - CLOUDFLARE WORKER (FULL FIXED VERSION)
+// WA MARKETING BD - FIXED VERSION (AUTO RESET)
 // ============================================================
 
 export default {
@@ -36,7 +36,7 @@ export default {
             return new Response(JSON.stringify({ 
                 success: true, 
                 message: 'WA MARKETING BD API is running!',
-                version: '2.0'
+                version: '3.0'
             }), { headers });
         }
 
@@ -100,6 +100,15 @@ export default {
             if (user.password !== password) {
                 return new Response(JSON.stringify({ error: 'ভুল পাসওয়ার্ড' }), { headers, status: 401 });
             }
+            
+            // AUTO RESET: Check if new day, reset messagesSentToday
+            const today = new Date().toDateString();
+            if (user.lastTaskDate !== today) {
+                user.messagesSentToday = 0;
+                user.lastTaskDate = today;
+                await env.WA_KV.put(`user:${phone}`, JSON.stringify(user));
+            }
+            
             return new Response(JSON.stringify({ success: true, user: { phone, ...user } }), { headers });
         }
 
@@ -122,6 +131,13 @@ export default {
             const user = await env.WA_KV.get(`user:${phone}`, 'json');
             if (!user) {
                 return new Response(JSON.stringify({ error: 'ইউজার নেই' }), { headers, status: 404 });
+            }
+            // Auto reset on GET
+            const today = new Date().toDateString();
+            if (user.lastTaskDate !== today) {
+                user.messagesSentToday = 0;
+                user.lastTaskDate = today;
+                await env.WA_KV.put(`user:${phone}`, JSON.stringify(user));
             }
             return new Response(JSON.stringify({ success: true, user: { phone, ...user } }), { headers });
         }
@@ -243,7 +259,7 @@ export default {
         }
 
         // ============================================================
-        // PENDING CONFIRMATIONS
+        // PENDING CONFIRMATIONS (AUTO CLEANUP)
         // ============================================================
         if (path.startsWith('/pending/') && method === 'GET') {
             const phone = path.replace('/pending/', '');
@@ -323,13 +339,9 @@ export default {
                 date: new Date().toDateString(), timestamp: Date.now()
             }));
 
-            // Delete the task from Active list (mark as completed and delete)
+            // Delete the task completely after completion
             if (taskId) {
-                const task = await env.WA_KV.get(`task:${taskId}`, 'json');
-                if (task) {
-                    // Delete the task completely (not just mark completed)
-                    await env.WA_KV.delete(`task:${taskId}`);
-                }
+                await env.WA_KV.delete(`task:${taskId}`);
             }
 
             // Referral commission
@@ -475,9 +487,13 @@ export default {
             const settings = await env.WA_KV.get('settings:global', 'json');
             if (!settings) {
                 const defaults = {
-                    freeDailyLimit: 10, premiumDailyLimit: 50,
-                    freeUserMinWithdraw: 100, premiumUserMinWithdraw: 1000,
-                    p2pMin: 50, referralPercent: 10, refreshHours: 24,
+                    freeDailyLimit: 100,
+                    premiumDailyLimit: 500,
+                    freeUserMinWithdraw: 100,
+                    premiumUserMinWithdraw: 1000,
+                    p2pMin: 50,
+                    referralPercent: 10,
+                    refreshHours: 24,
                     noticeText: "🚀 WA MARKETING BD",
                     rules: "১. হোয়াটসঅ্যাপে মেসেজ পাঠান\n২. কনফার্ম করুন",
                     support: "YouTube: https://youtube.com"
