@@ -1,5 +1,5 @@
 // ============================================================
-// WA MARKETING BD - CLOUDFLARE WORKER (FULL VERSION)
+// WA MARKETING BD - CLOUDFLARE WORKER (FIXED VERSION)
 // ============================================================
 
 export default {
@@ -41,10 +41,8 @@ export default {
         }
 
         // ============================================================
-        // POPUP NOTICE (Admin Message)
+        // POPUP NOTICE
         // ============================================================
-        
-        // GET popup notice
         if (path === '/popup-notice' && method === 'GET') {
             const notice = await env.WA_KV.get('popup:notice', 'json');
             return new Response(JSON.stringify({ 
@@ -53,7 +51,6 @@ export default {
             }), { headers });
         }
 
-        // SET popup notice (Admin)
         if (path === '/popup-notice' && method === 'POST') {
             const { message, active } = body;
             await env.WA_KV.put('popup:notice', JSON.stringify({ 
@@ -67,8 +64,6 @@ export default {
         // ============================================================
         // AUTH ROUTES
         // ============================================================
-
-        // REGISTER
         if (path === '/auth/register' && method === 'POST') {
             const { phone, password, name, referredBy } = body;
             if (!phone || !password || !name) {
@@ -90,7 +85,6 @@ export default {
             return new Response(JSON.stringify({ success: true, user: { phone, ...newUser } }), { headers });
         }
 
-        // LOGIN
         if (path === '/auth/login' && method === 'POST') {
             const { phone, password } = body;
             if (!phone || !password) {
@@ -109,7 +103,6 @@ export default {
             return new Response(JSON.stringify({ success: true, user: { phone, ...user } }), { headers });
         }
 
-        // UPDATE seenPopup
         if (path === '/user/popup-seen' && method === 'POST') {
             const { phone } = body;
             if (!phone) {
@@ -124,7 +117,6 @@ export default {
             return new Response(JSON.stringify({ success: true }), { headers });
         }
 
-        // GET user
         if (path.startsWith('/user/') && method === 'GET') {
             const phone = path.replace('/user/', '');
             const user = await env.WA_KV.get(`user:${phone}`, 'json');
@@ -134,7 +126,6 @@ export default {
             return new Response(JSON.stringify({ success: true, user: { phone, ...user } }), { headers });
         }
 
-        // UPDATE user
         if (path.startsWith('/user/') && method === 'PUT') {
             const phone = path.replace('/user/', '');
             const user = await env.WA_KV.get(`user:${phone}`, 'json');
@@ -147,10 +138,8 @@ export default {
         }
 
         // ============================================================
-        // TASK ROUTES (with duplicate removal)
+        // TASK ROUTES
         // ============================================================
-
-        // GET tasks with stats
         if (path === '/tasks' && method === 'GET') {
             const list = await env.WA_KV.list({ prefix: 'task:' });
             const tasks = [];
@@ -167,7 +156,6 @@ export default {
                 }
             }
             
-            // Check if filter is applied
             const filter = url.searchParams.get('filter');
             let filteredTasks = tasks;
             if (filter === 'active') {
@@ -183,14 +171,12 @@ export default {
             }), { headers });
         }
 
-        // CREATE tasks (with duplicate removal)
         if (path === '/tasks' && method === 'POST') {
             const { numbers, message, freePrice, premPrice } = body;
             if (!numbers || !message) {
                 return new Response(JSON.stringify({ error: 'নম্বর ও মেসেজ দিন' }), { headers, status: 400 });
             }
 
-            // Get existing tasks to check duplicates
             const list = await env.WA_KV.list({ prefix: 'task:' });
             const existingPhones = new Set();
             for (const key of list.keys) {
@@ -200,15 +186,11 @@ export default {
                 }
             }
 
-            // Parse numbers and remove duplicates
             const numList = numbers.split(/[\n,;]+/)
                 .map(n => n.trim())
                 .filter(n => n.length > 5);
             
-            // Remove duplicates from input
             const uniqueNumbers = [...new Set(numList)];
-            
-            // Remove numbers that already exist
             const newNumbers = uniqueNumbers.filter(n => !existingPhones.has(n));
             
             let count = 0;
@@ -230,7 +212,7 @@ export default {
             }), { headers });
         }
 
-        // DELETE multiple tasks (selective)
+        // DELETE multiple tasks
         if (path === '/tasks/delete-multiple' && method === 'POST') {
             const { taskIds } = body;
             if (!taskIds || !Array.isArray(taskIds)) {
@@ -244,14 +226,12 @@ export default {
             return new Response(JSON.stringify({ success: true, deleted }), { headers });
         }
 
-        // DELETE task
         if (path.startsWith('/tasks/') && method === 'DELETE') {
             const taskId = path.replace('/tasks/', '');
             await env.WA_KV.delete(`task:${taskId}`);
             return new Response(JSON.stringify({ success: true }), { headers });
         }
 
-        // DELETE all tasks
         if (path === '/tasks' && method === 'DELETE') {
             const list = await env.WA_KV.list({ prefix: 'task:' });
             let deleted = 0;
@@ -265,8 +245,6 @@ export default {
         // ============================================================
         // PENDING CONFIRMATIONS
         // ============================================================
-
-        // GET pending
         if (path.startsWith('/pending/') && method === 'GET') {
             const phone = path.replace('/pending/', '');
             const list = await env.WA_KV.list({ prefix: `pending:${phone}:` });
@@ -280,12 +258,35 @@ export default {
             return new Response(JSON.stringify({ success: true, pending }), { headers });
         }
 
-        // CREATE pending
         if (path === '/tasks/complete' && method === 'POST') {
             const { phone, taskId, targetPhone, message, reward } = body;
             if (!phone || !taskId) {
                 return new Response(JSON.stringify({ error: 'তথ্য দিন' }), { headers, status: 400 });
             }
+            
+            // Check if already completed
+            const historyList = await env.WA_KV.list({ prefix: `history:${phone}:` });
+            let alreadyCompleted = false;
+            for (const key of historyList.keys) {
+                const item = await env.WA_KV.get(key.name, 'json');
+                if (item && item.taskId === taskId) {
+                    alreadyCompleted = true;
+                    break;
+                }
+            }
+            if (alreadyCompleted) {
+                return new Response(JSON.stringify({ error: 'ইতিমধ্যে সম্পন্ন' }), { headers, status: 400 });
+            }
+
+            // Check if already pending
+            const pendingList = await env.WA_KV.list({ prefix: `pending:${phone}:` });
+            for (const key of pendingList.keys) {
+                const item = await env.WA_KV.get(key.name, 'json');
+                if (item && item.taskId === taskId && item.status === 'pending') {
+                    return new Response(JSON.stringify({ error: 'ইতিমধ্যে পেন্ডিং' }), { headers, status: 400 });
+                }
+            }
+
             const pendingId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
             await env.WA_KV.put(`pending:${phone}:${pendingId}`, JSON.stringify({
                 taskId, targetPhone, message,
@@ -294,42 +295,58 @@ export default {
             return new Response(JSON.stringify({ success: true }), { headers });
         }
 
-        // CONFIRM pending
         if (path === '/pending/confirm' && method === 'POST') {
-            const { phone, pendingId, reward, taskId } = body;
+            const { phone, pendingId, reward, taskId, targetPhone } = body;
             if (!phone || !pendingId) {
                 return new Response(JSON.stringify({ error: 'তথ্য দিন' }), { headers, status: 400 });
             }
+
             const user = await env.WA_KV.get(`user:${phone}`, 'json');
             if (!user) {
                 return new Response(JSON.stringify({ error: 'ইউজার নেই' }), { headers, status: 404 });
             }
+
             user.balance = (user.balance || 0) + (reward || 1);
             user.messagesSentToday = (user.messagesSentToday || 0) + 1;
             user.lastTaskDate = new Date().toDateString();
             user.lastTaskTimestamp = Date.now();
             await env.WA_KV.put(`user:${phone}`, JSON.stringify(user));
+
+            // Delete pending
             await env.WA_KV.delete(`pending:${phone}:${pendingId}`);
-            
+
             // Save history
             const historyId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
             await env.WA_KV.put(`history:${phone}:${historyId}`, JSON.stringify({
-                taskId, target: body.targetPhone || '', reward: reward || 1,
+                taskId, target: targetPhone || '', reward: reward || 1,
                 type: 'task', status: 'Success',
                 date: new Date().toDateString(), timestamp: Date.now()
             }));
 
+            // Delete the task from Active list (mark as completed and delete)
             if (taskId) {
                 const task = await env.WA_KV.get(`task:${taskId}`, 'json');
                 if (task) {
-                    task.status = 'Completed';
-                    await env.WA_KV.put(`task:${taskId}`, JSON.stringify(task));
+                    // Delete the task completely (not just mark completed)
+                    await env.WA_KV.delete(`task:${taskId}`);
                 }
             }
+
+            // Referral commission
+            if (user.referredBy) {
+                const refUser = await env.WA_KV.get(`user:${user.referredBy}`, 'json');
+                if (refUser) {
+                    const settings = await env.WA_KV.get('settings:global', 'json');
+                    const commission = (reward || 1) * ((settings?.referralPercent || 10) / 100);
+                    refUser.balance = (refUser.balance || 0) + commission;
+                    refUser.referralEarnings = (refUser.referralEarnings || 0) + commission;
+                    await env.WA_KV.put(`user:${user.referredBy}`, JSON.stringify(refUser));
+                }
+            }
+
             return new Response(JSON.stringify({ success: true, balance: user.balance }), { headers });
         }
 
-        // CANCEL pending
         if (path === '/pending/cancel' && method === 'POST') {
             const { phone, pendingId } = body;
             if (!phone || !pendingId) {
@@ -342,7 +359,6 @@ export default {
         // ============================================================
         // P2P
         // ============================================================
-
         if (path === '/p2p/send' && method === 'POST') {
             const { sender, receiver, amount } = body;
             if (!sender || !receiver || !amount) {
@@ -374,7 +390,6 @@ export default {
         // ============================================================
         // WITHDRAW
         // ============================================================
-
         if (path === '/withdraw' && method === 'POST') {
             const { phone, method, accountNum, amount } = body;
             if (!phone || !method || !accountNum || !amount) {
@@ -404,7 +419,6 @@ export default {
             return new Response(JSON.stringify({ success: true, balance: user.balance }), { headers });
         }
 
-        // GET withdrawals
         if (path === '/withdrawals' && method === 'GET') {
             const list = await env.WA_KV.list({ prefix: 'withdraw:' });
             const withdrawals = [];
@@ -417,7 +431,6 @@ export default {
             return new Response(JSON.stringify({ success: true, withdrawals }), { headers });
         }
 
-        // Approve withdrawal
         if (path === '/withdrawals/approve' && method === 'POST') {
             const { id } = body;
             if (!id) {
@@ -427,7 +440,6 @@ export default {
             if (wd) {
                 wd.status = 'Approved';
                 await env.WA_KV.put(`withdraw:${id}`, JSON.stringify(wd));
-                // Update history
                 const list = await env.WA_KV.list({ prefix: `history:${wd.phone}:` });
                 for (const key of list.keys) {
                     const item = await env.WA_KV.get(key.name, 'json');
@@ -444,7 +456,6 @@ export default {
         // ============================================================
         // HISTORY
         // ============================================================
-
         if (path.startsWith('/history/') && method === 'GET') {
             const phone = path.replace('/history/', '');
             const list = await env.WA_KV.list({ prefix: `history:${phone}:` });
@@ -460,7 +471,6 @@ export default {
         // ============================================================
         // SETTINGS
         // ============================================================
-
         if (path === '/settings' && method === 'GET') {
             const settings = await env.WA_KV.get('settings:global', 'json');
             if (!settings) {
@@ -486,7 +496,6 @@ export default {
         // ============================================================
         // ADMIN
         // ============================================================
-
         if (path === '/admin/users' && method === 'GET') {
             const list = await env.WA_KV.list({ prefix: 'user:' });
             const users = [];
@@ -546,10 +555,6 @@ export default {
                 }
             }), { headers });
         }
-
-        // ============================================================
-        // CLEANUP
-        // ============================================================
 
         if (path === '/admin/cleanup' && method === 'POST') {
             const { hours } = body;
