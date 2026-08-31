@@ -1,5 +1,5 @@
 // ============================================================
-// WA MARKETING BD - FIXED VERSION (AUTO RESET)
+// WA MARKETING BD - DIRECT COMPLETE VERSION (NO CONFIRMATION)
 // ============================================================
 
 export default {
@@ -36,7 +36,7 @@ export default {
             return new Response(JSON.stringify({ 
                 success: true, 
                 message: 'WA MARKETING BD API is running!',
-                version: '3.0'
+                version: '4.0-DIRECT'
             }), { headers });
         }
 
@@ -101,7 +101,7 @@ export default {
                 return new Response(JSON.stringify({ error: 'ভুল পাসওয়ার্ড' }), { headers, status: 401 });
             }
             
-            // AUTO RESET: Check if new day, reset messagesSentToday
+            // Auto reset
             const today = new Date().toDateString();
             if (user.lastTaskDate !== today) {
                 user.messagesSentToday = 0;
@@ -132,7 +132,6 @@ export default {
             if (!user) {
                 return new Response(JSON.stringify({ error: 'ইউজার নেই' }), { headers, status: 404 });
             }
-            // Auto reset on GET
             const today = new Date().toDateString();
             if (user.lastTaskDate !== today) {
                 user.messagesSentToday = 0;
@@ -259,113 +258,63 @@ export default {
         }
 
         // ============================================================
-        // PENDING CONFIRMATIONS (AUTO CLEANUP)
+        // DIRECT COMPLETE (NO CONFIRMATION NEEDED)
         // ============================================================
-        if (path.startsWith('/pending/') && method === 'GET') {
-            const phone = path.replace('/pending/', '');
-            const list = await env.WA_KV.list({ prefix: `pending:${phone}:` });
-            const pending = [];
-            for (const key of list.keys) {
-                const item = await env.WA_KV.get(key.name, 'json');
-                if (item && item.status === 'pending') {
-                    pending.push({ id: key.name, ...item });
-                }
-            }
-            return new Response(JSON.stringify({ success: true, pending }), { headers });
-        }
-
-        if (path === '/tasks/complete' && method === 'POST') {
-            const { phone, taskId, targetPhone, message, reward } = body;
+        if (path === '/task/complete-direct' && method === 'POST') {
+            const { phone, taskId, targetPhone, reward, message } = body;
             if (!phone || !taskId) {
                 return new Response(JSON.stringify({ error: 'তথ্য দিন' }), { headers, status: 400 });
             }
-            
-            // Check if already completed
-            const historyList = await env.WA_KV.list({ prefix: `history:${phone}:` });
-            let alreadyCompleted = false;
-            for (const key of historyList.keys) {
-                const item = await env.WA_KV.get(key.name, 'json');
-                if (item && item.taskId === taskId) {
-                    alreadyCompleted = true;
-                    break;
-                }
-            }
-            if (alreadyCompleted) {
-                return new Response(JSON.stringify({ error: 'ইতিমধ্যে সম্পন্ন' }), { headers, status: 400 });
-            }
 
-            // Check if already pending
-            const pendingList = await env.WA_KV.list({ prefix: `pending:${phone}:` });
-            for (const key of pendingList.keys) {
-                const item = await env.WA_KV.get(key.name, 'json');
-                if (item && item.taskId === taskId && item.status === 'pending') {
-                    return new Response(JSON.stringify({ error: 'ইতিমধ্যে পেন্ডিং' }), { headers, status: 400 });
-                }
-            }
-
-            const pendingId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-            await env.WA_KV.put(`pending:${phone}:${pendingId}`, JSON.stringify({
-                taskId, targetPhone, message,
-                reward: reward || 1, status: 'pending', createdAt: Date.now()
-            }));
-            return new Response(JSON.stringify({ success: true }), { headers });
-        }
-
-        if (path === '/pending/confirm' && method === 'POST') {
-            const { phone, pendingId, reward, taskId, targetPhone } = body;
-            if (!phone || !pendingId) {
-                return new Response(JSON.stringify({ error: 'তথ্য দিন' }), { headers, status: 400 });
-            }
-
+            // Get user
             const user = await env.WA_KV.get(`user:${phone}`, 'json');
             if (!user) {
                 return new Response(JSON.stringify({ error: 'ইউজার নেই' }), { headers, status: 404 });
             }
 
-            user.balance = (user.balance || 0) + (reward || 1);
+            // Check limit
+            const limit = user.isPremium ? 500 : 100;
+            if ((user.messagesSentToday || 0) >= limit) {
+                return new Response(JSON.stringify({ error: 'লিমিট শেষ!' }), { headers, status: 400 });
+            }
+
+            // Add balance
+            const rewardAmount = reward || 1;
+            user.balance = (user.balance || 0) + rewardAmount;
             user.messagesSentToday = (user.messagesSentToday || 0) + 1;
             user.lastTaskDate = new Date().toDateString();
             user.lastTaskTimestamp = Date.now();
             await env.WA_KV.put(`user:${phone}`, JSON.stringify(user));
 
-            // Delete pending
-            await env.WA_KV.delete(`pending:${phone}:${pendingId}`);
-
             // Save history
             const historyId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
             await env.WA_KV.put(`history:${phone}:${historyId}`, JSON.stringify({
-                taskId, target: targetPhone || '', reward: reward || 1,
+                taskId, target: targetPhone || '', reward: rewardAmount,
                 type: 'task', status: 'Success',
                 date: new Date().toDateString(), timestamp: Date.now()
             }));
 
-            // Delete the task completely after completion
-            if (taskId) {
-                await env.WA_KV.delete(`task:${taskId}`);
-            }
+            // Delete the task completely
+            await env.WA_KV.delete(`task:${taskId}`);
 
             // Referral commission
             if (user.referredBy) {
                 const refUser = await env.WA_KV.get(`user:${user.referredBy}`, 'json');
                 if (refUser) {
                     const settings = await env.WA_KV.get('settings:global', 'json');
-                    const commission = (reward || 1) * ((settings?.referralPercent || 10) / 100);
+                    const commission = rewardAmount * ((settings?.referralPercent || 10) / 100);
                     refUser.balance = (refUser.balance || 0) + commission;
                     refUser.referralEarnings = (refUser.referralEarnings || 0) + commission;
                     await env.WA_KV.put(`user:${user.referredBy}`, JSON.stringify(refUser));
                 }
             }
 
-            return new Response(JSON.stringify({ success: true, balance: user.balance }), { headers });
-        }
-
-        if (path === '/pending/cancel' && method === 'POST') {
-            const { phone, pendingId } = body;
-            if (!phone || !pendingId) {
-                return new Response(JSON.stringify({ error: 'তথ্য দিন' }), { headers, status: 400 });
-            }
-            await env.WA_KV.delete(`pending:${phone}:${pendingId}`);
-            return new Response(JSON.stringify({ success: true }), { headers });
+            return new Response(JSON.stringify({ 
+                success: true, 
+                balance: user.balance,
+                messagesSentToday: user.messagesSentToday,
+                remaining: limit - user.messagesSentToday
+            }), { headers });
         }
 
         // ============================================================
