@@ -2,8 +2,18 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WA MARKETING BD</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WA">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <meta name="theme-color" content="#8b5cf6">
+    
+    <!-- PWA Install Banner -->
     <style>
         /* ===== FULL CSS ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,6 +26,7 @@
             justify-content: center;
             align-items: center;
             padding: 10px;
+            margin: 0;
         }
         .container {
             width: 100%;
@@ -30,6 +41,7 @@
             max-height: 950px;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
         .content { flex: 1; padding: 16px 18px; overflow-y: auto; }
         .hidden { display: none !important; }
@@ -72,7 +84,7 @@
         .btn-danger { background: linear-gradient(135deg, #f43f5e, #be123c); }
         .btn-accent { background: linear-gradient(135deg, #06b6d4, #0891b2); }
         .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .btn-glass { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: none; }
+        .btn-sm { padding: 8px 12px; font-size: 12px; width: auto; margin-top: 0; }
         
         .card {
             background: rgba(255,255,255,0.03);
@@ -138,9 +150,13 @@
             margin-bottom: 10px;
             border-left: 4px solid #8b5cf6;
             border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .task-item .number { font-weight: 700; color: #22d3ee; }
+        .task-item .number { font-weight: 700; color: #22d3ee; flex: 1; }
         .task-item .reward { color: #34d399; font-weight: 700; }
+        .task-item .task-check { width: 20px; height: 20px; accent-color: #8b5cf6; cursor: pointer; }
         
         .history-item {
             padding: 10px 12px;
@@ -531,18 +547,190 @@
             text-align: left;
         }
         .drawer-item:hover { background: rgba(139,92,246,0.15); }
+        
+        /* PWA Install Banner */
+        .pwa-install-banner {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #1a1040, #2d1b69);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 16px;
+            padding: 14px 20px;
+            max-width: 420px;
+            width: 90%;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            z-index: 50;
+            animation: slideUpBanner 0.5s ease;
+        }
+        .pwa-install-banner.show { display: flex; }
+        @keyframes slideUpBanner {
+            from { opacity: 0; transform: translateX(-50%) translateY(30px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        .pwa-install-banner .pwa-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #8b5cf6, #22d3ee);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 900;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .pwa-install-banner .pwa-text {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .pwa-install-banner .pwa-text small {
+            display: block;
+            font-weight: 400;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+        .pwa-install-banner .pwa-btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .pwa-install-banner .pwa-close {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        
+        /* Popup Notice */
+        .popup-notice {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-notice.show { display: flex; }
+        .popup-notice .popup-box {
+            background: linear-gradient(145deg, #1a1040, #2d1b69);
+            padding: 30px;
+            border-radius: 24px;
+            max-width: 420px;
+            width: 90%;
+            border: 1px solid rgba(139,92,246,0.2);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .popup-notice .popup-box h3 {
+            font-size: 18px;
+            color: #a78bfa;
+            margin-bottom: 12px;
+        }
+        .popup-notice .popup-box .popup-message {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #e2e8f0;
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            white-space: pre-wrap;
+        }
+        .popup-notice .popup-box .popup-close-btn {
+            margin-top: 16px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .popup-notice .popup-box .popup-close-btn:hover {
+            transform: scale(1.02);
+        }
+        
+        .task-actions-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .task-actions-bar .btn-sm {
+            padding: 6px 14px;
+            font-size: 11px;
+            width: auto;
+            margin: 0;
+        }
+        .task-select-all {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+        .task-select-all input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #8b5cf6;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
+<!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner-big"></div>
     <p>🔄 WA MARKETING BD লোড হচ্ছে...</p>
 </div>
 
+<!-- POPUP NOTICE -->
+<div class="popup-notice" id="popupNotice">
+    <div class="popup-box">
+        <h3>📢 <span id="popupTitle">ঘোষণা</span></h3>
+        <div class="popup-message" id="popupMessage">মেসেজ লোড হচ্ছে...</div>
+        <button class="popup-close-btn" id="popupCloseBtn">✅ পড়েছি, বন্ধ করুন</button>
+    </div>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="pwa-install-banner" id="pwaBanner">
+    <div class="pwa-icon">WA</div>
+    <div class="pwa-text">
+        📲 অ্যাপ ইন্সটল করুন
+        <small>দ্রুত ও সহজ অভিজ্ঞতার জন্য</small>
+    </div>
+    <button class="pwa-btn" id="pwaInstallBtn">ইন্সটল</button>
+    <button class="pwa-close" id="pwaCloseBtn">✕</button>
+</div>
+
 <div class="container" id="app">
     
-    <!-- AUTH SCREEN -->
+    <!-- ====== AUTH SCREEN ====== -->
     <div id="authScreen" class="content" style="display:flex;flex-direction:column;justify-content:center;">
         <div style="max-width:380px;margin:0 auto;width:100%;">
             <div style="text-align:center;margin-bottom:24px;">
@@ -562,7 +750,7 @@
         </div>
     </div>
 
-    <!-- MAIN SCREEN -->
+    <!-- ====== MAIN SCREEN ====== -->
     <div id="mainScreen" class="hidden" style="display:flex;flex-direction:column;height:100%;">
         <div class="notification-slider" id="notificationSlider">
             <div class="slide-item">🟢 রহিম ২০০ টাকা উত্তোলন করেছে</div>
@@ -583,7 +771,7 @@
             <div class="balance-box">৳ <span id="userBalance">0</span></div>
         </div>
         <div class="content">
-            <!-- TASKS -->
+            <!-- ====== TASKS TAB ====== -->
             <div id="tab-tasks" class="tab-content">
                 <div class="card">
                     <h3>📢 <span>মার্কেটিং টাস্ক</span></h3>
@@ -609,6 +797,7 @@
                 <div id="taskListContainer"></div>
             </div>
 
+            <!-- ====== CONFIRM TAB ====== -->
             <div id="tab-confirm" class="tab-content hidden">
                 <div class="card">
                     <h3>✅ <span>মেসেজ কনফার্মেশন</span></h3>
@@ -617,6 +806,7 @@
                 </div>
             </div>
 
+            <!-- ====== P2P TAB ====== -->
             <div id="tab-p2p" class="tab-content hidden">
                 <div class="card">
                     <h3>🔄 <span>P2P ট্রান্সফার</span></h3>
@@ -627,6 +817,7 @@
                 </div>
             </div>
 
+            <!-- ====== WALLET TAB ====== -->
             <div id="tab-wallet" class="tab-content hidden">
                 <div class="card">
                     <h3>💳 <span>উত্তোলন</span></h3>
@@ -648,6 +839,7 @@
                 </div>
             </div>
 
+            <!-- ====== SUPPORT TAB ====== -->
             <div id="tab-support" class="tab-content hidden">
                 <div class="card">
                     <h3>📋 <span>নিয়মাবলি</span></h3>
@@ -657,6 +849,7 @@
                 </div>
             </div>
 
+            <!-- ====== HISTORY TAB ====== -->
             <div id="tab-history" class="tab-content hidden">
                 <div class="card">
                     <h3>📜 <span>হিস্টরি</span></h3>
@@ -674,6 +867,7 @@
             </div>
         </div>
 
+        <!-- ====== NAV BAR ====== -->
         <div class="nav-bar">
             <button class="nav-item active" id="navTasks"><span class="icon">📢</span>টাস্ক</button>
             <button class="nav-item" id="navP2P"><span class="icon">🔄</span>P2P</button>
@@ -684,7 +878,7 @@
         </div>
     </div>
 
-    <!-- ADMIN SCREEN -->
+    <!-- ====== ADMIN SCREEN ====== -->
     <div id="adminScreen" class="hidden" style="display:flex;flex-direction:column;height:100%;position:relative;">
         <div class="admin-drawer" id="adminDrawer">
             <h3 style="margin-bottom:20px;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">⚙️ অ্যাডমিন</h3>
@@ -694,6 +888,7 @@
             <button class="drawer-item" id="adminWithdrawals">💳 উইথড্র</button>
             <button class="drawer-item" id="adminScreenshots">🖼️ ক্লিনার</button>
             <button class="drawer-item" id="adminSettings">⚙️ সেটিংস</button>
+            <button class="drawer-item" id="adminPopup">📢 পপআপ</button>
             <button class="drawer-item" id="adminLogout" style="color:#f43f5e;">🚪 লগআউট</button>
         </div>
 
@@ -706,6 +901,7 @@
         </div>
 
         <div class="content">
+            <!-- Admin Dashboard -->
             <div id="admin-tab-dashboard" class="admin-tab-content">
                 <div class="stats-grid">
                     <div class="stat-card"><div class="num" id="admTotalMembers">0</div><div class="label">👥 মেম্বার</div></div>
@@ -716,6 +912,7 @@
                 <div class="card"><h3>📊 <span>সিস্টেম স্ট্যাটাস</span></h3><p style="font-size:13px;color:#94a3b8;">✅ Cloudflare Workers সচল</p></div>
             </div>
 
+            <!-- Admin Users -->
             <div id="admin-tab-users" class="admin-tab-content hidden">
                 <div class="card">
                     <h3>👥 <span>ইউজার ম্যানেজমেন্ট</span></h3>
@@ -741,6 +938,7 @@
                 </div>
             </div>
 
+            <!-- Admin Tasks -->
             <div id="admin-tab-tasks-admin" class="admin-tab-content hidden">
                 <div class="card" style="border-color:#8b5cf6;">
                     <h3>📢 <span>টাস্ক ম্যানেজমেন্ট</span></h3>
@@ -748,15 +946,15 @@
                     <div class="task-stats-grid">
                         <div class="task-stat-card stat-total">
                             <div class="num" id="adminTotalTasks">0</div>
-                            <div class="label">📋 মোট টাস্ক</div>
+                            <div class="label">📋 মোট</div>
                         </div>
                         <div class="task-stat-card stat-sent">
                             <div class="num" id="adminSentTasks">0</div>
-                            <div class="label">✅ পাঠানো হয়েছে</div>
+                            <div class="label">✅ পাঠানো</div>
                         </div>
                         <div class="task-stat-card stat-remaining">
                             <div class="num" id="adminRemainingTasks">0</div>
-                            <div class="label">⏳ বাকি আছে</div>
+                            <div class="label">⏳ বাকি</div>
                         </div>
                     </div>
                     
@@ -784,18 +982,25 @@
                 </div>
                 <div class="card">
                     <h3>📋 <span>সকল টাস্ক</span></h3>
-                    <div style="display:flex;gap:10px;margin-bottom:10px;">
-                        <button class="btn btn-danger" id="deleteAllTasksBtn" style="padding:8px;font-size:12px;margin:0;flex:1;">🗑️ সব ডিলিট</button>
-                        <button class="btn btn-accent" id="refreshTaskStatsBtn" style="padding:8px;font-size:12px;margin:0;flex:1;">🔄 রিফ্রেশ</button>
+                    <div class="task-actions-bar">
+                        <div class="task-select-all">
+                            <input type="checkbox" id="selectAllTasks">
+                            <label for="selectAllTasks">সব সিলেক্ট</label>
+                        </div>
+                        <button class="btn btn-danger btn-sm" id="deleteSelectedTasks">🗑️ সিলেক্টেড ডিলিট</button>
+                        <button class="btn btn-danger btn-sm" id="deleteAllTasksBtn">🗑️ সব ডিলিট</button>
+                        <button class="btn btn-accent btn-sm" id="refreshTaskStatsBtn">🔄 রিফ্রেশ</button>
                     </div>
                     <div id="adminTaskListContainer" style="max-height:300px;overflow-y:auto;"></div>
                 </div>
             </div>
 
+            <!-- Admin Withdrawals -->
             <div id="admin-tab-withdrawals" class="admin-tab-content hidden">
                 <div class="card"><h3>💳 <span>পেন্ডিং রিকোয়েস্ট</span></h3><div id="adminWithdrawList"><p style="text-align:center;color:#94a3b8;padding:20px;font-size:13px;">কোনো পেন্ডিং নেই</p></div></div>
             </div>
 
+            <!-- Admin Cleanup -->
             <div id="admin-tab-screenshots" class="admin-tab-content hidden">
                 <div class="card">
                     <h3>🖼️ <span>ডেটা ক্লিনআপ</span></h3>
@@ -813,6 +1018,7 @@
                 </div>
             </div>
 
+            <!-- Admin Settings -->
             <div id="admin-tab-settings" class="admin-tab-content hidden">
                 <div class="card">
                     <h3>⚙️ <span>গ্লোবাল সেটিংস</span></h3>
@@ -831,11 +1037,6 @@
                             <input type="number" id="adminPremLimit" placeholder="প্রিমিয়াম লিমিট" value="50">
                         </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label>💰 আপগ্রেড ফি (ডিফল্ট)</label>
-                        <input type="number" id="adminUpgradeFee" placeholder="আপগ্রেড ফি" value="200">
-                    </div>
                     <div class="form-group">
                         <label>💰 ন্যূনতম উত্তোলন</label>
                         <div style="display:flex;gap:10px;">
@@ -844,31 +1045,48 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>💰 ন্যূনতম P2P / ফ্লেক্সি</label>
-                        <div style="display:flex;gap:10px;">
-                            <input type="number" id="adminP2PMin" placeholder="P2P" value="50">
-                            <input type="number" id="adminFlexiMin" placeholder="Flexi" value="20">
-                        </div>
+                        <label>💰 ন্যূনতম P2P</label>
+                        <input type="number" id="adminP2PMin" placeholder="P2P" value="50">
                     </div>
                     <div class="form-group">
                         <label>👥 রেফারেল কমিশন (%)</label>
                         <input type="number" id="adminReferralPercent" placeholder="10" value="10">
                     </div>
                     <div class="form-group">
-                        <label>⏰ কাজ রিফ্রেশ সময় (ঘন্টায়)</label>
+                        <label>⏰ রিফ্রেশ সময় (ঘন্টায়)</label>
                         <input type="number" id="adminRefreshHours" placeholder="২৪" value="24">
-                        <p style="font-size:11px;color:#64748b;margin-top:4px;">💡 ২৪ = প্রতিদিন ১ বার | ১২ = দিনে ২ বার | ৬ = দিনে ৪ বার</p>
                     </div>
                     <div class="form-group"><label>📋 নিয়মাবলি</label><textarea id="adminRulesText" rows="2"></textarea></div>
                     <div class="form-group"><label>🔗 সাপোর্ট লিংক</label><textarea id="adminSupportLinks" rows="3"></textarea></div>
                     <button class="btn btn-success" id="settingsSaveBtn">💾 সেভ</button>
                 </div>
             </div>
+
+            <!-- Admin Popup -->
+            <div id="admin-tab-popup" class="admin-tab-content hidden">
+                <div class="card">
+                    <h3>📢 <span>পপআপ নোটিশ</span></h3>
+                    <p style="font-size:13px;color:#94a3b8;margin-bottom:10px;">লগইনের পর ইউজারদের এই মেসেজ দেখাবে</p>
+                    <div class="form-group">
+                        <label>📝 মেসেজ</label>
+                        <textarea id="adminPopupMessage" rows="4" placeholder="পপআপ মেসেজ লিখুন..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>🔘 সক্রিয়</label>
+                        <select id="adminPopupActive">
+                            <option value="true">✅ সক্রিয়</option>
+                            <option value="false">❌ নিষ্ক্রিয়</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" id="adminPopupSaveBtn">💾 সেভ</button>
+                    <button class="btn btn-warning" id="adminPopupTestBtn">🔍 টেস্ট</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- CONFIRM MODAL -->
+<!-- ====== CONFIRM MODAL ====== -->
 <div id="confirmModal" class="modal-overlay hidden">
     <div class="modal-box">
         <h3 id="confirmTitle">🔔 নিশ্চিত করুন</h3>
@@ -882,12 +1100,12 @@
 
 <script>
 // ============================================================
-// WA MARKETING BD - Cloudflare Workers + KV Version
-// Firebase REMOVED - Using Cloudflare Worker API
+// WA MARKETING BD - FULL VERSION WITH PWA + POPUP
 // ============================================================
 
 // ====== CONFIGURATION ======
 const API_BASE = 'https://wa-engine.mrinala30.workers.dev';
+const APP_NAME = 'WA Marketing BD';
 
 // ====== CONFIRMATION DIALOG ======
 let confirmResolve = null;
@@ -915,6 +1133,7 @@ let currentUser = null;
 let isRegisterMode = false;
 let historyFilter = 'all';
 let appSettings = {};
+let selectedTaskIds = new Set();
 
 // ====== SHOW ALERT ======
 function showAlert(id, message, type) {
@@ -949,26 +1168,35 @@ function formatPhoneForWhatsApp(phone) {
 
 // ====== API HELPER ======
 async function apiCall(endpoint, method = 'GET', data = null) {
-    const options = {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
+    try {
+        const options = {
+            method: method,
+            headers: { 'Content-Type': 'application/json' }
+        };
+        if (data) {
+            options.body = JSON.stringify(data);
         }
-    };
-    if (data) {
-        options.body = JSON.stringify(data);
+        const response = await fetch(`${API_BASE}${endpoint}`, options);
+        const text = await response.text();
+        if (!text || text.trim() === '') {
+            throw new Error('Server returned empty response');
+        }
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error('Invalid JSON: ' + text.substring(0, 100));
+        }
+    } catch (e) {
+        console.error('API Error:', e.message);
+        throw e;
     }
-    const response = await fetch(`${API_BASE}${endpoint}`, options);
-    return await response.json();
 }
 
 // ====== UPDATE NOTIFICATION SLIDER ======
 const userNames = [
     'রহিম', 'করিম', 'সুমন', 'রিনা', 'জাকির', 'নাজমা', 'রুবেল', 'সালমা',
     'মিনহাজ', 'তানিয়া', 'রনি', 'লিমা', 'শুভ', 'পপি', 'রাজ', 'মিম',
-    'হাসান', 'সাব্বির', 'নাদিয়া', 'ইমন', 'স্নিগ্ধা', 'রাফি', 'পার্থ', 'রিয়া',
-    'শাওন', 'ময়না', 'আকাশ', 'মেঘলা', 'অর্ণব', 'প্রিয়া', 'সজল', 'রুমা',
-    'তৌহিদ', 'সুমাইয়া', 'রাকিব', 'নুসরাত', 'মাসুম', 'রোজী', 'ইফতেখার', 'লিজা'
+    'হাসান', 'সাব্বির', 'নাদিয়া', 'ইমন', 'স্নিগ্ধা', 'রাফি', 'পার্থ', 'রিয়া'
 ];
 
 function generateRandomAmount() {
@@ -1018,6 +1246,60 @@ function renderSupportLinks(support) {
     }
 }
 
+// ====== PWA INSTALL ======
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('pwaBanner').classList.add('show');
+});
+
+document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const result = await deferredPrompt.userChoice;
+        if (result.outcome === 'accepted') {
+            document.getElementById('pwaBanner').classList.remove('show');
+        }
+        deferredPrompt = null;
+    }
+});
+
+document.getElementById('pwaCloseBtn').addEventListener('click', () => {
+    document.getElementById('pwaBanner').classList.remove('show');
+});
+
+window.addEventListener('appinstalled', () => {
+    document.getElementById('pwaBanner').classList.remove('show');
+});
+
+// ====== POPUP NOTICE ======
+async function checkPopupNotice() {
+    try {
+        const result = await apiCall('/popup-notice');
+        if (result.success && result.notice && result.notice.active) {
+            // Check if user already seen this popup
+            const userResult = await apiCall(`/user/${currentUser.phone}`);
+            if (userResult.success && userResult.user.seenPopup) {
+                return;
+            }
+            // Show popup
+            document.getElementById('popupMessage').innerText = result.notice.message || 'কোনো মেসেজ নেই';
+            document.getElementById('popupNotice').classList.add('show');
+            
+            // Mark as seen
+            await apiCall('/user/popup-seen', 'POST', { phone: currentUser.phone });
+        }
+    } catch (e) {
+        console.error('Popup check error:', e);
+    }
+}
+
+document.getElementById('popupCloseBtn').addEventListener('click', () => {
+    document.getElementById('popupNotice').classList.remove('show');
+});
+
 // ====== LOAD SETTINGS ======
 async function loadSettings() {
     try {
@@ -1036,6 +1318,18 @@ async function loadSettings() {
                     document.getElementById('withdrawLimitInfo').innerText = 'ন্যূনতম: ৳ ' + (appSettings.freeUserMinWithdraw || 100);
                 }
             }
+            
+            // Update admin form fields
+            document.getElementById('adminFreeLimit').value = appSettings.freeDailyLimit || 10;
+            document.getElementById('adminPremLimit').value = appSettings.premiumDailyLimit || 50;
+            document.getElementById('adminFreeMinW').value = appSettings.freeUserMinWithdraw || 100;
+            document.getElementById('adminPremMinW').value = appSettings.premiumUserMinWithdraw || 1000;
+            document.getElementById('adminP2PMin').value = appSettings.p2pMin || 50;
+            document.getElementById('adminReferralPercent').value = appSettings.referralPercent || 10;
+            document.getElementById('adminRefreshHours').value = appSettings.refreshHours || 24;
+            document.getElementById('adminNoticeText').value = appSettings.noticeText || '';
+            document.getElementById('adminRulesText').value = appSettings.rules || '';
+            document.getElementById('adminSupportLinks').value = appSettings.support || '';
         }
     } catch (e) {
         console.error('Settings load error:', e);
@@ -1117,7 +1411,7 @@ document.getElementById('authBtn').addEventListener('click', async function() {
 });
 
 // ====== SHOW MAIN SCREEN ======
-function showMainScreen() {
+async function showMainScreen() {
     document.getElementById('authScreen').classList.add('hidden');
     document.getElementById('mainScreen').classList.remove('hidden');
     document.getElementById('userNameDisplay').innerText = currentUser.name || 'ইউজার';
@@ -1132,11 +1426,12 @@ function showMainScreen() {
         document.getElementById('userTypeBadge').innerText = '🔹 ফ্রি';
     }
     
-    loadSettings();
-    loadUserTasks();
-    loadUserHistory();
-    loadReferralEarnings();
-    checkPendingConfirmations();
+    await loadSettings();
+    await loadUserTasks();
+    await loadUserHistory();
+    await loadReferralEarnings();
+    await checkPendingConfirmations();
+    await checkPopupNotice();
     
     setInterval(updateNotificationSlider, 30000);
 }
@@ -1158,7 +1453,6 @@ async function checkUserTaskLimit() {
         const lastDate = user.lastTaskDate || '';
         
         if (lastDate !== today) {
-            // Reset daily count
             const updateResult = await apiCall(`/user/${currentUser.phone}`, 'PUT', {
                 messagesSentToday: 0,
                 lastTaskDate: today,
@@ -1218,7 +1512,6 @@ function startTaskAction(taskId, phone, message, reward) {
         if (!confirmed) return;
         
         try {
-            // Create pending confirmation
             const result = await apiCall('/tasks/complete', 'POST', {
                 phone: currentUser.phone,
                 taskId: taskId,
@@ -1246,7 +1539,7 @@ function startTaskAction(taskId, phone, message, reward) {
     });
 }
 
-// ====== PENDING CONFIRMATION SYSTEM ======
+// ====== PENDING CONFIRMATION ======
 async function checkPendingConfirmations() {
     if (!currentUser) return;
     try {
@@ -1363,7 +1656,6 @@ async function loadUserTasks() {
     container.innerHTML = '<div class="spinner"></div>';
     
     try {
-        // Check pending first
         const pendingResult = await apiCall(`/pending/${currentUser.phone}`);
         if (pendingResult.success && pendingResult.pending && pendingResult.pending.length > 0) {
             container.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(245,158,11,0.05);border-radius:14px;border:1px solid rgba(245,158,11,0.1);">
@@ -1420,16 +1712,14 @@ async function loadUserTasks() {
             const div = document.createElement('div');
             div.className = 'task-item';
             div.innerHTML = `
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span class="number">📱 ${task.targetPhone}</span>
-                    <span class="reward">৳ ${reward}</span>
-                </div>
-                <button class="btn btn-accent" style="margin-top:8px;padding:10px;font-size:12px;" 
+                <span class="number">📱 ${task.targetPhone}</span>
+                <span class="reward">৳ ${reward}</span>
+                <button class="btn btn-accent btn-sm" 
                     data-taskid="${task.id}" 
                     data-phone="${task.targetPhone}" 
                     data-msg="${task.message.replace(/"/g, '&quot;')}" 
                     data-reward="${reward}">
-                    ✉️ মেসেজ পাঠান
+                    ✉️ পাঠান
                 </button>
             `;
             container.appendChild(div);
@@ -1651,6 +1941,10 @@ function switchAdminTab(tabId) {
     
     if (tabId === 'tasks-admin') {
         loadTaskStats();
+        loadAdminTasks();
+    }
+    if (tabId === 'popup') {
+        loadPopupSettings();
     }
 }
 
@@ -1660,32 +1954,28 @@ document.getElementById('adminTasksTab').addEventListener('click', function() { 
 document.getElementById('adminWithdrawals').addEventListener('click', function() { switchAdminTab('withdrawals'); });
 document.getElementById('adminScreenshots').addEventListener('click', function() { switchAdminTab('screenshots'); });
 document.getElementById('adminSettings').addEventListener('click', function() { switchAdminTab('settings'); });
+document.getElementById('adminPopup').addEventListener('click', function() { switchAdminTab('popup'); });
 
-document.getElementById('refreshTaskStatsBtn').addEventListener('click', function() {
-    loadTaskStats();
-    showAlert('authAlert', '✅ স্ট্যাটাস রিফ্রেশ হয়েছে!', 'success');
-});
-
+// ====== ADMIN TASK STATS ======
 async function loadTaskStats() {
     try {
-        const tasksResult = await apiCall('/tasks');
-        if (tasksResult.success) {
-            const tasks = tasksResult.tasks || [];
-            const total = tasks.length;
-            let sent = 0;
-            tasks.forEach(t => { if (t.status === 'Completed') sent++; });
-            document.getElementById('adminTotalTasks').innerText = total;
-            document.getElementById('adminSentTasks').innerText = sent;
-            document.getElementById('adminRemainingTasks').innerText = total - sent;
+        const result = await apiCall('/tasks');
+        if (result.success) {
+            const tasks = result.tasks || [];
+            const stats = result.stats || { total: 0, sent: 0, remaining: 0 };
+            document.getElementById('adminTotalTasks').innerText = stats.total || 0;
+            document.getElementById('adminSentTasks').innerText = stats.sent || 0;
+            document.getElementById('adminRemainingTasks').innerText = stats.remaining || 0;
         }
     } catch (e) {}
 }
 
+// ====== ADMIN DASHBOARD ======
 async function loadAdminDashboard() {
     try {
-        const statsResult = await apiCall('/admin/stats');
-        if (statsResult.success) {
-            const stats = statsResult.stats;
+        const result = await apiCall('/admin/stats');
+        if (result.success) {
+            const stats = result.stats;
             document.getElementById('admTotalMembers').innerText = stats.totalUsers || 0;
             document.getElementById('admActiveWorkers').innerText = stats.activeWorkers || 0;
             document.getElementById('admPendingWithdrawCount').innerText = stats.pendingWithdrawals || 0;
@@ -1694,6 +1984,7 @@ async function loadAdminDashboard() {
     } catch (e) {}
 }
 
+// ====== ADMIN USERS ======
 async function loadAdminUsers() {
     const container = document.getElementById('adminFullUserListContainer');
     container.innerHTML = '<div class="spinner"></div>';
@@ -1756,12 +2047,13 @@ function renderUserList(users) {
 }
 
 document.getElementById('adminUserSearchBox').addEventListener('input', function() {
-    // Filter logic if needed
+    // Filter logic can be added here
 });
+
+let editingSelectedPhone = null;
 
 function openAdminEditUser(phone) {
     editingSelectedPhone = phone;
-    // Load user data from API
     apiCall(`/user/${phone}`).then(result => {
         if (!result.success) return;
         const u = result.user;
@@ -1870,12 +2162,6 @@ document.getElementById('pubTaskBtn').addEventListener('click', async function()
         return;
     }
 
-    const numbers = raw.split(/[\n,;]+/).map(n => n.trim()).filter(n => n.length > 5);
-    if (numbers.length === 0) {
-        showAlert('authAlert', 'সঠিক নম্বর নেই');
-        return;
-    }
-
     const btn = this;
     btn.disabled = true;
     btn.innerText = '⏳ তৈরি...';
@@ -1892,7 +2178,7 @@ document.getElementById('pubTaskBtn').addEventListener('click', async function()
         
         if (result.success) {
             document.getElementById('taskProgressBar').style.width = '100%';
-            document.getElementById('taskProgressText').innerText = '✅ ' + result.created + ' টি টাস্ক তৈরি!';
+            document.getElementById('taskProgressText').innerText = '✅ ' + result.created + ' টি টাস্ক তৈরি! (ডুপ্লিকেট: ' + (result.duplicates || 0) + ')';
             showAlert('authAlert', '✅ ' + result.created + ' টি পাবলিশ!', 'success');
             document.getElementById('adminTaskNumbers').value = '';
             document.getElementById('adminTaskMessage').value = '';
@@ -1935,12 +2221,16 @@ function renderAdminTaskList(tasks) {
         container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো টাস্ক নেই</p>';
         return;
     }
+    
+    selectedTaskIds = new Set();
+    
     tasks.forEach(t => {
         const div = document.createElement('div');
         div.className = 'admin-task-item';
         const statusClass = t.status === 'Active' ? 'task-status-active' : 'task-status-completed';
         div.innerHTML = `
             <div class="task-info">
+                <input type="checkbox" class="task-select-checkbox" data-id="${t.id}" style="width:18px;height:18px;accent-color:#8b5cf6;margin-right:10px;">
                 <div class="task-phone">📱 ${t.targetPhone}</div>
                 <div style="font-size:12px;color:#94a3b8;">রেট: ফ্রি ৳${t.freePrice || 1} | প্রিমিয়াম ৳${t.premPrice || 3}</div>
                 <span class="task-status ${statusClass}">${t.status || 'Active'}</span>
@@ -1952,6 +2242,19 @@ function renderAdminTaskList(tasks) {
         container.appendChild(div);
     });
     
+    // Add checkbox events
+    container.querySelectorAll('.task-select-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+            const id = this.getAttribute('data-id');
+            if (this.checked) {
+                selectedTaskIds.add(id);
+            } else {
+                selectedTaskIds.delete(id);
+            }
+            updateSelectAllState();
+        });
+    });
+    
     container.querySelectorAll('.btn-task-delete').forEach(btn => {
         btn.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
@@ -1959,6 +2262,53 @@ function renderAdminTaskList(tasks) {
         });
     });
 }
+
+function updateSelectAllState() {
+    const checkboxes = document.querySelectorAll('.task-select-checkbox');
+    const checked = document.querySelectorAll('.task-select-checkbox:checked');
+    const selectAll = document.getElementById('selectAllTasks');
+    if (checkboxes.length > 0 && checked.length === checkboxes.length) {
+        selectAll.checked = true;
+    } else {
+        selectAll.checked = false;
+    }
+}
+
+document.getElementById('selectAllTasks').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.task-select-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = this.checked;
+        const id = cb.getAttribute('data-id');
+        if (this.checked) {
+            selectedTaskIds.add(id);
+        } else {
+            selectedTaskIds.delete(id);
+        }
+    });
+});
+
+document.getElementById('deleteSelectedTasks').addEventListener('click', async function() {
+    const ids = Array.from(selectedTaskIds);
+    if (ids.length === 0) {
+        showAlert('authAlert', 'কোনো টাস্ক সিলেক্ট করেনি');
+        return;
+    }
+    const confirmed = await showConfirm('🗑️ ডিলিট', 'আপনি কি ' + ids.length + ' টি টাস্ক ডিলিট করতে চান?');
+    if (!confirmed) return;
+    try {
+        const result = await apiCall('/tasks/delete-multiple', 'POST', { taskIds: ids });
+        if (result.success) {
+            showAlert('authAlert', '✅ ' + result.deleted + ' টি ডিলিট!', 'success');
+            selectedTaskIds = new Set();
+            loadAdminTasks();
+            loadTaskStats();
+        } else {
+            showAlert('authAlert', result.error || 'ডিলিট করতে সমস্যা');
+        }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    }
+});
 
 async function deleteTask(taskId) {
     const confirmed = await showConfirm('🗑️ টাস্ক ডিলিট', 'আপনি কি এই টাস্কটি ডিলিট করতে চান?');
@@ -1983,7 +2333,7 @@ document.getElementById('deleteAllTasksBtn').addEventListener('click', async fun
     try {
         const result = await apiCall('/tasks', 'DELETE');
         if (result.success) {
-            showAlert('authAlert', '✅ সব টাস্ক ডিলিট!', 'success');
+            showAlert('authAlert', '✅ ' + result.deleted + ' টি ডিলিট!', 'success');
             loadAdminTasks();
             loadTaskStats();
         } else {
@@ -1992,6 +2342,12 @@ document.getElementById('deleteAllTasksBtn').addEventListener('click', async fun
     } catch (e) {
         showAlert('authAlert', 'এরর: ' + e.message);
     }
+});
+
+document.getElementById('refreshTaskStatsBtn').addEventListener('click', function() {
+    loadAdminTasks();
+    loadTaskStats();
+    showAlert('authAlert', '✅ রিফ্রেশ হয়েছে!', 'success');
 });
 
 // ====== ADMIN WITHDRAWALS ======
@@ -2014,7 +2370,7 @@ async function loadAdminWithdrawals() {
         for (const w of withdrawals) {
             const div = document.createElement('div');
             div.style.cssText = 'background:rgba(0,0,0,0.15);padding:12px;border-radius:12px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);';
-            div.innerHTML = '<div style="font-size:13px;">📱 ' + w.phone + ' | ' + w.method + ' (' + w.accountNum + ')</div><div style="font-size:15px;font-weight:700;color:#22d3ee;">৳ ' + w.amount + '</div><button class="btn btn-success" style="margin:0;padding:8px;font-size:12px;margin-top:6px;" data-id="' + w.id + '">✅ এপ্রুভ</button>';
+            div.innerHTML = '<div style="font-size:13px;">📱 ' + w.phone + ' | ' + w.method + ' (' + w.accountNum + ')</div><div style="font-size:15px;font-weight:700;color:#22d3ee;">৳ ' + w.amount + '</div><button class="btn btn-success btn-sm" style="margin-top:6px;" data-id="' + w.id + '">✅ এপ্রুভ</button>';
             container.appendChild(div);
             
             div.querySelector('button').addEventListener('click', async function() {
@@ -2065,15 +2421,13 @@ document.getElementById('settingsSaveBtn').addEventListener('click', async funct
         maintenance: document.getElementById('adminMaintenanceToggle').value === 'true',
         freeDailyLimit: parseInt(document.getElementById('adminFreeLimit').value) || 10,
         premiumDailyLimit: parseInt(document.getElementById('adminPremLimit').value) || 50,
-        upgradeFee: parseInt(document.getElementById('adminUpgradeFee').value) || 200,
-        flexiMin: parseFloat(document.getElementById('adminFlexiMin').value),
-        p2pMin: parseFloat(document.getElementById('adminP2PMin').value),
         freeUserMinWithdraw: parseFloat(document.getElementById('adminFreeMinW').value),
         premiumUserMinWithdraw: parseFloat(document.getElementById('adminPremMinW').value),
-        rules: document.getElementById('adminRulesText').value,
-        support: document.getElementById('adminSupportLinks').value,
+        p2pMin: parseFloat(document.getElementById('adminP2PMin').value),
         referralPercent: parseFloat(document.getElementById('adminReferralPercent').value),
-        refreshHours: parseInt(document.getElementById('adminRefreshHours').value) || 24
+        refreshHours: parseInt(document.getElementById('adminRefreshHours').value) || 24,
+        rules: document.getElementById('adminRulesText').value,
+        support: document.getElementById('adminSupportLinks').value
     };
     
     try {
@@ -2088,6 +2442,46 @@ document.getElementById('settingsSaveBtn').addEventListener('click', async funct
     } catch (e) {
         showAlert('authAlert', 'এরর: ' + e.message);
     }
+});
+
+// ====== ADMIN POPUP ======
+async function loadPopupSettings() {
+    try {
+        const result = await apiCall('/popup-notice');
+        if (result.success && result.notice) {
+            document.getElementById('adminPopupMessage').value = result.notice.message || '';
+            document.getElementById('adminPopupActive').value = String(result.notice.active);
+        }
+    } catch (e) {
+        console.error('Load popup error:', e);
+    }
+}
+
+document.getElementById('adminPopupSaveBtn').addEventListener('click', async function() {
+    const message = document.getElementById('adminPopupMessage').value.trim();
+    const active = document.getElementById('adminPopupActive').value === 'true';
+    
+    if (!message) {
+        showAlert('authAlert', 'মেসেজ লিখুন');
+        return;
+    }
+    
+    try {
+        const result = await apiCall('/popup-notice', 'POST', { message, active });
+        if (result.success) {
+            showAlert('authAlert', '✅ পপআপ সেভ!', 'success');
+        } else {
+            showAlert('authAlert', result.error || 'সেভ করতে সমস্যা');
+        }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    }
+});
+
+document.getElementById('adminPopupTestBtn').addEventListener('click', function() {
+    const message = document.getElementById('adminPopupMessage').value.trim() || 'টেস্ট মেসেজ';
+    document.getElementById('popupMessage').innerText = message;
+    document.getElementById('popupNotice').classList.add('show');
 });
 
 // ====== LOGOUT ======
@@ -2135,13 +2529,25 @@ async function checkAutoLogin() {
     return false;
 }
 
+// ====== SERVICE WORKER REGISTRATION ======
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('ServiceWorker registered');
+            })
+            .catch(err => {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+    });
+}
+
 // ====== START APP ======
 async function startApp() {
-    console.log('🚀 WA MARKETING BD - Cloudflare Workers Version');
+    console.log('🚀 WA MARKETING BD - Full Version with PWA + Popup');
     console.log('📱 Admin: 01866989184');
     console.log('🔑 Password: Mrinal@1271');
     console.log('⚡ API: ' + API_BASE);
-    console.log('✅ Firebase REMOVED - Using Cloudflare Workers + KV');
     
     document.getElementById('loadingOverlay').style.display = 'none';
     
@@ -2151,7 +2557,6 @@ async function startApp() {
     }
 }
 
-// Start when DOM is ready
 document.addEventListener('DOMContentLoaded', startApp);
 </script>
 </body>
