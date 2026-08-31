@@ -1,4 +1,6 @@
-// WA MARKETING BD - CLOUDFLARE WORKER
+// ============================================================
+// WA MARKETING BD - CLOUDFLARE WORKER (FULL VERSION)
+// ============================================================
 
 export default {
     async fetch(request, env) {
@@ -27,18 +29,48 @@ export default {
             }
         }
 
-        // Test route
+        // ============================================================
+        // TEST ROUTE
+        // ============================================================
         if (path === '/' && method === 'GET') {
             return new Response(JSON.stringify({ 
                 success: true, 
                 message: 'WA MARKETING BD API is running!',
-                version: '1.0'
+                version: '2.0'
             }), { headers });
         }
 
+        // ============================================================
+        // POPUP NOTICE (Admin Message)
+        // ============================================================
+        
+        // GET popup notice
+        if (path === '/popup-notice' && method === 'GET') {
+            const notice = await env.WA_KV.get('popup:notice', 'json');
+            return new Response(JSON.stringify({ 
+                success: true, 
+                notice: notice || { message: '', active: false }
+            }), { headers });
+        }
+
+        // SET popup notice (Admin)
+        if (path === '/popup-notice' && method === 'POST') {
+            const { message, active } = body;
+            await env.WA_KV.put('popup:notice', JSON.stringify({ 
+                message: message || '', 
+                active: active || false,
+                updatedAt: Date.now()
+            }));
+            return new Response(JSON.stringify({ success: true }), { headers });
+        }
+
+        // ============================================================
+        // AUTH ROUTES
+        // ============================================================
+
         // REGISTER
         if (path === '/auth/register' && method === 'POST') {
-            const { phone, password, name } = body;
+            const { phone, password, name, referredBy } = body;
             if (!phone || !password || !name) {
                 return new Response(JSON.stringify({ error: 'সব তথ্য পূরণ করুন' }), { headers, status: 400 });
             }
@@ -49,8 +81,10 @@ export default {
             const newUser = {
                 name, password, balance: 0, isPremium: false,
                 messagesSentToday: 0, referralEarnings: 0,
-                blocked: false, lastTaskDate: new Date().toDateString(),
-                lastTaskTimestamp: Date.now(), createdAt: Date.now()
+                referredBy: referredBy || '', blocked: false,
+                lastTaskDate: new Date().toDateString(),
+                lastTaskTimestamp: Date.now(), createdAt: Date.now(),
+                seenPopup: false
             };
             await env.WA_KV.put(`user:${phone}`, JSON.stringify(newUser));
             return new Response(JSON.stringify({ success: true, user: { phone, ...newUser } }), { headers });
@@ -75,6 +109,21 @@ export default {
             return new Response(JSON.stringify({ success: true, user: { phone, ...user } }), { headers });
         }
 
+        // UPDATE seenPopup
+        if (path === '/user/popup-seen' && method === 'POST') {
+            const { phone } = body;
+            if (!phone) {
+                return new Response(JSON.stringify({ error: 'ফোন দিন' }), { headers, status: 400 });
+            }
+            const user = await env.WA_KV.get(`user:${phone}`, 'json');
+            if (!user) {
+                return new Response(JSON.stringify({ error: 'ইউজার নেই' }), { headers, status: 404 });
+            }
+            user.seenPopup = true;
+            await env.WA_KV.put(`user:${phone}`, JSON.stringify(user));
+            return new Response(JSON.stringify({ success: true }), { headers });
+        }
+
         // GET user
         if (path.startsWith('/user/') && method === 'GET') {
             const phone = path.replace('/user/', '');
@@ -97,28 +146,73 @@ export default {
             return new Response(JSON.stringify({ success: true, user: { phone, ...updated } }), { headers });
         }
 
-        // GET tasks
+        // ============================================================
+        // TASK ROUTES (with duplicate removal)
+        // ============================================================
+
+        // GET tasks with stats
         if (path === '/tasks' && method === 'GET') {
             const list = await env.WA_KV.list({ prefix: 'task:' });
             const tasks = [];
+            let total = 0, sent = 0, remaining = 0;
+            
             for (const key of list.keys) {
                 const task = await env.WA_KV.get(key.name, 'json');
-                if (task && task.status === 'Active') {
-                    tasks.push({ id: key.name.replace('task:', ''), ...task });
+                if (task) {
+                    const taskData = { id: key.name.replace('task:', ''), ...task };
+                    tasks.push(taskData);
+                    total++;
+                    if (task.status === 'Completed') sent++;
+                    if (task.status === 'Active') remaining++;
                 }
             }
-            return new Response(JSON.stringify({ success: true, tasks }), { headers });
+            
+            // Check if filter is applied
+            const filter = url.searchParams.get('filter');
+            let filteredTasks = tasks;
+            if (filter === 'active') {
+                filteredTasks = tasks.filter(t => t.status === 'Active');
+            } else if (filter === 'completed') {
+                filteredTasks = tasks.filter(t => t.status === 'Completed');
+            }
+            
+            return new Response(JSON.stringify({ 
+                success: true, 
+                tasks: filteredTasks,
+                stats: { total, sent, remaining }
+            }), { headers });
         }
 
-        // CREATE tasks
+        // CREATE tasks (with duplicate removal)
         if (path === '/tasks' && method === 'POST') {
             const { numbers, message, freePrice, premPrice } = body;
             if (!numbers || !message) {
                 return new Response(JSON.stringify({ error: 'নম্বর ও মেসেজ দিন' }), { headers, status: 400 });
             }
-            const numList = numbers.split(/[\n,;]+/).map(n => n.trim()).filter(n => n.length > 5);
+
+            // Get existing tasks to check duplicates
+            const list = await env.WA_KV.list({ prefix: 'task:' });
+            const existingPhones = new Set();
+            for (const key of list.keys) {
+                const task = await env.WA_KV.get(key.name, 'json');
+                if (task && task.status === 'Active') {
+                    existingPhones.add(task.targetPhone);
+                }
+            }
+
+            // Parse numbers and remove duplicates
+            const numList = numbers.split(/[\n,;]+/)
+                .map(n => n.trim())
+                .filter(n => n.length > 5);
+            
+            // Remove duplicates from input
+            const uniqueNumbers = [...new Set(numList)];
+            
+            // Remove numbers that already exist
+            const newNumbers = uniqueNumbers.filter(n => !existingPhones.has(n));
+            
             let count = 0;
-            for (const num of numList) {
+            for (const num of newNumbers) {
                 const taskId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
                 await env.WA_KV.put(`task:${taskId}`, JSON.stringify({
                     targetPhone: num, message,
@@ -127,7 +221,27 @@ export default {
                 }));
                 count++;
             }
-            return new Response(JSON.stringify({ success: true, created: count }), { headers });
+            
+            return new Response(JSON.stringify({ 
+                success: true, 
+                created: count,
+                duplicates: uniqueNumbers.length - newNumbers.length,
+                total: uniqueNumbers.length
+            }), { headers });
+        }
+
+        // DELETE multiple tasks (selective)
+        if (path === '/tasks/delete-multiple' && method === 'POST') {
+            const { taskIds } = body;
+            if (!taskIds || !Array.isArray(taskIds)) {
+                return new Response(JSON.stringify({ error: 'টাস্ক আইডি দিন' }), { headers, status: 400 });
+            }
+            let deleted = 0;
+            for (const id of taskIds) {
+                await env.WA_KV.delete(`task:${id}`);
+                deleted++;
+            }
+            return new Response(JSON.stringify({ success: true, deleted }), { headers });
         }
 
         // DELETE task
@@ -140,11 +254,17 @@ export default {
         // DELETE all tasks
         if (path === '/tasks' && method === 'DELETE') {
             const list = await env.WA_KV.list({ prefix: 'task:' });
+            let deleted = 0;
             for (const key of list.keys) {
                 await env.WA_KV.delete(key.name);
+                deleted++;
             }
-            return new Response(JSON.stringify({ success: true }), { headers });
+            return new Response(JSON.stringify({ success: true, deleted }), { headers });
         }
+
+        // ============================================================
+        // PENDING CONFIRMATIONS
+        // ============================================================
 
         // GET pending
         if (path.startsWith('/pending/') && method === 'GET') {
@@ -190,6 +310,15 @@ export default {
             user.lastTaskTimestamp = Date.now();
             await env.WA_KV.put(`user:${phone}`, JSON.stringify(user));
             await env.WA_KV.delete(`pending:${phone}:${pendingId}`);
+            
+            // Save history
+            const historyId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            await env.WA_KV.put(`history:${phone}:${historyId}`, JSON.stringify({
+                taskId, target: body.targetPhone || '', reward: reward || 1,
+                type: 'task', status: 'Success',
+                date: new Date().toDateString(), timestamp: Date.now()
+            }));
+
             if (taskId) {
                 const task = await env.WA_KV.get(`task:${taskId}`, 'json');
                 if (task) {
@@ -210,7 +339,10 @@ export default {
             return new Response(JSON.stringify({ success: true }), { headers });
         }
 
-        // P2P send
+        // ============================================================
+        // P2P
+        // ============================================================
+
         if (path === '/p2p/send' && method === 'POST') {
             const { sender, receiver, amount } = body;
             if (!sender || !receiver || !amount) {
@@ -228,10 +360,21 @@ export default {
             receiverUser.balance = (receiverUser.balance || 0) + amount;
             await env.WA_KV.put(`user:${sender}`, JSON.stringify(senderUser));
             await env.WA_KV.put(`user:${receiver}`, JSON.stringify(receiverUser));
+            
+            const historyId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            await env.WA_KV.put(`history:${sender}:${historyId}`, JSON.stringify({
+                target: receiver + ' (' + receiverUser.name + ')',
+                amount: amount, type: 'p2p', status: 'Success',
+                date: new Date().toDateString(), timestamp: Date.now()
+            }));
+            
             return new Response(JSON.stringify({ success: true, balance: senderUser.balance }), { headers });
         }
 
+        // ============================================================
         // WITHDRAW
+        // ============================================================
+
         if (path === '/withdraw' && method === 'POST') {
             const { phone, method, accountNum, amount } = body;
             if (!phone || !method || !accountNum || !amount) {
@@ -250,10 +393,18 @@ export default {
             await env.WA_KV.put(`withdraw:${wdId}`, JSON.stringify({
                 phone, accountNum, amount, method, status: 'Pending', timestamp: Date.now()
             }));
+            
+            const historyId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            await env.WA_KV.put(`history:${phone}:${historyId}`, JSON.stringify({
+                target: method + ' (' + accountNum + ')',
+                amount: amount, type: 'withdraw', status: 'Pending',
+                date: new Date().toDateString(), timestamp: Date.now()
+            }));
+            
             return new Response(JSON.stringify({ success: true, balance: user.balance }), { headers });
         }
 
-        // GET withdrawals (Admin)
+        // GET withdrawals
         if (path === '/withdrawals' && method === 'GET') {
             const list = await env.WA_KV.list({ prefix: 'withdraw:' });
             const withdrawals = [];
@@ -276,11 +427,24 @@ export default {
             if (wd) {
                 wd.status = 'Approved';
                 await env.WA_KV.put(`withdraw:${id}`, JSON.stringify(wd));
+                // Update history
+                const list = await env.WA_KV.list({ prefix: `history:${wd.phone}:` });
+                for (const key of list.keys) {
+                    const item = await env.WA_KV.get(key.name, 'json');
+                    if (item && item.type === 'withdraw' && item.amount === wd.amount && item.status === 'Pending') {
+                        item.status = 'Success';
+                        await env.WA_KV.put(key.name, JSON.stringify(item));
+                        break;
+                    }
+                }
             }
             return new Response(JSON.stringify({ success: true }), { headers });
         }
 
-        // GET history
+        // ============================================================
+        // HISTORY
+        // ============================================================
+
         if (path.startsWith('/history/') && method === 'GET') {
             const phone = path.replace('/history/', '');
             const list = await env.WA_KV.list({ prefix: `history:${phone}:` });
@@ -293,7 +457,10 @@ export default {
             return new Response(JSON.stringify({ success: true, history }), { headers });
         }
 
-        // GET settings
+        // ============================================================
+        // SETTINGS
+        // ============================================================
+
         if (path === '/settings' && method === 'GET') {
             const settings = await env.WA_KV.get('settings:global', 'json');
             if (!settings) {
@@ -311,13 +478,15 @@ export default {
             return new Response(JSON.stringify({ success: true, settings }), { headers });
         }
 
-        // POST settings
         if (path === '/settings' && method === 'POST') {
             await env.WA_KV.put('settings:global', JSON.stringify(body));
             return new Response(JSON.stringify({ success: true }), { headers });
         }
 
-        // GET admin/users
+        // ============================================================
+        // ADMIN
+        // ============================================================
+
         if (path === '/admin/users' && method === 'GET') {
             const list = await env.WA_KV.list({ prefix: 'user:' });
             const users = [];
@@ -330,14 +499,12 @@ export default {
             return new Response(JSON.stringify({ success: true, users }), { headers });
         }
 
-        // DELETE admin/users/:phone
         if (path.startsWith('/admin/users/') && method === 'DELETE') {
             const phone = path.replace('/admin/users/', '');
             await env.WA_KV.delete(`user:${phone}`);
             return new Response(JSON.stringify({ success: true }), { headers });
         }
 
-        // POST admin/users/block
         if (path === '/admin/users/block' && method === 'POST') {
             const { phone } = body;
             if (!phone) {
@@ -352,12 +519,11 @@ export default {
             return new Response(JSON.stringify({ success: true, blocked: user.blocked }), { headers });
         }
 
-        // GET admin/stats
         if (path === '/admin/stats' && method === 'GET') {
             const userList = await env.WA_KV.list({ prefix: 'user:' });
             const taskList = await env.WA_KV.list({ prefix: 'task:' });
             const wdList = await env.WA_KV.list({ prefix: 'withdraw:' });
-            let totalUsers = 0, activeWorkers = 0, pendingWithdrawals = 0;
+            let totalUsers = 0, activeWorkers = 0, pendingWithdrawals = 0, totalPaid = 0;
             for (const key of userList.keys) {
                 const user = await env.WA_KV.get(key.name, 'json');
                 if (user) {
@@ -367,15 +533,40 @@ export default {
             }
             for (const key of wdList.keys) {
                 const wd = await env.WA_KV.get(key.name, 'json');
-                if (wd && wd.status === 'Pending') pendingWithdrawals++;
+                if (wd) {
+                    if (wd.status === 'Pending') pendingWithdrawals++;
+                    if (wd.status === 'Approved') totalPaid += Number(wd.amount || 0);
+                }
             }
             return new Response(JSON.stringify({
                 success: true,
                 stats: {
                     totalUsers, activeWorkers, pendingWithdrawals,
-                    totalPaid: 0, totalTasks: taskList.keys.length
+                    totalPaid, totalTasks: taskList.keys.length
                 }
             }), { headers });
+        }
+
+        // ============================================================
+        // CLEANUP
+        // ============================================================
+
+        if (path === '/admin/cleanup' && method === 'POST') {
+            const { hours } = body;
+            if (!hours) {
+                return new Response(JSON.stringify({ error: 'ঘন্টা দিন' }), { headers, status: 400 });
+            }
+            const threshold = Date.now() - (hours * 60 * 60 * 1000);
+            const list = await env.WA_KV.list({ prefix: 'history:' });
+            let deleted = 0;
+            for (const key of list.keys) {
+                const item = await env.WA_KV.get(key.name, 'json');
+                if (item && item.timestamp && item.timestamp < threshold) {
+                    await env.WA_KV.delete(key.name);
+                    deleted++;
+                }
+            }
+            return new Response(JSON.stringify({ success: true, deleted }), { headers });
         }
 
         return new Response(JSON.stringify({ error: 'Route not found' }), { headers, status: 404 });
