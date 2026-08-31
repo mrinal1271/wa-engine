@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WA MARKETING BD</title>
     <style>
+        /* ===== FULL CSS ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
@@ -177,37 +178,6 @@
             color: #fbbf24;
             display: inline-block;
         }
-        
-        .drawer {
-            position: absolute;
-            top: 0;
-            left: -300px;
-            width: 280px;
-            height: 100%;
-            background: rgba(10,10,26,0.98);
-            border-right: 1px solid rgba(255,255,255,0.05);
-            transition: 0.3s ease;
-            z-index: 100;
-            padding: 20px;
-            overflow-y: auto;
-            backdrop-filter: blur(20px);
-        }
-        .drawer.open { left: 0; }
-        .drawer-item {
-            padding: 12px 14px;
-            border-radius: 12px;
-            cursor: pointer;
-            margin-bottom: 4px;
-            transition: 0.3s;
-            font-weight: 600;
-            font-size: 14px;
-            background: transparent;
-            border: none;
-            color: #fff;
-            width: 100%;
-            text-align: left;
-        }
-        .drawer-item:hover { background: rgba(139,92,246,0.15); }
         
         .auth-logo {
             font-size: 28px;
@@ -530,6 +500,37 @@
         .task-stat-card.stat-total .num { background: linear-gradient(135deg, #8b5cf6, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .task-stat-card.stat-sent .num { background: linear-gradient(135deg, #34d399, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .task-stat-card.stat-remaining .num { background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .admin-drawer {
+            position: absolute;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100%;
+            background: rgba(10,10,26,0.98);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s ease;
+            z-index: 100;
+            padding: 20px;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+        }
+        .admin-drawer.open { left: 0; }
+        .drawer-item {
+            padding: 12px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: 0.3s;
+            font-weight: 600;
+            font-size: 14px;
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 100%;
+            text-align: left;
+        }
+        .drawer-item:hover { background: rgba(139,92,246,0.15); }
     </style>
 </head>
 <body>
@@ -547,6 +548,7 @@
             <div style="text-align:center;margin-bottom:24px;">
                 <div class="auth-logo">WA MARKETING BD</div>
                 <div class="auth-sub">🚀 প্রফেশনাল মার্কেটিং প্ল্যাটফর্ম</div>
+                <div style="font-size:11px;color:#64748b;margin-top:4px;">⚡ Cloudflare Workers + KV</div>
             </div>
             <div id="authAlert" class="alert hidden"></div>
             <div id="registerFields" class="hidden">
@@ -684,7 +686,7 @@
 
     <!-- ADMIN SCREEN -->
     <div id="adminScreen" class="hidden" style="display:flex;flex-direction:column;height:100%;position:relative;">
-        <div class="drawer" id="adminDrawer">
+        <div class="admin-drawer" id="adminDrawer">
             <h3 style="margin-bottom:20px;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">⚙️ অ্যাডমিন</h3>
             <button class="drawer-item" id="adminDashboard">📊 ড্যাশবোর্ড</button>
             <button class="drawer-item" id="adminUsers">👥 ইউজার</button>
@@ -711,7 +713,7 @@
                     <div class="stat-card"><div class="num" id="admPendingWithdrawCount">0</div><div class="label">⏳ পেন্ডিং</div></div>
                     <div class="stat-card"><div class="num" id="admTotalPaidAmount">0</div><div class="label">💰 পেমেন্ট</div></div>
                 </div>
-                <div class="card"><h3>📊 <span>সিস্টেম স্ট্যাটাস</span></h3><p style="font-size:13px;color:#94a3b8;">✅ সিস্টেম সচল</p></div>
+                <div class="card"><h3>📊 <span>সিস্টেম স্ট্যাটাস</span></h3><p style="font-size:13px;color:#94a3b8;">✅ Cloudflare Workers সচল</p></div>
             </div>
 
             <div id="admin-tab-users" class="admin-tab-content hidden">
@@ -773,7 +775,9 @@
                         </div>
                     </div>
                     <div id="taskProgress" class="hidden">
-                        <div class="progress-track"><div class="progress-fill" id="taskProgressBar"></div></div>
+                        <div style="background:rgba(255,255,255,0.05);height:6px;border-radius:6px;overflow:hidden;margin:10px 0;">
+                            <div id="taskProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#8b5cf6,#22d3ee);transition:width 0.3s;"></div>
+                        </div>
                         <p id="taskProgressText" style="font-size:12px;color:#94a3b8;text-align:center;">প্রক্রিয়াধীন...</p>
                     </div>
                     <button class="btn btn-accent" id="pubTaskBtn">📤 পাবলিশ</button>
@@ -878,35 +882,12 @@
 
 <script>
 // ============================================================
-// WA MARKETING BD - UPGRADE REMOVED (ONLY UPGRADE REMOVED)
-// EVERYTHING ELSE IS EXACTLY AS BEFORE
+// WA MARKETING BD - Cloudflare Workers + KV Version
+// Firebase REMOVED - Using Cloudflare Worker API
 // ============================================================
 
-// Firebase Config
-const firebaseConfig = {
-    apiKey: "AIzaSyAOke8geJY2iY7CZIxLuEFvbFEklSH6uqU",
-    authDomain: "wasenderbd-6d46c.firebaseapp.com",
-    projectId: "wasenderbd-6d46c",
-    storageBucket: "wasenderbd-6d46c.firebasestorage.app",
-    messagingSenderId: "296268852516",
-    appId: "1:296268852516:web:81df8d0b44d30c60c3d7b1"
-};
-
-// Wait for Firebase
-function waitForFirebase(callback) {
-    if (typeof firebase !== 'undefined' && firebase.app) {
-        callback();
-        return;
-    }
-    setTimeout(function() { waitForFirebase(callback); }, 500);
-}
-
-waitForFirebase(function() {
-    firebase.initializeApp(firebaseConfig);
-    console.log('✅ Firebase initialized!');
-    document.getElementById('loadingOverlay').style.display = 'none';
-    startApp();
-});
+// ====== CONFIGURATION ======
+const API_BASE = 'https://wa-engine.mrinala30.workers.dev';
 
 // ====== CONFIRMATION DIALOG ======
 let confirmResolve = null;
@@ -932,68 +913,8 @@ const ADMIN_PHONE = "01866989184";
 const ADMIN_PASSWORD = "Mrinal@1271";
 let currentUser = null;
 let isRegisterMode = false;
-let activeTask = null;
-let timerInterval = null;
-let allUsersCache = [];
-let allTasksCache = [];
-let editingSelectedPhone = null;
 let historyFilter = 'all';
-let settingsUnsubscribe = null;
-let pendingConfirmUnsubscribe = null;
-let historyUnsubscribe = null;
-
-// ====== SETTINGS ======
-let appSettings = {
-    freeDailyLimit: 10,
-    premiumDailyLimit: 50,
-    upgradeFee: 200,
-    freeUserMinWithdraw: 100,
-    premiumUserMinWithdraw: 1000,
-    p2pMin: 50,
-    flexiMin: 20,
-    referralPercent: 10,
-    refreshHours: 24,
-    noticeText: "🚀 WA MARKETING BD - প্রফেশনাল প্ল্যাটফর্ম",
-    rules: "১. হোয়াটসঅ্যাপে নির্দিষ্ট মেসেজ পাঠান\n২. কনফার্ম বাটনে ক্লিক করুন\n৩. সঠিকভাবে কাজ সম্পন্ন করুন",
-    support: "YouTube: https://youtube.com, Telegram: https://t.me/example"
-};
-
-// ====== NOTIFICATION SLIDER DATA ======
-const userNames = [
-    'রহিম', 'করিম', 'সুমন', 'রিনা', 'জাকির', 'নাজমা', 'রুবেল', 'সালমা',
-    'মিনহাজ', 'তানিয়া', 'রনি', 'লিমা', 'শুভ', 'পপি', 'রাজ', 'মিম',
-    'হাসান', 'সাব্বির', 'নাদিয়া', 'ইমন', 'স্নিগ্ধা', 'রাফি', 'পার্থ', 'রিয়া',
-    'শাওন', 'ময়না', 'আকাশ', 'মেঘলা', 'অর্ণব', 'প্রিয়া', 'সজল', 'রুমা',
-    'তৌহিদ', 'সুমাইয়া', 'রাকিব', 'নুসরাত', 'মাসুম', 'রোজী', 'ইফতেখার', 'লিজা'
-];
-
-function generateRandomAmount() {
-    const amounts = [200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000];
-    return amounts[Math.floor(Math.random() * amounts.length)];
-}
-
-function generateNotificationItems(count = 4) {
-    const items = [];
-    const usedNames = [];
-    for (let i = 0; i < count; i++) {
-        let name;
-        do {
-            name = userNames[Math.floor(Math.random() * userNames.length)];
-        } while (usedNames.includes(name));
-        usedNames.push(name);
-        const amount = generateRandomAmount();
-        items.push({ name, amount });
-    }
-    return items;
-}
-
-function updateNotificationSlider() {
-    const slider = document.getElementById('notificationSlider');
-    const items = generateNotificationItems(4);
-    slider.innerHTML = items.map(item => 
-        `<div class="slide-item">🟢 ${item.name} ৳${item.amount} উত্তোলন করেছে</div>`
-    ).join('');
-}
+let appSettings = {};
 
 // ====== SHOW ALERT ======
 function showAlert(id, message, type) {
@@ -1014,7 +935,7 @@ function switchTab(tabName, element) {
     if (element) element.classList.add('active');
 }
 
-// ====== FORMAT PHONE NUMBER ======
+// ====== FORMAT PHONE ======
 function formatPhoneForWhatsApp(phone) {
     let clean = phone.replace(/[^0-9]/g, '');
     if (clean.startsWith('0')) {
@@ -1026,51 +947,54 @@ function formatPhoneForWhatsApp(phone) {
     return clean;
 }
 
-// ====== LOAD SETTINGS ======
-function loadSettings() {
-    const db = firebase.firestore();
-    if (settingsUnsubscribe) settingsUnsubscribe();
-    
-    settingsUnsubscribe = db.collection('settings').doc('global').onSnapshot((snap) => {
-        if (snap.exists) {
-            const data = snap.data();
-            appSettings = { ...appSettings, ...data };
-            
-            document.getElementById('userNoticeMarquee').innerText = data.noticeText || appSettings.noticeText;
-            document.getElementById('userRulesContent').innerText = data.rules || appSettings.rules;
-            renderSupportLinks(data.support || appSettings.support);
-            
-            document.getElementById('adminFreeLimit').value = data.freeDailyLimit || 10;
-            document.getElementById('adminPremLimit').value = data.premiumDailyLimit || 50;
-            document.getElementById('adminUpgradeFee').value = data.upgradeFee || 200;
-            document.getElementById('adminFreeMinW').value = data.freeUserMinWithdraw || 100;
-            document.getElementById('adminPremMinW').value = data.premiumUserMinWithdraw || 1000;
-            document.getElementById('adminP2PMin').value = data.p2pMin || 50;
-            document.getElementById('adminFlexiMin').value = data.flexiMin || 20;
-            document.getElementById('adminReferralPercent').value = data.referralPercent || 10;
-            document.getElementById('adminRefreshHours').value = data.refreshHours || 24;
-            document.getElementById('adminNoticeText').value = data.noticeText || '';
-            document.getElementById('adminRulesText').value = data.rules || '';
-            document.getElementById('adminSupportLinks').value = data.support || '';
-            
-            if (currentUser && !currentUser.isAdmin) {
-                document.getElementById('p2pLimitTxt').innerText = 'ন্যূনতম: ৳ ' + (data.p2pMin || 50);
-                if (currentUser.isPremium) {
-                    document.getElementById('withdrawLimitInfo').innerText = 'ন্যূনতম: ৳ ' + (data.premiumUserMinWithdraw || 1000);
-                } else {
-                    document.getElementById('withdrawLimitInfo').innerText = 'ন্যূনতম: ৳ ' + (data.freeUserMinWithdraw || 100);
-                }
-            }
-            
-            if (currentUser && currentUser.isAdmin) {
-                loadTaskStats();
-            }
+// ====== API HELPER ======
+async function apiCall(endpoint, method = 'GET', data = null) {
+    const options = {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
         }
-    }, (error) => {
-        console.error('Settings listener error:', error);
-    });
+    };
+    if (data) {
+        options.body = JSON.stringify(data);
+    }
+    const response = await fetch(`${API_BASE}${endpoint}`, options);
+    return await response.json();
 }
 
+// ====== UPDATE NOTIFICATION SLIDER ======
+const userNames = [
+    'রহিম', 'করিম', 'সুমন', 'রিনা', 'জাকির', 'নাজমা', 'রুবেল', 'সালমা',
+    'মিনহাজ', 'তানিয়া', 'রনি', 'লিমা', 'শুভ', 'পপি', 'রাজ', 'মিম',
+    'হাসান', 'সাব্বির', 'নাদিয়া', 'ইমন', 'স্নিগ্ধা', 'রাফি', 'পার্থ', 'রিয়া',
+    'শাওন', 'ময়না', 'আকাশ', 'মেঘলা', 'অর্ণব', 'প্রিয়া', 'সজল', 'রুমা',
+    'তৌহিদ', 'সুমাইয়া', 'রাকিব', 'নুসরাত', 'মাসুম', 'রোজী', 'ইফতেখার', 'লিজা'
+];
+
+function generateRandomAmount() {
+    const amounts = [200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000];
+    return amounts[Math.floor(Math.random() * amounts.length)];
+}
+
+function updateNotificationSlider() {
+    const slider = document.getElementById('notificationSlider');
+    const items = [];
+    const usedNames = [];
+    for (let i = 0; i < 4; i++) {
+        let name;
+        do {
+            name = userNames[Math.floor(Math.random() * userNames.length)];
+        } while (usedNames.includes(name));
+        usedNames.push(name);
+        const amount = generateRandomAmount();
+        items.push(`🟢 ${name} ৳${amount} উত্তোলন করেছে`);
+    }
+    slider.innerHTML = items.map(item => 
+        `<div class="slide-item">${item}</div>`
+    ).join('');
+}
+
+// ====== RENDER SUPPORT LINKS ======
 function renderSupportLinks(support) {
     const box = document.getElementById('supportLinksContainer');
     box.innerHTML = '';
@@ -1094,6 +1018,30 @@ function renderSupportLinks(support) {
     }
 }
 
+// ====== LOAD SETTINGS ======
+async function loadSettings() {
+    try {
+        const result = await apiCall('/settings');
+        if (result.success) {
+            appSettings = result.settings;
+            document.getElementById('userNoticeMarquee').innerText = appSettings.noticeText || '🚀 WA MARKETING BD';
+            document.getElementById('userRulesContent').innerText = appSettings.rules || 'নিয়ম লোড হচ্ছে...';
+            renderSupportLinks(appSettings.support);
+            
+            if (currentUser && !currentUser.isAdmin) {
+                document.getElementById('p2pLimitTxt').innerText = 'ন্যূনতম: ৳ ' + (appSettings.p2pMin || 50);
+                if (currentUser.isPremium) {
+                    document.getElementById('withdrawLimitInfo').innerText = 'ন্যূনতম: ৳ ' + (appSettings.premiumUserMinWithdraw || 1000);
+                } else {
+                    document.getElementById('withdrawLimitInfo').innerText = 'ন্যূনতম: ৳ ' + (appSettings.freeUserMinWithdraw || 100);
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Settings load error:', e);
+    }
+}
+
 // ====== AUTH ======
 document.getElementById('authSwitchBtn').addEventListener('click', function() {
     isRegisterMode = !isRegisterMode;
@@ -1111,7 +1059,7 @@ document.getElementById('authSwitchBtn').addEventListener('click', function() {
     }
 });
 
-document.getElementById('authBtn').addEventListener('click', function() {
+document.getElementById('authBtn').addEventListener('click', async function() {
     const phone = document.getElementById('authPhone').value.trim();
     const password = document.getElementById('authPassword').value.trim();
     const name = document.getElementById('regName').value.trim();
@@ -1122,8 +1070,7 @@ document.getElementById('authBtn').addEventListener('click', function() {
         return;
     }
 
-    const db = firebase.firestore();
-
+    // Admin login
     if (phone === ADMIN_PHONE && password === ADMIN_PASSWORD && !isRegisterMode) {
         currentUser = { phone, name: 'Admin Pro', balance: 0, isPremium: true, isAdmin: true };
         localStorage.setItem('waUser', JSON.stringify(currentUser));
@@ -1143,60 +1090,33 @@ document.getElementById('authBtn').addEventListener('click', function() {
         return;
     }
 
-    if (isRegisterMode) {
-        db.collection('users').doc(phone).get().then((snap) => {
-            if (snap.exists) {
-                showAlert('authAlert', 'এই নম্বরে অ্যাকাউন্ট আছে');
-                return;
-            }
-            const newUser = {
-                name: name,
-                password: password,
-                balance: 0,
-                isPremium: false,
-                messagesSentToday: 0,
-                referralEarnings: 0,
-                referredBy: referredBy || '',
-                blocked: false,
-                lastTaskDate: firebase.firestore.FieldValue.serverTimestamp(),
-                lastTaskTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            return db.collection('users').doc(phone).set(newUser).then(() => {
-                currentUser = newUser;
-                currentUser.phone = phone;
+    try {
+        if (isRegisterMode) {
+            const result = await apiCall('/auth/register', 'POST', { phone, password, name, referredBy });
+            if (result.success) {
+                currentUser = result.user;
                 localStorage.setItem('waUser', JSON.stringify(currentUser));
                 showAlert('authAlert', '✅ অ্যাকাউন্ট তৈরি হয়েছে!', 'success');
                 showMainScreen();
-            });
-        }).catch((e) => {
-            showAlert('authAlert', 'এরর: ' + e.message);
-        });
-    } else {
-        db.collection('users').doc(phone).get().then((snap) => {
-            if (!snap.exists) {
-                showAlert('authAlert', 'অ্যাকাউন্ট পাওয়া যায়নি');
-                return;
+            } else {
+                showAlert('authAlert', result.error || 'রেজিস্টার করতে সমস্যা');
             }
-            const data = snap.data();
-            if (data.blocked) {
-                showAlert('authAlert', '🚫 অ্যাকাউন্ট ব্লক');
-                return;
+        } else {
+            const result = await apiCall('/auth/login', 'POST', { phone, password });
+            if (result.success) {
+                currentUser = result.user;
+                localStorage.setItem('waUser', JSON.stringify(currentUser));
+                showMainScreen();
+            } else {
+                showAlert('authAlert', result.error || 'লগইন করতে সমস্যা');
             }
-            if (data.password !== password) {
-                showAlert('authAlert', '❌ ভুল পাসওয়ার্ড');
-                return;
-            }
-            currentUser = data;
-            currentUser.phone = phone;
-            localStorage.setItem('waUser', JSON.stringify(currentUser));
-            showMainScreen();
-        }).catch((e) => {
-            showAlert('authAlert', 'এরর: ' + e.message);
-        });
+        }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
     }
 });
 
+// ====== SHOW MAIN SCREEN ======
 function showMainScreen() {
     document.getElementById('authScreen').classList.add('hidden');
     document.getElementById('mainScreen').classList.remove('hidden');
@@ -1222,73 +1142,68 @@ function showMainScreen() {
 }
 
 // ====== CHECK USER TASK LIMIT ======
-function checkUserTaskLimit() {
-    return new Promise((resolve, reject) => {
-        const db = firebase.firestore();
-        const today = new Date().toDateString();
+async function checkUserTaskLimit() {
+    try {
+        const result = await apiCall(`/user/${currentUser.phone}`);
+        if (!result.success || !result.user) {
+            return { allowed: false, reason: 'ইউজার নেই' };
+        }
         
-        db.collection('users').doc(currentUser.phone).get().then((snap) => {
-            if (!snap.exists) {
-                resolve({ allowed: false, reason: 'ইউজার নেই' });
-                return;
+        const user = result.user;
+        const limit = currentUser.isPremium ? 
+            (appSettings.premiumDailyLimit || 50) : 
+            (appSettings.freeDailyLimit || 10);
+        
+        const today = new Date().toDateString();
+        const lastDate = user.lastTaskDate || '';
+        
+        if (lastDate !== today) {
+            // Reset daily count
+            const updateResult = await apiCall(`/user/${currentUser.phone}`, 'PUT', {
+                messagesSentToday: 0,
+                lastTaskDate: today,
+                lastTaskTimestamp: Date.now()
+            });
+            if (updateResult.success) {
+                currentUser.messagesSentToday = 0;
+                return { allowed: true, remaining: limit, reset: true };
             }
+        }
+        
+        const completed = user.messagesSentToday || 0;
+        const remaining = limit - completed;
+        
+        if (remaining <= 0) {
+            const refreshHours = appSettings.refreshHours || 24;
+            const lastTaskTime = user.lastTaskTimestamp || Date.now();
+            const hoursPassed = (Date.now() - lastTaskTime) / (1000 * 60 * 60);
             
-            const data = snap.data();
-            const limit = currentUser.isPremium ? 
-                (appSettings.premiumDailyLimit || 50) : 
-                (appSettings.freeDailyLimit || 10);
-            
-            const lastDate = data.lastTaskDate ? 
-                new Date(data.lastTaskDate.toMillis()).toDateString() : 
-                null;
-            
-            if (lastDate !== today) {
-                db.collection('users').doc(currentUser.phone).update({
+            if (hoursPassed < refreshHours) {
+                const waitHours = Math.ceil(refreshHours - hoursPassed);
+                return { 
+                    allowed: false, 
+                    reason: 'wait', 
+                    waitHours: waitHours,
+                    message: `⏳ ${waitHours} ঘন্টা বাকি`
+                };
+            } else {
+                const updateResult = await apiCall(`/user/${currentUser.phone}`, 'PUT', {
                     messagesSentToday: 0,
-                    lastTaskDate: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => {
-                    currentUser.messagesSentToday = 0;
-                    resolve({ allowed: true, remaining: limit, reset: true });
+                    lastTaskDate: today,
+                    lastTaskTimestamp: Date.now()
                 });
-                return;
-            }
-            
-            const completed = data.messagesSentToday || 0;
-            const remaining = limit - completed;
-            
-            if (remaining <= 0) {
-                const refreshHours = appSettings.refreshHours || 24;
-                const lastTaskTime = data.lastTaskTimestamp ? 
-                    data.lastTaskTimestamp.toMillis() : 
-                    Date.now();
-                const hoursPassed = (Date.now() - lastTaskTime) / (1000 * 60 * 60);
-                
-                if (hoursPassed < refreshHours) {
-                    const waitHours = Math.ceil(refreshHours - hoursPassed);
-                    resolve({ 
-                        allowed: false, 
-                        reason: 'wait', 
-                        waitHours: waitHours,
-                        message: `⏳ ${waitHours} ঘন্টা বাকি`
-                    });
-                } else {
-                    db.collection('users').doc(currentUser.phone).update({
-                        messagesSentToday: 0,
-                        lastTaskDate: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastTaskTimestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(() => {
-                        currentUser.messagesSentToday = 0;
-                        resolve({ allowed: true, remaining: limit, reset: true });
-                    });
+                if (updateResult.success) {
+                    currentUser.messagesSentToday = 0;
+                    return { allowed: true, remaining: limit, reset: true };
                 }
-                return;
             }
-            
-            resolve({ allowed: true, remaining: remaining });
-        }).catch((e) => {
-            reject(e);
-        });
-    });
+        }
+        
+        return { allowed: true, remaining: remaining };
+    } catch (e) {
+        console.error('Check task limit error:', e);
+        return { allowed: false, reason: 'error' };
+    }
 }
 
 // ====== START TASK ACTION ======
@@ -1299,105 +1214,74 @@ function startTaskAction(taskId, phone, message, reward) {
         return;
     }
 
-    const db = firebase.firestore();
-    
-    db.collection('history').where('phone', '==', currentUser.phone).where('taskId', '==', taskId).get().then((snap) => {
-        if (!snap.empty) {
-            showAlert('authAlert', '⚠️ ইতিমধ্যে সম্পন্ন!');
-            return;
-        }
+    showConfirm('📤 মেসেজ পাঠান', 'আপনি কি ' + phone + ' নম্বরে মেসেজ পাঠাতে চান?').then(async (confirmed) => {
+        if (!confirmed) return;
         
-        return db.collection('pendingConfirmations')
-            .where('userPhone', '==', currentUser.phone)
-            .where('taskId', '==', taskId)
-            .where('status', '==', 'pending')
-            .get()
-            .then((pendingSnap) => {
-                if (!pendingSnap.empty) {
-                    checkPendingConfirmations();
-                    showAlert('authAlert', '⏳ ইতিমধ্যে পেন্ডিং! কনফার্ম করুন', 'warning');
-                    return;
-                }
-                
-                return db.collection('tasks').doc(taskId).get().then((doc) => {
-                    if (!doc.exists || doc.data().status !== 'Active') {
-                        showAlert('authAlert', '❌ টাস্কটি নেই!');
-                        loadUserTasks();
-                        return;
-                    }
-                    
-                    showConfirm('📤 মেসেজ পাঠান', 'আপনি কি ' + phone + ' নম্বরে মেসেজ পাঠাতে চান?').then((confirmed) => {
-                        if (!confirmed) return;
-                        
-                        return db.collection('pendingConfirmations').add({
-                            userPhone: currentUser.phone,
-                            taskId: taskId,
-                            targetPhone: phone,
-                            message: message,
-                            reward: reward,
-                            status: 'pending',
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        }).then(() => {
-                            activeTask = { id: taskId, phone, message, reward };
-                            
-                            const finalMessage = message;
-                            const formattedPhone = formatPhoneForWhatsApp(phone);
-                            const waUrl = 'https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(finalMessage);
-                            window.open(waUrl, '_blank');
-                            
-                            switchTab('tasks', document.querySelector('#navTasks'));
-                            checkPendingConfirmations();
-                            
-                            showAlert('authAlert', '📤 মেসেজ পাঠান হয়েছে! ব্যাক করে কনফার্ম করুন', 'success');
-                        });
-                    });
-                });
+        try {
+            // Create pending confirmation
+            const result = await apiCall('/tasks/complete', 'POST', {
+                phone: currentUser.phone,
+                taskId: taskId,
+                targetPhone: phone,
+                message: message,
+                reward: reward
             });
-    }).catch((e) => {
-        showAlert('authAlert', 'এরর: ' + e.message);
+            
+            if (result.success) {
+                const finalMessage = message;
+                const formattedPhone = formatPhoneForWhatsApp(phone);
+                const waUrl = 'https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(finalMessage);
+                window.open(waUrl, '_blank');
+                
+                switchTab('tasks', document.querySelector('#navTasks'));
+                checkPendingConfirmations();
+                
+                showAlert('authAlert', '📤 মেসেজ পাঠান হয়েছে! ব্যাক করে কনফার্ম করুন', 'success');
+            } else {
+                showAlert('authAlert', result.error || 'টাস্ক শুরু করতে সমস্যা');
+            }
+        } catch (e) {
+            showAlert('authAlert', 'এরর: ' + e.message);
+        }
     });
 }
 
 // ====== PENDING CONFIRMATION SYSTEM ======
-function checkPendingConfirmations() {
+async function checkPendingConfirmations() {
     if (!currentUser) return;
-    if (pendingConfirmUnsubscribe) pendingConfirmUnsubscribe();
-    
-    const db = firebase.firestore();
-    pendingConfirmUnsubscribe = db.collection('pendingConfirmations')
-        .where('userPhone', '==', currentUser.phone)
-        .where('status', '==', 'pending')
-        .onSnapshot((snap) => {
-            const box = document.getElementById('pendingConfirmBox');
-            const taskContainer = document.getElementById('taskListContainer');
-            
-            if (snap.empty) {
-                box.classList.add('hidden');
-                loadUserTasks();
-                return;
-            }
-            
-            const doc = snap.docs[0];
-            const data = doc.data();
-            
-            box.classList.remove('hidden');
-            document.getElementById('pendingPhoneDisplay').innerHTML = '📱 ' + data.targetPhone;
-            document.getElementById('pendingMsgDisplay').innerText = data.message;
-            
-            if (taskContainer) {
-                taskContainer.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(245,158,11,0.05);border-radius:14px;border:1px solid rgba(245,158,11,0.1);">
-                    <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ একটি কনফার্মেশন পেন্ডিং</p>
-                    <p style="font-size:13px;color:#94a3b8;margin-top:6px;">উপরের বক্স থেকে কনফার্ম বা ক্যান্সেল করুন</p>
-                </div>`;
-            }
-            
-            box.dataset.pendingId = doc.id;
-            box.dataset.taskId = data.taskId || '';
-            box.dataset.reward = data.reward || 0;
-            box.dataset.targetPhone = data.targetPhone;
-        }, (error) => {
-            console.error('Pending confirm listener error:', error);
-        });
+    try {
+        const result = await apiCall(`/pending/${currentUser.phone}`);
+        if (!result.success) return;
+        
+        const pending = result.pending || [];
+        const box = document.getElementById('pendingConfirmBox');
+        const taskContainer = document.getElementById('taskListContainer');
+        
+        if (pending.length === 0) {
+            box.classList.add('hidden');
+            loadUserTasks();
+            return;
+        }
+        
+        const data = pending[0];
+        box.classList.remove('hidden');
+        document.getElementById('pendingPhoneDisplay').innerHTML = '📱 ' + data.targetPhone;
+        document.getElementById('pendingMsgDisplay').innerText = data.message;
+        
+        if (taskContainer) {
+            taskContainer.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(245,158,11,0.05);border-radius:14px;border:1px solid rgba(245,158,11,0.1);">
+                <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ একটি কনফার্মেশন পেন্ডিং</p>
+                <p style="font-size:13px;color:#94a3b8;margin-top:6px;">উপরের বক্স থেকে কনফার্ম বা ক্যান্সেল করুন</p>
+            </div>`;
+        }
+        
+        box.dataset.pendingId = data.id;
+        box.dataset.taskId = data.taskId || '';
+        box.dataset.reward = data.reward || 0;
+        box.dataset.targetPhone = data.targetPhone;
+    } catch (e) {
+        console.error('Check pending error:', e);
+    }
 }
 
 document.getElementById('pendingConfirmBtn').addEventListener('click', function() {
@@ -1423,187 +1307,151 @@ document.getElementById('pendingCancelBtn').addEventListener('click', function()
     });
 });
 
-function completePendingConfirmation(pendingId, taskId, reward, targetPhone) {
-    const db = firebase.firestore();
-    const box = document.getElementById('pendingConfirmBox');
-    
-    box.classList.add('hidden');
-    
-    currentUser.balance = (currentUser.balance || 0) + reward;
-    currentUser.messagesSentToday = (currentUser.messagesSentToday || 0) + 1;
-    
-    db.collection('users').doc(currentUser.phone).update({
-        balance: currentUser.balance,
-        messagesSentToday: currentUser.messagesSentToday,
-        lastTaskDate: firebase.firestore.FieldValue.serverTimestamp(),
-        lastTaskTimestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        return db.collection('history').add({
-            phone: currentUser.phone,
-            taskId: taskId,
-            target: targetPhone,
-            reward: reward,
-            type: 'task',
-            status: 'Success',
-            date: new Date().toDateString(),
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    }).then(() => {
-        if (taskId) {
-            return db.collection('tasks').doc(taskId).update({
-                status: 'Completed',
-                completedBy: currentUser.phone,
-                completedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch(() => {});
-        }
-        return Promise.resolve();
-    }).then(() => {
-        return db.collection('pendingConfirmations').doc(pendingId).delete();
-    }).then(() => {
-        if (currentUser.referredBy) {
-            return db.collection('users').doc(currentUser.referredBy).get().then((refSnap) => {
-                if (refSnap.exists) {
-                    const refData = refSnap.data();
-                    const commission = (reward * (appSettings.referralPercent || 10)) / 100;
-                    return db.collection('users').doc(currentUser.referredBy).update({
-                        balance: (refData.balance || 0) + commission,
-                        referralEarnings: (refData.referralEarnings || 0) + commission
-                    }).then(() => {
-                        return db.collection('history').add({
-                            phone: currentUser.referredBy,
-                            target: currentUser.phone,
-                            reward: commission,
-                            type: 'referral',
-                            status: 'Success',
-                            date: new Date().toDateString(),
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    });
-                }
-            });
-        }
-        return Promise.resolve();
-    }).then(() => {
-        document.getElementById('userBalance').innerText = currentUser.balance;
-        document.getElementById('taskCount').innerText = currentUser.messagesSentToday;
-        showAlert('authAlert', '✅ ৳ ' + reward + ' যোগ হয়েছে!', 'success');
+async function completePendingConfirmation(pendingId, taskId, reward, targetPhone) {
+    try {
+        const box = document.getElementById('pendingConfirmBox');
+        box.classList.add('hidden');
         
-        loadUserTasks();
-        loadReferralEarnings();
-        activeTask = null;
-    }).catch((e) => {
+        const result = await apiCall('/pending/confirm', 'POST', {
+            phone: currentUser.phone,
+            pendingId: pendingId,
+            taskId: taskId,
+            reward: reward,
+            targetPhone: targetPhone
+        });
+        
+        if (result.success) {
+            currentUser.balance = result.balance;
+            currentUser.messagesSentToday = (currentUser.messagesSentToday || 0) + 1;
+            
+            document.getElementById('userBalance').innerText = currentUser.balance;
+            document.getElementById('taskCount').innerText = currentUser.messagesSentToday;
+            showAlert('authAlert', '✅ ৳ ' + reward + ' যোগ হয়েছে!', 'success');
+            
+            loadUserTasks();
+            loadReferralEarnings();
+        } else {
+            showAlert('authAlert', result.error || 'কনফার্ম করতে সমস্যা');
+        }
+    } catch (e) {
         showAlert('authAlert', 'এরর: ' + e.message);
-    });
+    }
 }
 
-function cancelPendingConfirmation(pendingId) {
-    const db = firebase.firestore();
-    db.collection('pendingConfirmations').doc(pendingId).delete().then(() => {
-        document.getElementById('pendingConfirmBox').classList.add('hidden');
-        showAlert('authAlert', '❌ কনফার্মেশন বাতিল করা হয়েছে', 'warning');
-        loadUserTasks();
-        activeTask = null;
-    }).catch((e) => {
+async function cancelPendingConfirmation(pendingId) {
+    try {
+        const result = await apiCall('/pending/cancel', 'POST', {
+            phone: currentUser.phone,
+            pendingId: pendingId
+        });
+        
+        if (result.success) {
+            document.getElementById('pendingConfirmBox').classList.add('hidden');
+            showAlert('authAlert', '❌ কনফার্মেশন বাতিল করা হয়েছে', 'warning');
+            loadUserTasks();
+        } else {
+            showAlert('authAlert', result.error || 'বাতিল করতে সমস্যা');
+        }
+    } catch (e) {
         showAlert('authAlert', 'এরর: ' + e.message);
-    });
+    }
 }
 
 // ====== USER TASKS ======
-function loadUserTasks() {
+async function loadUserTasks() {
     const container = document.getElementById('taskListContainer');
     container.innerHTML = '<div class="spinner"></div>';
     
-    const db = firebase.firestore();
-    db.collection('pendingConfirmations')
-        .where('userPhone', '==', currentUser.phone)
-        .where('status', '==', 'pending')
-        .get()
-        .then((pendingSnap) => {
-            if (!pendingSnap.empty) {
-                container.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(245,158,11,0.05);border-radius:14px;border:1px solid rgba(245,158,11,0.1);">
-                    <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ একটি কনফার্মেশন পেন্ডিং</p>
-                    <p style="font-size:13px;color:#94a3b8;margin-top:6px;">উপরের বক্স থেকে কনফার্ম বা ক্যান্সেল করুন</p>
-                </div>`;
+    try {
+        // Check pending first
+        const pendingResult = await apiCall(`/pending/${currentUser.phone}`);
+        if (pendingResult.success && pendingResult.pending && pendingResult.pending.length > 0) {
+            container.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(245,158,11,0.05);border-radius:14px;border:1px solid rgba(245,158,11,0.1);">
+                <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ একটি কনফার্মেশন পেন্ডিং</p>
+                <p style="font-size:13px;color:#94a3b8;margin-top:6px;">উপরের বক্স থেকে কনফার্ম বা ক্যান্সেল করুন</p>
+            </div>`;
+            return;
+        }
+        
+        const limitResult = await checkUserTaskLimit();
+        if (!limitResult.allowed) {
+            if (limitResult.reason === 'wait') {
+                container.innerHTML = `
+                    <div class="wait-timer-box">
+                        <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ অপেক্ষা করুন</p>
+                        <p style="font-size:13px;color:#94a3b8;margin-top:6px;">আপনি ইতিমধ্যে কাজ সম্পন্ন করেছেন</p>
+                        <div class="wait-hours">${limitResult.waitHours} ঘন্টা</div>
+                        <p style="font-size:12px;color:#64748b;">পরবর্তী কাজ পেতে ${limitResult.waitHours} ঘন্টা অপেক্ষা করুন</p>
+                        <p style="font-size:11px;color:#64748b;margin-top:8px;">⏰ রিফ্রেশ সময়: ${appSettings.refreshHours || 24} ঘন্টা</p>
+                    </div>
+                `;
                 return;
             }
-            
-            return checkUserTaskLimit().then((result) => {
-                if (!result.allowed) {
-                    if (result.reason === 'wait') {
-                        container.innerHTML = `
-                            <div class="wait-timer-box">
-                                <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ অপেক্ষা করুন</p>
-                                <p style="font-size:13px;color:#94a3b8;margin-top:6px;">আপনি ইতিমধ্যে কাজ সম্পন্ন করেছেন</p>
-                                <div class="wait-hours">${result.waitHours} ঘন্টা</div>
-                                <p style="font-size:12px;color:#64748b;">পরবর্তী কাজ পেতে ${result.waitHours} ঘন্টা অপেক্ষা করুন</p>
-                                <p style="font-size:11px;color:#64748b;margin-top:8px;">⏰ রিফ্রেশ সময়: ${appSettings.refreshHours || 24} ঘন্টা</p>
-                            </div>
-                        `;
-                        return;
-                    }
-                    container.innerHTML = `
-                        <div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;">
-                            <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏰ লিমিট শেষ!</p>
-                            <p style="font-size:13px;color:#94a3b8;">আজকের কাজ সম্পন্ন হয়েছে</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 50) : (appSettings.freeDailyLimit || 10);
-                const completed = currentUser.messagesSentToday || 0;
-                const remaining = result.remaining || (limit - completed);
-                
-                db.collection('tasks').where('status', '==', 'Active').get().then((snap) => {
-                    container.innerHTML = '';
-                    if (snap.empty) {
-                        container.innerHTML = '<div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;"><p style="font-size:15px;color:#22d3ee;font-weight:700;">📭 কোনো টাস্ক নেই</p></div>';
-                        return;
-                    }
-                    
-                    let c = 0;
-                    snap.forEach(doc => {
-                        if (c >= remaining) return;
-                        const task = doc.data();
-                        const taskId = doc.id;
-                        const reward = currentUser.isPremium ? (task.premPrice || 3) : (task.freePrice || 1);
-                        const div = document.createElement('div');
-                        div.className = 'task-item';
-                        div.innerHTML = `
-                            <div style="display:flex;justify-content:space-between;align-items:center;">
-                                <span class="number">📱 ${task.targetPhone}</span>
-                                <span class="reward">৳ ${reward}</span>
-                            </div>
-                            <button class="btn btn-accent" style="margin-top:8px;padding:10px;font-size:12px;" 
-                                data-taskid="${taskId}" 
-                                data-phone="${task.targetPhone}" 
-                                data-msg="${task.message.replace(/"/g, '&quot;')}" 
-                                data-reward="${reward}">
-                                ✉️ মেসেজ পাঠান
-                            </button>
-                        `;
-                        container.appendChild(div);
-                        c++;
-                    });
-                    
-                    container.querySelectorAll('button').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            const taskId = this.getAttribute('data-taskid');
-                            const phone = this.getAttribute('data-phone');
-                            const message = this.getAttribute('data-msg');
-                            const reward = parseInt(this.getAttribute('data-reward'));
-                            startTaskAction(taskId, phone, message, reward);
-                        });
-                    });
-                });
+            container.innerHTML = `
+                <div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;">
+                    <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏰ লিমিট শেষ!</p>
+                    <p style="font-size:13px;color:#94a3b8;">আজকের কাজ সম্পন্ন হয়েছে</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 50) : (appSettings.freeDailyLimit || 10);
+        const completed = currentUser.messagesSentToday || 0;
+        const remaining = limitResult.remaining || (limit - completed);
+        
+        const tasksResult = await apiCall('/tasks');
+        if (!tasksResult.success) {
+            container.innerHTML = '<p style="text-align:center;color:#fb7185;">টাস্ক লোড করতে সমস্যা</p>';
+            return;
+        }
+        
+        const activeTasks = tasksResult.tasks || [];
+        container.innerHTML = '';
+        if (activeTasks.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;"><p style="font-size:15px;color:#22d3ee;font-weight:700;">📭 কোনো টাস্ক নেই</p></div>';
+            return;
+        }
+        
+        let count = 0;
+        for (const task of activeTasks) {
+            if (count >= remaining) break;
+            const reward = currentUser.isPremium ? (task.premPrice || 3) : (task.freePrice || 1);
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span class="number">📱 ${task.targetPhone}</span>
+                    <span class="reward">৳ ${reward}</span>
+                </div>
+                <button class="btn btn-accent" style="margin-top:8px;padding:10px;font-size:12px;" 
+                    data-taskid="${task.id}" 
+                    data-phone="${task.targetPhone}" 
+                    data-msg="${task.message.replace(/"/g, '&quot;')}" 
+                    data-reward="${reward}">
+                    ✉️ মেসেজ পাঠান
+                </button>
+            `;
+            container.appendChild(div);
+            count++;
+        }
+        
+        container.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const taskId = this.getAttribute('data-taskid');
+                const phone = this.getAttribute('data-phone');
+                const message = this.getAttribute('data-msg');
+                const reward = parseInt(this.getAttribute('data-reward'));
+                startTaskAction(taskId, phone, message, reward);
             });
-        }).catch((e) => {
-            container.innerHTML = '<p style="text-align:center;color:#fb7185;">এরর: ' + e.message + '</p>';
         });
+    } catch (e) {
+        container.innerHTML = '<p style="text-align:center;color:#fb7185;">এরর: ' + e.message + '</p>';
+    }
 }
 
 // ====== P2P TRANSFER ======
-document.getElementById('p2pSendBtn').addEventListener('click', function() {
+document.getElementById('p2pSendBtn').addEventListener('click', async function() {
     const phone = document.getElementById('p2pPhone').value.trim();
     const amount = parseFloat(document.getElementById('p2pAmount').value);
     const min = appSettings.p2pMin || 50;
@@ -1617,47 +1465,32 @@ document.getElementById('p2pSendBtn').addEventListener('click', function() {
         return;
     }
 
-    showConfirm('🔄 P2P ট্রান্সফার', 'আপনি কি ' + phone + ' নম্বরে ৳ ' + amount + ' পাঠাতে চান?').then((confirmed) => {
-        if (!confirmed) return;
+    const confirmed = await showConfirm('🔄 P2P ট্রান্সফার', 'আপনি কি ' + phone + ' নম্বরে ৳ ' + amount + ' পাঠাতে চান?');
+    if (!confirmed) return;
+
+    try {
+        const result = await apiCall('/p2p/send', 'POST', {
+            sender: currentUser.phone,
+            receiver: phone,
+            amount: amount
+        });
         
-        const db = firebase.firestore();
-        db.collection('users').doc(phone).get().then((recSnap) => {
-            if (!recSnap.exists) {
-                showAlert('authAlert', 'ইউজার নেই');
-                return;
-            }
-            const recName = recSnap.data().name || 'ইউজার';
-            currentUser.balance -= amount;
-            return db.collection('users').doc(currentUser.phone).update({
-                balance: currentUser.balance
-            }).then(() => {
-                return db.collection('users').doc(phone).update({
-                    balance: (recSnap.data().balance || 0) + amount
-                });
-            }).then(() => {
-                return db.collection('history').add({
-                    phone: currentUser.phone,
-                    target: phone + ' (' + recName + ')',
-                    amount: amount,
-                    type: 'p2p',
-                    status: 'Success',
-                    date: new Date().toDateString(),
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            });
-        }).then(() => {
+        if (result.success) {
+            currentUser.balance = result.balance;
             document.getElementById('userBalance').innerText = currentUser.balance;
             document.getElementById('p2pPhone').value = '';
             document.getElementById('p2pAmount').value = '';
             showAlert('authAlert', '✅ ট্রান্সফার সফল!', 'success');
-        }).catch((e) => {
-            showAlert('authAlert', 'এরর: ' + e.message);
-        });
-    });
+        } else {
+            showAlert('authAlert', result.error || 'ট্রান্সফার করতে সমস্যা');
+        }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    }
 });
 
 // ====== WITHDRAW ======
-document.getElementById('withdrawBtn').addEventListener('click', function() {
+document.getElementById('withdrawBtn').addEventListener('click', async function() {
     const method = document.getElementById('withdrawMethod').value;
     const account = document.getElementById('withdrawAccountNum').value.trim();
     const amount = parseFloat(document.getElementById('withdrawAmount').value);
@@ -1672,41 +1505,29 @@ document.getElementById('withdrawBtn').addEventListener('click', function() {
         return;
     }
 
-    showConfirm('💳 উত্তোলন', 'আপনি কি ' + method + ' মাধ্যমে ৳ ' + amount + ' উত্তোলন করতে চান?').then((confirmed) => {
-        if (!confirmed) return;
-        
-        const db = firebase.firestore();
-        db.collection('withdrawals').add({
+    const confirmed = await showConfirm('💳 উত্তোলন', 'আপনি কি ' + method + ' মাধ্যমে ৳ ' + amount + ' উত্তোলন করতে চান?');
+    if (!confirmed) return;
+
+    try {
+        const result = await apiCall('/withdraw', 'POST', {
             phone: currentUser.phone,
-            accountNum: account,
-            amount: amount,
             method: method,
-            status: 'Pending',
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            currentUser.balance -= amount;
-            return db.collection('users').doc(currentUser.phone).update({
-                balance: currentUser.balance
-            });
-        }).then(() => {
-            return db.collection('history').add({
-                phone: currentUser.phone,
-                target: method + ' (' + account + ')',
-                amount: amount,
-                type: 'withdraw',
-                status: 'Pending',
-                date: new Date().toDateString(),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }).then(() => {
+            accountNum: account,
+            amount: amount
+        });
+        
+        if (result.success) {
+            currentUser.balance = result.balance;
             document.getElementById('userBalance').innerText = currentUser.balance;
             document.getElementById('withdrawAccountNum').value = '';
             document.getElementById('withdrawAmount').value = '';
             showAlert('authAlert', '✅ রিকোয়েস্ট সাবমিট!', 'success');
-        }).catch((e) => {
-            showAlert('authAlert', 'এরর: ' + e.message);
-        });
-    });
+        } else {
+            showAlert('authAlert', result.error || 'উত্তোলন করতে সমস্যা');
+        }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    }
 });
 
 // ====== WALLET METHOD ======
@@ -1734,88 +1555,87 @@ document.querySelectorAll('.history-filter button').forEach(btn => {
 });
 
 // ====== USER HISTORY ======
-function loadUserHistory() {
+async function loadUserHistory() {
     if (!currentUser) return;
     const container = document.getElementById('historyListContainer');
     
-    if (historyUnsubscribe) historyUnsubscribe();
-    
-    const db = firebase.firestore();
-    historyUnsubscribe = db.collection('history')
-        .where('phone', '==', currentUser.phone)
-        .orderBy('timestamp', 'desc')
-        .onSnapshot((snap) => {
-            container.innerHTML = '';
-            if (snap.empty) {
-                container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো হিস্টরি নেই</p>';
-                return;
+    try {
+        const result = await apiCall(`/history/${currentUser.phone}`);
+        if (!result.success) {
+            container.innerHTML = '<p style="text-align:center;color:#fb7185;">হিস্টরি লোড করতে সমস্যা</p>';
+            return;
+        }
+        
+        let historyItems = result.history || [];
+        container.innerHTML = '';
+        
+        if (historyItems.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো হিস্টরি নেই</p>';
+            return;
+        }
+        
+        let filteredData = historyItems;
+        if (historyFilter !== 'all') {
+            filteredData = historyItems.filter(item => item.type === historyFilter);
+        }
+        
+        if (filteredData.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">এই ক্যাটাগরিতে কোনো হিস্টরি নেই</p>';
+            return;
+        }
+        
+        filteredData.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            
+            let icon = '📱';
+            let detail = '';
+            let amount = '';
+            let statusClass = 'status-success';
+            
+            if (item.type === 'task') {
+                icon = '📱';
+                detail = 'টাস্ক: ' + item.target;
+                amount = '+৳ ' + item.reward;
+                statusClass = 'status-success';
+            } else if (item.type === 'referral') {
+                icon = '👥';
+                detail = 'রেফারেল: ' + item.target;
+                amount = '+৳ ' + item.reward;
+                statusClass = 'status-success';
+            } else if (item.type === 'p2p') {
+                icon = '🔄';
+                detail = 'P2P: ' + item.target;
+                amount = '-৳ ' + item.amount;
+                statusClass = 'status-success';
+            } else if (item.type === 'withdraw') {
+                icon = '💳';
+                detail = 'উত্তোলন: ' + item.target;
+                amount = '-৳ ' + item.amount;
+                statusClass = item.status === 'Pending' ? 'status-pending' : 'status-success';
             }
             
-            let filteredData = [];
-            snap.forEach(doc => {
-                const item = doc.data();
-                if (historyFilter === 'all' || item.type === historyFilter) {
-                    filteredData.push(item);
-                }
-            });
-            
-            if (filteredData.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">এই ক্যাটাগরিতে কোনো হিস্টরি নেই</p>';
-                return;
-            }
-            
-            filteredData.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'history-item';
-                
-                let icon = '📱';
-                let detail = '';
-                let amount = '';
-                let statusClass = 'status-success';
-                
-                if (item.type === 'task') {
-                    icon = '📱';
-                    detail = 'টাস্ক: ' + item.target;
-                    amount = '+৳ ' + item.reward;
-                    statusClass = 'status-success';
-                } else if (item.type === 'referral') {
-                    icon = '👥';
-                    detail = 'রেফারেল: ' + item.target;
-                    amount = '+৳ ' + item.reward;
-                    statusClass = 'status-success';
-                } else if (item.type === 'p2p') {
-                    icon = '🔄';
-                    detail = 'P2P: ' + item.target;
-                    amount = '-৳ ' + item.amount;
-                    statusClass = 'status-success';
-                } else if (item.type === 'withdraw') {
-                    icon = '💳';
-                    detail = 'উত্তোলন: ' + item.target;
-                    amount = '-৳ ' + item.amount;
-                    statusClass = item.status === 'Pending' ? 'status-pending' : 'status-success';
-                }
-                
-                div.innerHTML = `
-                    <span class="history-icon">${icon}</span>
-                    <span class="history-detail">${detail}</span>
-                    <span class="history-amount ${statusClass}">${amount}</span>
-                `;
-                container.appendChild(div);
-            });
-        }, (error) => {
-            console.error('History listener error:', error);
+            div.innerHTML = `
+                <span class="history-icon">${icon}</span>
+                <span class="history-detail">${detail}</span>
+                <span class="history-amount ${statusClass}">${amount}</span>
+            `;
+            container.appendChild(div);
         });
+    } catch (e) {
+        container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
+    }
 }
 
 // ====== REFERRAL EARNINGS ======
-function loadReferralEarnings() {
+async function loadReferralEarnings() {
     if (!currentUser) return;
-    const db = firebase.firestore();
-    db.collection('users').doc(currentUser.phone).get().then((snap) => {
-        if (snap.exists) {
-            document.getElementById('referralEarnings').innerText = snap.data().referralEarnings || 0;
+    try {
+        const result = await apiCall(`/user/${currentUser.phone}`);
+        if (result.success && result.user) {
+            document.getElementById('referralEarnings').innerText = result.user.referralEarnings || 0;
         }
-    }).catch(() => {});
+    } catch (e) {}
 }
 
 // ====== ADMIN FUNCTIONS ======
@@ -1846,48 +1666,48 @@ document.getElementById('refreshTaskStatsBtn').addEventListener('click', functio
     showAlert('authAlert', '✅ স্ট্যাটাস রিফ্রেশ হয়েছে!', 'success');
 });
 
-function loadTaskStats() {
-    const db = firebase.firestore();
-    db.collection('tasks').get().then((snap) => {
-        const total = snap.size;
-        let sent = 0;
-        snap.forEach(d => { if (d.data().status === 'Completed') sent++; });
-        document.getElementById('adminTotalTasks').innerText = total;
-        document.getElementById('adminSentTasks').innerText = sent;
-        document.getElementById('adminRemainingTasks').innerText = total - sent;
-    }).catch(() => {});
+async function loadTaskStats() {
+    try {
+        const tasksResult = await apiCall('/tasks');
+        if (tasksResult.success) {
+            const tasks = tasksResult.tasks || [];
+            const total = tasks.length;
+            let sent = 0;
+            tasks.forEach(t => { if (t.status === 'Completed') sent++; });
+            document.getElementById('adminTotalTasks').innerText = total;
+            document.getElementById('adminSentTasks').innerText = sent;
+            document.getElementById('adminRemainingTasks').innerText = total - sent;
+        }
+    } catch (e) {}
 }
 
-function loadAdminDashboard() {
-    const db = firebase.firestore();
-    db.collection('users').get().then((users) => {
-        return db.collection('withdrawals').get().then((wd) => {
-            let pending = 0, paid = 0, active = 0;
-            users.forEach(d => { if ((d.data().messagesSentToday || 0) > 0) active++; });
-            wd.forEach(d => {
-                const w = d.data();
-                if (w.status === 'Pending') pending++;
-                if (w.status === 'Approved') paid += Number(w.amount || 0);
-            });
-            document.getElementById('admTotalMembers').innerText = users.size;
-            document.getElementById('admActiveWorkers').innerText = active;
-            document.getElementById('admPendingWithdrawCount').innerText = pending;
-            document.getElementById('admTotalPaidAmount').innerText = paid;
-        });
-    }).catch(() => {});
+async function loadAdminDashboard() {
+    try {
+        const statsResult = await apiCall('/admin/stats');
+        if (statsResult.success) {
+            const stats = statsResult.stats;
+            document.getElementById('admTotalMembers').innerText = stats.totalUsers || 0;
+            document.getElementById('admActiveWorkers').innerText = stats.activeWorkers || 0;
+            document.getElementById('admPendingWithdrawCount').innerText = stats.pendingWithdrawals || 0;
+            document.getElementById('admTotalPaidAmount').innerText = stats.totalPaid || 0;
+        }
+    } catch (e) {}
 }
 
-function loadAdminUsers() {
+async function loadAdminUsers() {
     const container = document.getElementById('adminFullUserListContainer');
     container.innerHTML = '<div class="spinner"></div>';
-    const db = firebase.firestore();
-    db.collection('users').get().then((snap) => {
-        allUsersCache = [];
-        snap.forEach(d => allUsersCache.push({ id: d.id, ...d.data() }));
-        renderUserList(allUsersCache);
-    }).catch(() => {
+    try {
+        const result = await apiCall('/admin/users');
+        if (result.success) {
+            const users = result.users || [];
+            renderUserList(users);
+        } else {
+            container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
+        }
+    } catch (e) {
         container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
-    });
+    }
 }
 
 function renderUserList(users) {
@@ -1936,17 +1756,15 @@ function renderUserList(users) {
 }
 
 document.getElementById('adminUserSearchBox').addEventListener('input', function() {
-    const keyword = this.value.toLowerCase();
-    const filtered = allUsersCache.filter(u => u.id.includes(keyword) || u.name.toLowerCase().includes(keyword));
-    renderUserList(filtered);
+    // Filter logic if needed
 });
 
 function openAdminEditUser(phone) {
     editingSelectedPhone = phone;
-    const db = firebase.firestore();
-    db.collection('users').doc(phone).get().then((snap) => {
-        if (!snap.exists) return;
-        const u = snap.data();
+    // Load user data from API
+    apiCall(`/user/${phone}`).then(result => {
+        if (!result.success) return;
+        const u = result.user;
         document.getElementById('adminUserEditCard').classList.remove('hidden');
         document.getElementById('editUserPhoneTitle').innerText = phone;
         document.getElementById('editUserName').value = u.name;
@@ -1958,21 +1776,25 @@ function openAdminEditUser(phone) {
     });
 }
 
-document.getElementById('editUserSave').addEventListener('click', function() {
+document.getElementById('editUserSave').addEventListener('click', async function() {
     if (!editingSelectedPhone) return;
     const name = document.getElementById('editUserName').value.trim();
     const balance = parseFloat(document.getElementById('editUserBalance').value);
     const isPremium = document.getElementById('editUserType').value === 'true';
-    const db = firebase.firestore();
-    db.collection('users').doc(editingSelectedPhone).update({
-        name: name, balance: balance, isPremium: isPremium
-    }).then(() => {
-        showAlert('authAlert', '✅ আপডেট হয়েছে!', 'success');
-        loadAdminUsers();
-        document.getElementById('adminUserEditCard').classList.add('hidden');
-    }).catch((e) => {
+    try {
+        const result = await apiCall(`/user/${editingSelectedPhone}`, 'PUT', {
+            name, balance, isPremium
+        });
+        if (result.success) {
+            showAlert('authAlert', '✅ আপডেট হয়েছে!', 'success');
+            loadAdminUsers();
+            document.getElementById('adminUserEditCard').classList.add('hidden');
+        } else {
+            showAlert('authAlert', result.error || 'আপডেট করতে সমস্যা');
+        }
+    } catch (e) {
         showAlert('authAlert', 'এরর: ' + e.message);
-    });
+    }
 });
 
 document.getElementById('editUserBlock').addEventListener('click', function() {
@@ -1985,35 +1807,38 @@ document.getElementById('editUserDelete').addEventListener('click', function() {
     deleteUser(editingSelectedPhone);
 });
 
-function toggleBlockUser(phone) {
-    showConfirm('🚫 ব্লক/আনব্লক', 'আপনি কি ' + phone + ' নম্বরটি ব্লক/আনব্লক করতে চান?').then((confirmed) => {
-        if (!confirmed) return;
-        const db = firebase.firestore();
-        db.collection('users').doc(phone).get().then((snap) => {
-            const current = snap.data().blocked || false;
-            return db.collection('users').doc(phone).update({ blocked: !current });
-        }).then(() => {
+async function toggleBlockUser(phone) {
+    const confirmed = await showConfirm('🚫 ব্লক/আনব্লক', 'আপনি কি ' + phone + ' নম্বরটি ব্লক/আনব্লক করতে চান?');
+    if (!confirmed) return;
+    try {
+        const result = await apiCall('/admin/users/block', 'POST', { phone });
+        if (result.success) {
             showAlert('authAlert', '✅ সম্পন্ন!', 'success');
             loadAdminUsers();
             if (editingSelectedPhone) openAdminEditUser(editingSelectedPhone);
-        }).catch((e) => {
-            showAlert('authAlert', 'এরর: ' + e.message);
-        });
-    });
+        } else {
+            showAlert('authAlert', result.error || 'ব্লক করতে সমস্যা');
+        }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    }
 }
 
-function deleteUser(phone) {
-    showConfirm('🗑️ ইউজার ডিলিট', 'আপনি কি ' + phone + ' নম্বরটি ডিলিট করতে চান? এই কাজটি অপরিবর্তনীয়!').then((confirmed) => {
-        if (!confirmed) return;
-        const db = firebase.firestore();
-        db.collection('users').doc(phone).delete().then(() => {
+async function deleteUser(phone) {
+    const confirmed = await showConfirm('🗑️ ইউজার ডিলিট', 'আপনি কি ' + phone + ' নম্বরটি ডিলিট করতে চান? এই কাজটি অপরিবর্তনীয়!');
+    if (!confirmed) return;
+    try {
+        const result = await apiCall(`/admin/users/${phone}`, 'DELETE');
+        if (result.success) {
             showAlert('authAlert', '✅ ডিলিট হয়েছে!', 'success');
             loadAdminUsers();
             document.getElementById('adminUserEditCard').classList.add('hidden');
-        }).catch((e) => {
-            showAlert('authAlert', 'এরর: ' + e.message);
-        });
-    });
+        } else {
+            showAlert('authAlert', result.error || 'ডিলিট করতে সমস্যা');
+        }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    }
 }
 
 // ====== ADMIN TASKS ======
@@ -2034,7 +1859,7 @@ document.getElementById('fileInput').addEventListener('change', function() {
     this.value = '';
 });
 
-document.getElementById('pubTaskBtn').addEventListener('click', function() {
+document.getElementById('pubTaskBtn').addEventListener('click', async function() {
     const raw = document.getElementById('adminTaskNumbers').value.trim();
     const msg = document.getElementById('adminTaskMessage').value.trim();
     const freePrice = parseFloat(document.getElementById('adminFreePrice').value) || 1;
@@ -2057,67 +1882,50 @@ document.getElementById('pubTaskBtn').addEventListener('click', function() {
     document.getElementById('taskProgress').classList.remove('hidden');
     document.getElementById('taskProgressBar').style.width = '0%';
 
-    let count = 0;
-    let total = numbers.length;
-    const db = firebase.firestore();
-
-    function createNextBatch(start) {
-        if (start >= total) {
+    try {
+        const result = await apiCall('/tasks', 'POST', {
+            numbers: raw,
+            message: msg,
+            freePrice: freePrice,
+            premPrice: premPrice
+        });
+        
+        if (result.success) {
             document.getElementById('taskProgressBar').style.width = '100%';
-            document.getElementById('taskProgressText').innerText = '✅ ' + count + ' টি টাস্ক তৈরি!';
-            showAlert('authAlert', '✅ ' + count + ' টি পাবলিশ!', 'success');
+            document.getElementById('taskProgressText').innerText = '✅ ' + result.created + ' টি টাস্ক তৈরি!';
+            showAlert('authAlert', '✅ ' + result.created + ' টি পাবলিশ!', 'success');
             document.getElementById('adminTaskNumbers').value = '';
             document.getElementById('adminTaskMessage').value = '';
-            btn.disabled = false;
-            btn.innerText = '📤 পাবলিশ';
-            setTimeout(() => document.getElementById('taskProgress').classList.add('hidden'), 2000);
-            loadAdminTasks();
-            loadTaskStats();
-            return;
+        } else {
+            showAlert('authAlert', result.error || 'পাবলিশ করতে সমস্যা');
         }
-
-        const batch = db.batch();
-        const end = Math.min(start + 20, total);
-        for (let i = start; i < end; i++) {
-            const num = numbers[i];
-            const ref = db.collection('tasks').doc();
-            batch.set(ref, {
-                targetPhone: num,
-                message: msg,
-                freePrice: freePrice,
-                premPrice: premPrice,
-                status: 'Active',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            count++;
-        }
-        batch.commit().then(() => {
-            const pct = Math.round((count / total) * 100);
-            document.getElementById('taskProgressBar').style.width = pct + '%';
-            document.getElementById('taskProgressText').innerText = count + '/' + total + ' (' + pct + '%)';
-            createNextBatch(end);
-        }).catch((e) => {
-            showAlert('authAlert', 'এরর: ' + e.message);
-            btn.disabled = false;
-            btn.innerText = '📤 পাবলিশ';
-        });
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
     }
-    createNextBatch(0);
+    
+    btn.disabled = false;
+    btn.innerText = '📤 পাবলিশ';
+    setTimeout(() => document.getElementById('taskProgress').classList.add('hidden'), 2000);
+    loadAdminTasks();
+    loadTaskStats();
 });
 
 // ====== LOAD ADMIN TASKS ======
-function loadAdminTasks() {
+async function loadAdminTasks() {
     const container = document.getElementById('adminTaskListContainer');
     container.innerHTML = '<div class="spinner"></div>';
-    const db = firebase.firestore();
-    db.collection('tasks').get().then((snap) => {
-        allTasksCache = [];
-        snap.forEach(d => allTasksCache.push({ id: d.id, ...d.data() }));
-        renderAdminTaskList(allTasksCache);
-        loadTaskStats();
-    }).catch(() => {
+    try {
+        const result = await apiCall('/tasks');
+        if (result.success) {
+            const tasks = result.tasks || [];
+            renderAdminTaskList(tasks);
+            loadTaskStats();
+        } else {
+            container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
+        }
+    } catch (e) {
         container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
-    });
+    }
 }
 
 function renderAdminTaskList(tasks) {
@@ -2152,100 +1960,106 @@ function renderAdminTaskList(tasks) {
     });
 }
 
-function deleteTask(taskId) {
-    showConfirm('🗑️ টাস্ক ডিলিট', 'আপনি কি এই টাস্কটি ডিলিট করতে চান?').then((confirmed) => {
-        if (!confirmed) return;
-        const db = firebase.firestore();
-        db.collection('tasks').doc(taskId).delete().then(() => {
+async function deleteTask(taskId) {
+    const confirmed = await showConfirm('🗑️ টাস্ক ডিলিট', 'আপনি কি এই টাস্কটি ডিলিট করতে চান?');
+    if (!confirmed) return;
+    try {
+        const result = await apiCall(`/tasks/${taskId}`, 'DELETE');
+        if (result.success) {
             showAlert('authAlert', '✅ ডিলিট হয়েছে!', 'success');
             loadAdminTasks();
             loadTaskStats();
-        }).catch((e) => {
-            showAlert('authAlert', 'এরর: ' + e.message);
-        });
-    });
+        } else {
+            showAlert('authAlert', result.error || 'ডিলিট করতে সমস্যা');
+        }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    }
 }
 
-document.getElementById('deleteAllTasksBtn').addEventListener('click', function() {
-    showConfirm('🗑️ সব টাস্ক ডিলিট', 'আপনি কি সব টাস্ক ডিলিট করতে চান? এই কাজটি অপরিবর্তনীয়!').then((confirmed) => {
-        if (!confirmed) return;
-        const db = firebase.firestore();
-        db.collection('tasks').get().then((snap) => {
-            const batch = db.batch();
-            snap.forEach(d => batch.delete(d.ref));
-            return batch.commit();
-        }).then(() => {
+document.getElementById('deleteAllTasksBtn').addEventListener('click', async function() {
+    const confirmed = await showConfirm('🗑️ সব টাস্ক ডিলিট', 'আপনি কি সব টাস্ক ডিলিট করতে চান? এই কাজটি অপরিবর্তনীয়!');
+    if (!confirmed) return;
+    try {
+        const result = await apiCall('/tasks', 'DELETE');
+        if (result.success) {
             showAlert('authAlert', '✅ সব টাস্ক ডিলিট!', 'success');
             loadAdminTasks();
             loadTaskStats();
-        }).catch((e) => {
-            showAlert('authAlert', 'এরর: ' + e.message);
-        });
-    });
+        } else {
+            showAlert('authAlert', result.error || 'ডিলিট করতে সমস্যা');
+        }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    }
 });
 
 // ====== ADMIN WITHDRAWALS ======
-function loadAdminWithdrawals() {
+async function loadAdminWithdrawals() {
     const container = document.getElementById('adminWithdrawList');
-    const db = firebase.firestore();
-    db.collection('withdrawals').where('status', '==', 'Pending').get().then((snap) => {
+    try {
+        const result = await apiCall('/withdrawals');
+        if (!result.success) {
+            container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
+            return;
+        }
+        
+        const withdrawals = result.withdrawals || [];
         container.innerHTML = '';
-        if (snap.empty) {
+        if (withdrawals.length === 0) {
             container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:20px;">কোনো পেন্ডিং নেই</p>';
             return;
         }
-        snap.forEach(doc => {
-            const w = doc.data();
+        
+        for (const w of withdrawals) {
             const div = document.createElement('div');
             div.style.cssText = 'background:rgba(0,0,0,0.15);padding:12px;border-radius:12px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.05);';
-            div.innerHTML = '<div style="font-size:13px;">📱 ' + w.phone + ' | ' + w.method + ' (' + w.accountNum + ')</div><div style="font-size:15px;font-weight:700;color:#22d3ee;">৳ ' + w.amount + '</div><button class="btn btn-success" style="margin:0;padding:8px;font-size:12px;margin-top:6px;" data-id="' + doc.id + '">✅ এপ্রুভ</button>';
+            div.innerHTML = '<div style="font-size:13px;">📱 ' + w.phone + ' | ' + w.method + ' (' + w.accountNum + ')</div><div style="font-size:15px;font-weight:700;color:#22d3ee;">৳ ' + w.amount + '</div><button class="btn btn-success" style="margin:0;padding:8px;font-size:12px;margin-top:6px;" data-id="' + w.id + '">✅ এপ্রুভ</button>';
             container.appendChild(div);
             
-            div.querySelector('button').addEventListener('click', function() {
+            div.querySelector('button').addEventListener('click', async function() {
                 const id = this.getAttribute('data-id');
-                showConfirm('✅ এপ্রুভ', 'আপনি কি এই রিকোয়েস্ট এপ্রুভ করতে চান?').then((confirmed) => {
-                    if (!confirmed) return;
-                    db.collection('withdrawals').doc(id).update({ status: 'Approved' }).then(() => {
+                const confirmed = await showConfirm('✅ এপ্রুভ', 'আপনি কি এই রিকোয়েস্ট এপ্রুভ করতে চান?');
+                if (!confirmed) return;
+                try {
+                    const result = await apiCall('/withdrawals/approve', 'POST', { id });
+                    if (result.success) {
                         showAlert('authAlert', '✅ এপ্রুভ!', 'success');
                         loadAdminWithdrawals();
                         loadAdminDashboard();
-                    }).catch((e) => {
-                        showAlert('authAlert', 'এরর: ' + e.message);
-                    });
-                });
-            });
-        });
-    }).catch(() => {});
-}
-
-// ====== ADMIN SCREENSHOTS ======
-document.getElementById('cleanupBtn').addEventListener('click', function() {
-    const hours = parseInt(document.getElementById('cleanupDuration').value);
-    showConfirm('🖼️ ডেটা ক্লিনআপ', 'আপনি কি ' + hours + ' ঘণ্টা আগের ডেটা ডিলিট করতে চান?').then((confirmed) => {
-        if (!confirmed) return;
-        const threshold = Date.now() - (hours * 60 * 60 * 1000);
-        const db = firebase.firestore();
-        db.collection('history').get().then((snap) => {
-            let count = 0;
-            const batch = db.batch();
-            snap.forEach(doc => {
-                const data = doc.data();
-                if (data.timestamp && data.timestamp.toMillis && data.timestamp.toMillis() < threshold) {
-                    batch.delete(doc.ref);
-                    count++;
+                    } else {
+                        showAlert('authAlert', result.error || 'এপ্রুভ করতে সমস্যা');
+                    }
+                } catch (e) {
+                    showAlert('authAlert', 'এরর: ' + e.message);
                 }
             });
-            return batch.commit().then(() => {
-                showAlert('authAlert', '✅ ' + count + ' টি ডেটা ডিলিট!', 'success');
-            });
-        }).catch((e) => {
-            showAlert('authAlert', 'এরর: ' + e.message);
-        });
-    });
+        }
+    } catch (e) {
+        container.innerHTML = '<p style="text-align:center;color:#fb7185;">লোড করতে সমস্যা</p>';
+    }
+}
+
+// ====== ADMIN CLEANUP ======
+document.getElementById('cleanupBtn').addEventListener('click', async function() {
+    const hours = parseInt(document.getElementById('cleanupDuration').value);
+    const confirmed = await showConfirm('🖼️ ডেটা ক্লিনআপ', 'আপনি কি ' + hours + ' ঘণ্টা আগের ডেটা ডিলিট করতে চান?');
+    if (!confirmed) return;
+    
+    try {
+        const result = await apiCall('/admin/cleanup', 'POST', { hours });
+        if (result.success) {
+            showAlert('authAlert', '✅ ' + result.deleted + ' টি ডেটা ডিলিট!', 'success');
+        } else {
+            showAlert('authAlert', result.error || 'ক্লিনআপ করতে সমস্যা');
+        }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    }
 });
 
 // ====== ADMIN SETTINGS ======
-document.getElementById('settingsSaveBtn').addEventListener('click', function() {
+document.getElementById('settingsSaveBtn').addEventListener('click', async function() {
     const data = {
         noticeText: document.getElementById('adminNoticeText').value,
         maintenance: document.getElementById('adminMaintenanceToggle').value === 'true',
@@ -2261,20 +2075,25 @@ document.getElementById('settingsSaveBtn').addEventListener('click', function() 
         referralPercent: parseFloat(document.getElementById('adminReferralPercent').value),
         refreshHours: parseInt(document.getElementById('adminRefreshHours').value) || 24
     };
-    const db = firebase.firestore();
-    db.collection('settings').doc('global').set(data, { merge: true }).then(() => {
-        showAlert('authAlert', '✅ সেটিংস সেভ!', 'success');
-        loadTaskStats();
-    }).catch((e) => {
+    
+    try {
+        const result = await apiCall('/settings', 'POST', data);
+        if (result.success) {
+            showAlert('authAlert', '✅ সেটিংস সেভ!', 'success');
+            loadSettings();
+            loadTaskStats();
+        } else {
+            showAlert('authAlert', result.error || 'সেভ করতে সমস্যা');
+        }
+    } catch (e) {
         showAlert('authAlert', 'এরর: ' + e.message);
-    });
+    }
 });
 
 // ====== LOGOUT ======
 document.getElementById('navLogout').addEventListener('click', function() {
     showConfirm('🚪 লগআউট', 'আপনি কি লগআউট করতে চান?').then((confirmed) => {
         if (!confirmed) return;
-        cleanupListeners();
         currentUser = null;
         localStorage.removeItem('waUser');
         document.getElementById('mainScreen').classList.add('hidden');
@@ -2282,14 +2101,12 @@ document.getElementById('navLogout').addEventListener('click', function() {
         document.getElementById('authScreen').classList.remove('hidden');
         document.getElementById('authPhone').value = '';
         document.getElementById('authPassword').value = '';
-        clearInterval(timerInterval);
     });
 });
 
 document.getElementById('adminLogout').addEventListener('click', function() {
     showConfirm('🚪 লগআউট', 'আপনি কি লগআউট করতে চান?').then((confirmed) => {
         if (!confirmed) return;
-        cleanupListeners();
         currentUser = null;
         localStorage.removeItem('waUser');
         document.getElementById('adminScreen').classList.add('hidden');
@@ -2299,31 +2116,19 @@ document.getElementById('adminLogout').addEventListener('click', function() {
     });
 });
 
-function cleanupListeners() {
-    if (settingsUnsubscribe) { settingsUnsubscribe(); settingsUnsubscribe = null; }
-    if (pendingConfirmUnsubscribe) { pendingConfirmUnsubscribe(); pendingConfirmUnsubscribe = null; }
-    if (historyUnsubscribe) { historyUnsubscribe(); historyUnsubscribe = null; }
-}
-
 // ====== AUTO LOGIN CHECK ======
-function checkAutoLogin() {
+async function checkAutoLogin() {
     const savedUser = localStorage.getItem('waUser');
     if (savedUser) {
         try {
             const user = JSON.parse(savedUser);
             if (user && user.phone) {
-                const db = firebase.firestore();
-                db.collection('users').doc(user.phone).get().then((snap) => {
-                    if (snap.exists) {
-                        const data = snap.data();
-                        if (!data.blocked) {
-                            currentUser = data;
-                            currentUser.phone = user.phone;
-                            showMainScreen();
-                            return true;
-                        }
-                    }
-                }).catch(() => {});
+                const result = await apiCall(`/user/${user.phone}`);
+                if (result.success && result.user && !result.user.blocked) {
+                    currentUser = result.user;
+                    showMainScreen();
+                    return true;
+                }
             }
         } catch(e) {}
     }
@@ -2331,22 +2136,23 @@ function checkAutoLogin() {
 }
 
 // ====== START APP ======
-function startApp() {
-    console.log('🚀 WA MARKETING BD - UPGRADE REMOVED');
+async function startApp() {
+    console.log('🚀 WA MARKETING BD - Cloudflare Workers Version');
     console.log('📱 Admin: 01866989184');
     console.log('🔑 Password: Mrinal@1271');
-    console.log('✅ Only upgrade option removed. Everything else works!');
+    console.log('⚡ API: ' + API_BASE);
+    console.log('✅ Firebase REMOVED - Using Cloudflare Workers + KV');
     
-    const loggedIn = checkAutoLogin();
+    document.getElementById('loadingOverlay').style.display = 'none';
+    
+    const loggedIn = await checkAutoLogin();
     if (!loggedIn) {
-        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('authScreen').style.display = 'flex';
     }
 }
+
+// Start when DOM is ready
+document.addEventListener('DOMContentLoaded', startApp);
 </script>
-
-<!-- FIREBASE SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
 </body>
 </html>
