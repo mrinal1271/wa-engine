@@ -1,0 +1,7 @@
+name = "wa-engine"
+main = "src/index.js"
+compatibility_date = "2024-12-18"
+
+[[kv_namespaces]]
+binding = "WA_KV"
+id = "5523c87320d34ebab033f6e9930f28e5"
