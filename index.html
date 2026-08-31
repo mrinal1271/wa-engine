@@ -14,7 +14,6 @@
     <meta name="theme-color" content="#8b5cf6">
     
     <style>
-        /* ===== FULL CSS ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
@@ -156,6 +155,7 @@
         }
         .task-item .number { font-weight: 700; color: #22d3ee; flex: 1; }
         .task-item .reward { color: #34d399; font-weight: 700; }
+        .task-item .cooldown-timer { font-size: 11px; color: #fbbf24; font-weight: 600; }
         
         .history-item {
             padding: 10px 12px;
@@ -547,7 +547,6 @@
         }
         .drawer-item:hover { background: rgba(139,92,246,0.15); }
         
-        /* PWA Install Banner */
         .pwa-install-banner {
             position: fixed;
             bottom: 80px;
@@ -615,7 +614,6 @@
             padding: 0 4px;
         }
         
-        /* Popup Notice */
         .popup-notice {
             position: fixed;
             top: 0;
@@ -696,6 +694,40 @@
             accent-color: #8b5cf6;
             cursor: pointer;
         }
+        
+        .cooldown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 500;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .cooldown-overlay.show { display: flex; }
+        .cooldown-overlay .cooldown-box {
+            background: #1a1040;
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 320px;
+            width: 90%;
+            border: 1px solid rgba(139,92,246,0.2);
+        }
+        .cooldown-overlay .cooldown-box .timer {
+            font-size: 48px;
+            font-weight: 900;
+            color: #22d3ee;
+            margin: 10px 0;
+        }
+        .cooldown-overlay .cooldown-box .label {
+            font-size: 14px;
+            color: #94a3b8;
+        }
     </style>
 </head>
 <body>
@@ -704,6 +736,16 @@
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner-big"></div>
     <p>🔄 WA MARKETING BD লোড হচ্ছে...</p>
+</div>
+
+<!-- COOLDOWN OVERLAY -->
+<div class="cooldown-overlay" id="cooldownOverlay">
+    <div class="cooldown-box">
+        <div style="font-size:40px;">⏳</div>
+        <div class="label">পরবর্তী টাস্কের জন্য অপেক্ষা করুন</div>
+        <div class="timer" id="cooldownTimer">15</div>
+        <div class="label">সেকেন্ড</div>
+    </div>
 </div>
 
 <!-- POPUP NOTICE -->
@@ -728,7 +770,7 @@
 
 <div class="container" id="app">
     
-    <!-- ====== AUTH SCREEN ====== -->
+    <!-- AUTH SCREEN -->
     <div id="authScreen" class="content" style="display:flex;flex-direction:column;justify-content:center;">
         <div style="max-width:380px;margin:0 auto;width:100%;">
             <div style="text-align:center;margin-bottom:24px;">
@@ -748,7 +790,7 @@
         </div>
     </div>
 
-    <!-- ====== MAIN SCREEN ====== -->
+    <!-- MAIN SCREEN -->
     <div id="mainScreen" class="hidden" style="display:flex;flex-direction:column;height:100%;">
         <div class="notification-slider" id="notificationSlider">
             <div class="slide-item">🟢 রহিম ২০০ টাকা উত্তোলন করেছে</div>
@@ -769,7 +811,7 @@
             <div class="balance-box">৳ <span id="userBalance">0</span></div>
         </div>
         <div class="content">
-            <!-- ====== TASKS TAB ====== -->
+            <!-- TASKS TAB -->
             <div id="tab-tasks" class="tab-content">
                 <div class="card">
                     <h3>📢 <span>মার্কেটিং টাস্ক</span></h3>
@@ -779,32 +821,19 @@
                     </div>
                 </div>
                 
-                <div id="pendingConfirmBox" class="hidden pending-confirm-box">
-                    <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <span class="pending-label">⏳ পেন্ডিং কনফার্মেশন</span>
-                        <span class="task-status-pending">অপেক্ষমান</span>
-                    </div>
-                    <div class="pending-phone" id="pendingPhoneDisplay">📱 018XXXXXXXX</div>
-                    <div class="pending-msg" id="pendingMsgDisplay">মেসেজ লোড হচ্ছে...</div>
-                    <div style="display:flex;gap:10px;margin-top:10px;">
-                        <button class="btn btn-success" id="pendingConfirmBtn" style="margin:0;flex:1;padding:12px;font-size:13px;">✅ হ্যাঁ, মেসেজ পাঠিয়েছি</button>
-                        <button class="btn btn-danger" id="pendingCancelBtn" style="margin:0;flex:1;padding:12px;font-size:13px;">❌ বাতিল</button>
-                    </div>
-                </div>
-                
                 <div id="taskListContainer"></div>
             </div>
 
-            <!-- ====== CONFIRM TAB ====== -->
+            <!-- CONFIRM TAB -->
             <div id="tab-confirm" class="tab-content hidden">
                 <div class="card">
                     <h3>✅ <span>মেসেজ কনফার্মেশন</span></h3>
-                    <p style="color:#94a3b8;font-size:13px;">⚠️ এই ট্যাবটি আর ব্যবহার করা হয় না। টাস্ক পেজ থেকে কনফার্ম করুন।</p>
+                    <p style="color:#94a3b8;font-size:13px;">⚠️ এই সিস্টেমে কনফার্মেশন লাগে না। টাস্ক পেজ থেকে সরাসরি কাজ করুন।</p>
                     <button class="btn btn-accent" onclick="switchTab('tasks', document.querySelector('#navTasks'))">📢 টাস্ক পেজে যান</button>
                 </div>
             </div>
 
-            <!-- ====== P2P TAB ====== -->
+            <!-- P2P TAB -->
             <div id="tab-p2p" class="tab-content hidden">
                 <div class="card">
                     <h3>🔄 <span>P2P ট্রান্সফার</span></h3>
@@ -815,7 +844,7 @@
                 </div>
             </div>
 
-            <!-- ====== WALLET TAB ====== -->
+            <!-- WALLET TAB -->
             <div id="tab-wallet" class="tab-content hidden">
                 <div class="card">
                     <h3>💳 <span>উত্তোলন</span></h3>
@@ -836,7 +865,7 @@
                 </div>
             </div>
 
-            <!-- ====== SUPPORT TAB ====== -->
+            <!-- SUPPORT TAB -->
             <div id="tab-support" class="tab-content hidden">
                 <div class="card">
                     <h3>📋 <span>নিয়মাবলি</span></h3>
@@ -846,7 +875,7 @@
                 </div>
             </div>
 
-            <!-- ====== HISTORY TAB ====== -->
+            <!-- HISTORY TAB -->
             <div id="tab-history" class="tab-content hidden">
                 <div class="card">
                     <h3>📜 <span>হিস্টরি</span></h3>
@@ -864,7 +893,7 @@
             </div>
         </div>
 
-        <!-- ====== NAV BAR ====== -->
+        <!-- NAV BAR -->
         <div class="nav-bar">
             <button class="nav-item active" id="navTasks"><span class="icon">📢</span>টাস্ক</button>
             <button class="nav-item" id="navP2P"><span class="icon">🔄</span>P2P</button>
@@ -875,7 +904,7 @@
         </div>
     </div>
 
-    <!-- ====== ADMIN SCREEN ====== -->
+    <!-- ADMIN SCREEN -->
     <div id="adminScreen" class="hidden" style="display:flex;flex-direction:column;height:100%;position:relative;">
         <div class="admin-drawer" id="adminDrawer">
             <h3 style="margin-bottom:20px;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">⚙️ অ্যাডমিন</h3>
@@ -1072,7 +1101,7 @@
     </div>
 </div>
 
-<!-- ====== CONFIRM MODAL ====== -->
+<!-- CONFIRM MODAL -->
 <div id="confirmModal" class="modal-overlay hidden">
     <div class="modal-box">
         <h3 id="confirmTitle">🔔 নিশ্চিত করুন</h3>
@@ -1086,13 +1115,20 @@
 
 <script>
 // ============================================================
-// WA MARKETING BD - FULL VERSION (AUTO FIX INCLUDED)
+// WA MARKETING BD - DIRECT COMPLETE SYSTEM (NO CONFIRMATION)
 // ============================================================
 
 // ====== CONFIGURATION ======
 const API_BASE = 'https://wa-engine.mrinala30.workers.dev';
 const ADMIN_PHONE = "01866989184";
 const ADMIN_PASSWORD = "Mrinal@1271";
+let currentUser = null;
+let isRegisterMode = false;
+let historyFilter = 'all';
+let appSettings = {};
+let selectedTaskIds = new Set();
+let taskCooldown = false;
+let cooldownTimer = null;
 
 // ====== CONFIRMATION DIALOG ======
 let confirmResolve = null;
@@ -1112,13 +1148,6 @@ document.getElementById('confirmNoBtn').addEventListener('click', function() {
     document.getElementById('confirmModal').classList.add('hidden');
     if (confirmResolve) { confirmResolve(false); confirmResolve = null; }
 });
-
-// ====== GLOBALS ======
-let currentUser = null;
-let isRegisterMode = false;
-let historyFilter = 'all';
-let appSettings = {};
-let selectedTaskIds = new Set();
 
 // ====== SHOW ALERT ======
 function showAlert(id, message, type) {
@@ -1159,7 +1188,7 @@ async function apiCall(endpoint, method = 'GET', data = null) {
     } catch (e) { console.error('API Error:', e.message); throw e; }
 }
 
-// ====== AUTO FIX: Reset user limit on every page load ======
+// ====== AUTO FIX ======
 async function autoFixUserLimit() {
     if (!currentUser) return;
     try {
@@ -1370,7 +1399,6 @@ async function showMainScreen() {
     await loadUserTasks();
     await loadUserHistory();
     await loadReferralEarnings();
-    await checkPendingConfirmations();
     await checkPopupNotice();
     setInterval(updateNotificationSlider, 30000);
 }
@@ -1405,141 +1433,123 @@ async function checkUserTaskLimit() {
     } catch (e) { console.error('Check task limit error:', e); return { allowed: false, reason: 'error' }; }
 }
 
-// ====== START TASK ACTION ======
-function startTaskAction(taskId, phone, message, reward) {
-    const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 500) : (appSettings.freeDailyLimit || 100);
-    if ((currentUser.messagesSentToday || 0) >= limit) {
-        showAlert('authAlert', '⏰ লিমিট শেষ!');
+// ====== DIRECT COMPLETE TASK ======
+async function completeTaskDirect(taskId, phone, message, reward) {
+    if (taskCooldown) {
+        showAlert('authAlert', '⏳ দয়া করে অপেক্ষা করুন!');
         return;
     }
-    showConfirm('📤 মেসেজ পাঠান', 'আপনি কি ' + phone + ' নম্বরে মেসেজ পাঠাতে চান?').then(async (confirmed) => {
-        if (!confirmed) return;
-        try {
-            const result = await apiCall('/tasks/complete', 'POST', { phone: currentUser.phone, taskId, targetPhone: phone, message, reward });
-            if (result.success) {
-                window.open('https://wa.me/' + formatPhoneForWhatsApp(phone) + '?text=' + encodeURIComponent(message), '_blank');
-                switchTab('tasks', document.querySelector('#navTasks'));
-                checkPendingConfirmations();
-                showAlert('authAlert', '📤 মেসেজ পাঠান হয়েছে! ব্যাক করে কনফার্ম করুন', 'success');
-            } else {
-                showAlert('authAlert', result.error || 'টাস্ক শুরু করতে সমস্যা');
-            }
-        } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
-    });
-}
 
-// ====== PENDING CONFIRMATION ======
-async function checkPendingConfirmations() {
-    if (!currentUser) return;
+    // Show confirmation with warning
+    const confirmed = await showConfirm(
+        '⚠️ সতর্কতা!',
+        'আপনি কি নিশ্চিত যে আপনি মেসেজ পাঠিয়েছেন?\n\n⚠️ মেসেজ না পাঠালে উত্তোলনের সময় আপনার টাকা কেটে নেওয়া হবে!'
+    );
+    
+    if (!confirmed) return;
+
     try {
-        const result = await apiCall(`/pending/${currentUser.phone}`);
-        if (!result.success) return;
-        const pending = result.pending || [];
-        const box = document.getElementById('pendingConfirmBox');
-        const taskContainer = document.getElementById('taskListContainer');
-        if (pending.length === 0) { box.classList.add('hidden'); loadUserTasks(); return; }
-        const data = pending[0];
-        box.classList.remove('hidden');
-        document.getElementById('pendingPhoneDisplay').innerHTML = '📱 ' + data.targetPhone;
-        document.getElementById('pendingMsgDisplay').innerText = data.message;
-        if (taskContainer) {
-            taskContainer.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(245,158,11,0.05);border-radius:14px;border:1px solid rgba(245,158,11,0.1);">
-                <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ একটি কনফার্মেশন পেন্ডিং</p>
-                <p style="font-size:13px;color:#94a3b8;margin-top:6px;">উপরের বক্স থেকে কনফার্ম বা ক্যান্সেল করুন</p>
-            </div>`;
-        }
-        box.dataset.pendingId = data.id;
-        box.dataset.taskId = data.taskId || '';
-        box.dataset.reward = data.reward || 0;
-        box.dataset.targetPhone = data.targetPhone;
-    } catch (e) { console.error('Check pending error:', e); }
-}
+        // Call direct complete API
+        const result = await apiCall('/task/complete-direct', 'POST', {
+            phone: currentUser.phone,
+            taskId: taskId,
+            targetPhone: phone,
+            reward: reward,
+            message: message
+        });
 
-document.getElementById('pendingConfirmBtn').addEventListener('click', function() {
-    const box = document.getElementById('pendingConfirmBox');
-    const pendingId = box.dataset.pendingId;
-    const taskId = box.dataset.taskId;
-    const reward = parseFloat(box.dataset.reward) || 1;
-    const targetPhone = box.dataset.targetPhone;
-    if (!pendingId) return;
-    completePendingConfirmation(pendingId, taskId, reward, targetPhone);
-});
-
-document.getElementById('pendingCancelBtn').addEventListener('click', function() {
-    const box = document.getElementById('pendingConfirmBox');
-    const pendingId = box.dataset.pendingId;
-    if (!pendingId) return;
-    showConfirm('❌ ক্যান্সেল', 'আপনি কি কনফার্মেশন বাতিল করতে চান?').then((confirmed) => {
-        if (!confirmed) return;
-        cancelPendingConfirmation(pendingId);
-    });
-});
-
-async function completePendingConfirmation(pendingId, taskId, reward, targetPhone) {
-    try {
-        const box = document.getElementById('pendingConfirmBox');
-        box.classList.add('hidden');
-        const result = await apiCall('/pending/confirm', 'POST', { phone: currentUser.phone, pendingId, taskId, reward, targetPhone });
         if (result.success) {
+            // Update balance
             currentUser.balance = result.balance;
-            currentUser.messagesSentToday = (currentUser.messagesSentToday || 0) + 1;
+            currentUser.messagesSentToday = result.messagesSentToday;
             document.getElementById('userBalance').innerText = currentUser.balance;
             document.getElementById('taskCount').innerText = currentUser.messagesSentToday;
+            
             showAlert('authAlert', '✅ ৳ ' + reward + ' যোগ হয়েছে!', 'success');
-            loadUserTasks();
-            loadReferralEarnings();
+            
+            // Open WhatsApp
+            const formattedPhone = formatPhoneForWhatsApp(phone);
+            const waUrl = 'https://wa.me/' + formattedPhone + '?text=' + encodeURIComponent(message);
+            window.open(waUrl, '_blank');
+            
+            // Start cooldown
+            startCooldown();
+            
+            // Reload tasks
+            await loadUserTasks();
+            await loadReferralEarnings();
         } else {
-            showAlert('authAlert', result.error || 'কনফার্ম করতে সমস্যা');
+            showAlert('authAlert', result.error || 'সম্পন্ন করতে সমস্যা');
         }
-    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
+    } catch (e) {
+        showAlert('authAlert', 'এরর: ' + e.message);
+    }
 }
 
-async function cancelPendingConfirmation(pendingId) {
-    try {
-        const result = await apiCall('/pending/cancel', 'POST', { phone: currentUser.phone, pendingId });
-        if (result.success) {
-            document.getElementById('pendingConfirmBox').classList.add('hidden');
-            showAlert('authAlert', '❌ কনফার্মেশন বাতিল করা হয়েছে', 'warning');
+// ====== COOLDOWN SYSTEM ======
+function startCooldown() {
+    taskCooldown = true;
+    let seconds = 15;
+    const overlay = document.getElementById('cooldownOverlay');
+    const timer = document.getElementById('cooldownTimer');
+    
+    overlay.classList.add('show');
+    timer.innerText = seconds;
+    
+    cooldownTimer = setInterval(() => {
+        seconds--;
+        timer.innerText = seconds;
+        if (seconds <= 0) {
+            clearInterval(cooldownTimer);
+            overlay.classList.remove('show');
+            taskCooldown = false;
+            // Reload tasks after cooldown
             loadUserTasks();
-        } else {
-            showAlert('authAlert', result.error || 'বাতিল করতে সমস্যা');
         }
-    } catch (e) { showAlert('authAlert', 'এরর: ' + e.message); }
+    }, 1000);
 }
 
 // ====== USER TASKS ======
 async function loadUserTasks() {
     const container = document.getElementById('taskListContainer');
     container.innerHTML = '<div class="spinner"></div>';
+    
     try {
-        const pendingResult = await apiCall(`/pending/${currentUser.phone}`);
-        if (pendingResult.success && pendingResult.pending && pendingResult.pending.length > 0) {
-            container.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(245,158,11,0.05);border-radius:14px;border:1px solid rgba(245,158,11,0.1);">
-                <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ একটি কনফার্মেশন পেন্ডিং</p>
-                <p style="font-size:13px;color:#94a3b8;margin-top:6px;">উপরের বক্স থেকে কনফার্ম বা ক্যান্সেল করুন</p>
-            </div>`;
-            return;
-        }
         const limitResult = await checkUserTaskLimit();
         if (!limitResult.allowed) {
             if (limitResult.reason === 'wait') {
-                container.innerHTML = `<div class="wait-timer-box"><p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ অপেক্ষা করুন</p><p style="font-size:13px;color:#94a3b8;margin-top:6px;">আপনি ইতিমধ্যে কাজ সম্পন্ন করেছেন</p><div class="wait-hours">${limitResult.waitHours} ঘন্টা</div><p style="font-size:12px;color:#64748b;">পরবর্তী কাজ পেতে ${limitResult.waitHours} ঘন্টা অপেক্ষা করুন</p></div>`;
+                container.innerHTML = `<div class="wait-timer-box">
+                    <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏳ অপেক্ষা করুন</p>
+                    <p style="font-size:13px;color:#94a3b8;margin-top:6px;">আপনি ইতিমধ্যে কাজ সম্পন্ন করেছেন</p>
+                    <div class="wait-hours">${limitResult.waitHours} ঘন্টা</div>
+                    <p style="font-size:12px;color:#64748b;">পরবর্তী কাজ পেতে ${limitResult.waitHours} ঘন্টা অপেক্ষা করুন</p>
+                </div>`;
                 return;
             }
-            container.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;"><p style="font-size:15px;color:#fbbf24;font-weight:700;">⏰ লিমিট শেষ!</p><p style="font-size:13px;color:#94a3b8;">আজকের কাজ সম্পন্ন হয়েছে</p></div>`;
+            container.innerHTML = `<div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;">
+                <p style="font-size:15px;color:#fbbf24;font-weight:700;">⏰ লিমিট শেষ!</p>
+                <p style="font-size:13px;color:#94a3b8;">আজকের কাজ সম্পন্ন হয়েছে</p>
+            </div>`;
             return;
         }
+        
         const limit = currentUser.isPremium ? (appSettings.premiumDailyLimit || 500) : (appSettings.freeDailyLimit || 100);
         const completed = currentUser.messagesSentToday || 0;
         const remaining = limitResult.remaining || (limit - completed);
+        
         const tasksResult = await apiCall('/tasks');
-        if (!tasksResult.success) { container.innerHTML = '<p style="text-align:center;color:#fb7185;">টাস্ক লোড করতে সমস্যা</p>'; return; }
+        if (!tasksResult.success) {
+            container.innerHTML = '<p style="text-align:center;color:#fb7185;">টাস্ক লোড করতে সমস্যা</p>';
+            return;
+        }
+        
         const activeTasks = tasksResult.tasks || [];
         container.innerHTML = '';
         if (activeTasks.length === 0) {
             container.innerHTML = '<div style="text-align:center;padding:30px;background:rgba(0,0,0,0.15);border-radius:14px;"><p style="font-size:15px;color:#22d3ee;font-weight:700;">📭 কোনো টাস্ক নেই</p></div>';
             return;
         }
+        
         let count = 0;
         for (const task of activeTasks) {
             if (count >= remaining) break;
@@ -1549,17 +1559,35 @@ async function loadUserTasks() {
             div.innerHTML = `
                 <span class="number">📱 ${task.targetPhone}</span>
                 <span class="reward">৳ ${reward}</span>
-                <button class="btn btn-accent btn-sm" data-taskid="${task.id}" data-phone="${task.targetPhone}" data-msg="${task.message.replace(/"/g, '&quot;')}" data-reward="${reward}">✉️ পাঠান</button>
+                <button class="btn btn-success btn-sm" 
+                    data-taskid="${task.id}" 
+                    data-phone="${task.targetPhone}" 
+                    data-msg="${task.message.replace(/"/g, '&quot;')}" 
+                    data-reward="${reward}">
+                    ✉️ পাঠান ও গ্রহণ করুন
+                </button>
+                ${taskCooldown ? '<span class="cooldown-timer">⏳ ১৫সেকেন্ড অপেক্ষা করুন</span>' : ''}
             `;
             container.appendChild(div);
             count++;
         }
+        
         container.querySelectorAll('button').forEach(btn => {
             btn.addEventListener('click', function() {
-                startTaskAction(this.getAttribute('data-taskid'), this.getAttribute('data-phone'), this.getAttribute('data-msg'), parseInt(this.getAttribute('data-reward')));
+                if (taskCooldown) {
+                    showAlert('authAlert', '⏳ দয়া করে ১৫ সেকেন্ড অপেক্ষা করুন!');
+                    return;
+                }
+                const taskId = this.getAttribute('data-taskid');
+                const phone = this.getAttribute('data-phone');
+                const message = this.getAttribute('data-msg');
+                const reward = parseInt(this.getAttribute('data-reward'));
+                completeTaskDirect(taskId, phone, message, reward);
             });
         });
-    } catch (e) { container.innerHTML = '<p style="text-align:center;color:#fb7185;">এরর: ' + e.message + '</p>'; }
+    } catch (e) {
+        container.innerHTML = '<p style="text-align:center;color:#fb7185;">এরর: ' + e.message + '</p>';
+    }
 }
 
 // ====== P2P TRANSFER ======
@@ -2105,6 +2133,7 @@ document.getElementById('navLogout').addEventListener('click', function() {
         document.getElementById('authScreen').classList.remove('hidden');
         document.getElementById('authPhone').value = '';
         document.getElementById('authPassword').value = '';
+        if (cooldownTimer) clearInterval(cooldownTimer);
     });
 });
 
@@ -2117,6 +2146,7 @@ document.getElementById('adminLogout').addEventListener('click', function() {
         document.getElementById('authScreen').classList.remove('hidden');
         document.getElementById('authPhone').value = '';
         document.getElementById('authPassword').value = '';
+        if (cooldownTimer) clearInterval(cooldownTimer);
     });
 });
 
@@ -2150,7 +2180,7 @@ if ('serviceWorker' in navigator) {
 
 // ====== START APP ======
 async function startApp() {
-    console.log('🚀 WA MARKETING BD - AUTO FIX VERSION');
+    console.log('🚀 WA MARKETING BD - DIRECT COMPLETE SYSTEM');
     console.log('📱 Admin: 01866989184');
     console.log('🔑 Password: Mrinal@1271');
     document.getElementById('loadingOverlay').style.display = 'none';
